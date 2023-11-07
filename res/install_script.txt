@@ -1,0 +1,10 @@
+# installation script, replace $DEVICE_ID by actual ID
+
+id=$DEVICE_ID
+server_url=192.168.1.100:5000
+git_url=https://github.com/tobiasarens/blescan
+
+git clone $git_url
+cd blescan/wrapper
+
+echo "id = $id \n url = $server_url \n" > config.ini

@@ -1,0 +1,5 @@
+{
+    "used_ids": [41, 42, 44],
+    "coordinator": 44,
+    "internet": [44]
+}

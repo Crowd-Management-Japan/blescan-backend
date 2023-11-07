@@ -1,0 +1,45 @@
+{
+    "internet": {
+        "type": "object",
+        "properties": {
+            "use_internet": {
+                "type": "boolean",
+                "default": false
+            },
+            "internet_nodes": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                },
+                "default": []
+            }
+        }
+    },
+    "zigbee": {
+        "type": "object",
+        "properties": {
+            "use_zigbee": {
+                "type": "boolean",
+                "default": false
+            },
+            "controller": {
+                "type": "integer",
+                "default": 0
+            },
+            "internet": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                },
+                "default": []
+            },
+            "ids": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                },
+                "default": []
+            }
+        }
+    }
+}
