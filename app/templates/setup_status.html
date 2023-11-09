@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BleScan</title>
+</head>
+
+<body>
+    <h1>Configuration Status</h1>
+
+    
+    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
+    <!-- use htmx to update table -->
+    <button hx-get="status_item_table" hx-swap="innerHTML" hx-target="#item_table">
+        Update
+    </button>
+
+    <div id="item_table">
+        <table>
+            {% for item in data.data %}
+            <TR>
+               <TD class="c1">{{item.id}}</TD>
+               <TD class="c2"><SPAN>{{item.status}}</SPAN></TD>
+            </TR>
+            {% endfor %}
+            </table>
+            
+    </div>
+            
+                    
+        <!--script src="{{ url_for('static', filename='settings.js' ) }}"></script-->
+</body>
+
+</html>

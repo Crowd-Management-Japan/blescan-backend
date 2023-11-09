@@ -8,6 +8,7 @@
 
 <body>
     <h1>BleScan Controll Interface</h1>
+
     <div>
         <h2>Setup System</h2>
         <button onclick="window.location.href='setup';">
@@ -15,9 +16,13 @@
     </div>
     <div>
         <h2>Watch system</h2>
-        <button onclick="window.location.href='watch';">
-            Watch System</button>
     </div>
+
+    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
+    <!-- have a button POST a click via AJAX -->
+    <button hx-get="setup" hx-swap="innerHTML">
+        Click Me
+    </button>
 </body>
 
 </html>

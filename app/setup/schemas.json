@@ -12,6 +12,9 @@
                     "type": "integer"
                 },
                 "default": []
+            },
+            "url": {
+                "type": "string"
             }
         }
     },
@@ -22,8 +25,8 @@
                 "type": "boolean",
                 "default": false
             },
-            "controller": {
-                "type": "integer",
+            "coordinator": {
+                "type": ["integer", "null"],
                 "default": 0
             },
             "internet": {
@@ -39,6 +42,23 @@
                     "type": "integer"
                 },
                 "default": []
+            }
+        }
+    },
+    "full_settings": {
+        "type": "object",
+        "properties": {
+            "ids": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "internet": {
+                "type": "object"
+            },
+            "zigbee": {
+                "type": "object"
             }
         }
     }
