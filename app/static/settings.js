@@ -56,8 +56,6 @@ function gatherData() {
 function submitForm() {
     console.log("submitting data");
 
-    //var formData = new FormData(document.getElementById('settings_form'));
-
     formData = gatherData();
 
     console.log(formData);

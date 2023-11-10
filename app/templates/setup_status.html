@@ -12,9 +12,12 @@
     
     <script src="https://unpkg.com/htmx.org@1.9.8"></script>
     <!-- use htmx to update table -->
-    <button hx-get="status_item_table" hx-swap="innerHTML" hx-target="#item_table">
+    <button id="btnUpdate" hx-get="status_item_table" hx-swap="innerHTML" hx-target="#item_table">
         Update
     </button>
+
+    <label>Last updated:</label>
+    <label id="update_timestamp">XX</label> <br>
 
     <div id="item_table">
         <table>
@@ -28,8 +31,19 @@
             
     </div>
             
-                    
-        <!--script src="{{ url_for('static', filename='settings.js' ) }}"></script-->
+    <script>
+
+        function updateData() {
+            time = new Date().toLocaleTimeString();
+
+            document.getElementById("btnUpdate").click();
+
+            document.getElementById("update_timestamp").innerHTML = time;
+        }
+
+        setInterval(updateData, 5000);
+        updateData();
+    </script>
 </body>
 
 </html>
