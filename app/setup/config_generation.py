@@ -37,12 +37,12 @@ class ConfigGenerator:
     def reset(self):
         with open(self.basic_config_path) as file:
             self.basic_config = file.read()
-
+        self.prepared = ''
         self._config = self.load_config()
 
     def generate(self):
         now = int(time.time())
-        for id in self.ids:
+        for id in self._config['ids']:
             self._device_updates[id] = now
 
         self.prepared = self.basic_config.replace('$LAST_UPDATED', f'{now}')
@@ -80,7 +80,7 @@ class ConfigGenerator:
             net['ids'] = []
 
     def set_ids(self, ids: List[int]):
-        self.ids = ids
+        self._config['ids'] = ids
         self._device_status = {id: 'waiting' for id in ids}
 
     def get_zigbee_data(self):
@@ -96,8 +96,8 @@ class ConfigGenerator:
         return json.loads(json.dumps(self._config))
 
     def prepare_zigbee(self):
+        logging.debug("preparing zigbee data")
         config = self.prepared
-
         config = config.replace('$ZIGBEE_INTERNET', ','.join([str(_) for _ in self._config['zigbee']['internet']]))
         self.prepared = config
 
@@ -108,11 +108,13 @@ class ConfigGenerator:
         self.prepared = config
 
     def get_config_for_id(self, id: int) -> str:
-        
+        if self.prepared == '':
+            return ''
+
         if id not in self._config['ids']:
             return ''
 
-        config = self.basic_config.replace('$ID', str(id))
+        config = self.prepared.replace('$ID', str(id))
 
         config = config.replace('$USE_ZIGBEE', f"{1 if id in self._config['zigbee']['ids'] else 0}")
         config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")

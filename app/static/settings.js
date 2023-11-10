@@ -2,6 +2,7 @@ function splitStringtoArray(inputString) {
     if (inputString == "" || inputString == null) {
         return [];
     }
+    console.log("Splitting string: " + inputString);
     let result = [];
     // remove all spaces first
     inputString.replace(' ', ''); 
@@ -25,33 +26,29 @@ function splitStringtoArray(inputString) {
     return result;
 }
 
-function formatFormData(form) {
+function gatherData() {
 
-    let use_internet = form.get("use_internet") == "on"
-    let use_zigbee = form.get("use_zigbee") == "on"
-
-    let format = {
-        ids: splitStringtoArray(form.get("ids")),
-        internet: {
-            use_internet: use_internet,
-            url: form.get("url"),
-            ids: splitStringtoArray(form.get("internet"))
-        },
-        zigbee: {
-            use_zigbee: use_zigbee,
-            coordinator: parseInt(form.get("zigbee_coordinator")),
-            internet: splitStringtoArray(form.get("zigbee_internet")),
-            ids: splitStringtoArray(form.get("zigbee_ids"))
-        }
+    function get(name) {
+        return document.getElementById(name).value;
     }
 
+    function sget(name) {
+        return splitStringtoArray(get(name));
+    }
 
-    return format;  // For example, returning true for valid data
-}
-
-function gatherData() {
     let data = {
-        ids: splitStringtoArray(document.getElementById("ids").textContent)
+        ids: sget("ids"),
+        internet: {
+            enable: get("use_internet") == "on",
+            url: get("url"),
+            ids: sget("internet_ids")
+        },
+        zigbee: {
+            enable: get("use_zigbee") == "on",
+            coordinator: parseInt(get("zigbee_coordinator")),
+            internet: sget("zigbee_internet"),
+            ids: sget("zigbee_ids")
+        }
     }
     return data
 }
@@ -64,7 +61,6 @@ function submitForm() {
     formData = gatherData();
 
     console.log(formData);
-
     fetch('/setup', {
         method: 'POST',
         body: JSON.stringify(formData),
@@ -81,20 +77,4 @@ function submitForm() {
     }).catch(error => {
         console.error('Error:', error);
     })
-
-    /*
-    fetch('/setup', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Handle the response from the server
-        console.log('Server Response:', data);
-    })
-    .catch(error => {
-        // Handle errors
-        console.error('Error:', error);
-    });
-    */
 }
