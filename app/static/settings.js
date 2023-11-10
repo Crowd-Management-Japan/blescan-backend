@@ -1,5 +1,5 @@
 function splitStringtoArray(inputString) {
-    if (inputString == "") {
+    if (inputString == "" || inputString == null) {
         return [];
     }
     let result = [];
@@ -49,12 +49,19 @@ function formatFormData(form) {
     return format;  // For example, returning true for valid data
 }
 
-function submitForm(event) {
-    event.preventDefault(); // Prevents the form from submitting in the traditional way
+function gatherData() {
+    let data = {
+        ids: splitStringtoArray(document.getElementById("ids").textContent)
+    }
+    return data
+}
 
-    var formData = new FormData(document.getElementById('settings_form'));
+function submitForm() {
+    console.log("submitting data");
 
-    formData = formatFormData(formData);
+    //var formData = new FormData(document.getElementById('settings_form'));
+
+    formData = gatherData();
 
     console.log(formData);
 
@@ -91,6 +98,3 @@ function submitForm(event) {
     });
     */
 }
-
-// Attach the submitForm function to the form's submit event
-document.getElementById('settings_form').addEventListener('submit', submitForm);

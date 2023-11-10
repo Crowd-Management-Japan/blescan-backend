@@ -2,7 +2,7 @@
     "internet": {
         "type": "object",
         "properties": {
-            "use_internet": {
+            "enable": {
                 "type": "boolean",
                 "default": false
             },
@@ -21,7 +21,7 @@
     "zigbee": {
         "type": "object",
         "properties": {
-            "use_zigbee": {
+            "enable": {
                 "type": "boolean",
                 "default": false
             },

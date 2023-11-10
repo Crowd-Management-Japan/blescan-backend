@@ -8,6 +8,7 @@ import logging
 
 def get_empty_config():
     return {
+        'ids': [],
         'internet': {
             'enable': False,
             'ids': [],
@@ -20,6 +21,8 @@ def get_empty_config():
             'ids': []
         }
     }
+
+
 
 class ConfigGenerator:
 
@@ -42,7 +45,7 @@ class ConfigGenerator:
         for id in self.ids:
             self._device_updates[id] = now
 
-        self.prepared = self.prepared.replace('$LAST_UPDATED', f'{now}')
+        self.prepared = self.basic_config.replace('$LAST_UPDATED', f'{now}')
 
         self.prepare_internet()
         self.prepare_zigbee()
@@ -50,6 +53,10 @@ class ConfigGenerator:
 
         logging.info(f"Generated new config at {now}")
 
+    def set_config(self, config: Dict):
+        self.set_ids(config.get('ids', []))
+        self.set_zigbee_config(config.get('zigbee', {}))
+        self.set_internet_data(config.get('internet', {}))
 
     def set_zigbee_config(self, zigbee: Dict):
         zig = self._config['zigbee']
@@ -78,11 +85,15 @@ class ConfigGenerator:
 
     def get_zigbee_data(self):
         # thread safe deep copy
-        return json.load(json.dump(self._config['zigbee']))
+        return json.loads(json.dumps(self._config['zigbee']))
     
     def get_internet_data(self):
         # thread safe deep copy
-        return json.load(json.dump(self._config['internet']))
+        return json.loads(json.dumps(self._config['internet']))
+    
+    def get_config(self):
+        # thread safe deep copy
+        return json.loads(json.dumps(self._config))
 
     def prepare_zigbee(self):
         config = self.prepared
@@ -92,12 +103,15 @@ class ConfigGenerator:
 
     def prepare_internet(self):
         config = self.prepared
-        config = config.replace('$INTERNET_URL', self.internet_data['url'])
+        config = config.replace('$INTERNET_URL', self._config['internet']['url'])
 
         self.prepared = config
 
     def get_config_for_id(self, id: int) -> str:
         
+        if id not in self._config['ids']:
+            return ''
+
         config = self.basic_config.replace('$ID', str(id))
 
         config = config.replace('$USE_ZIGBEE', f"{1 if id in self._config['zigbee']['ids'] else 0}")
@@ -129,7 +143,7 @@ class ConfigGenerator:
     def save_config(self, config):
         #logging.debug("saving config {}", config)
         with open(self.last_config_path, 'w') as file:
-            file.write(json.dump(config, file, indent=2))
+            json.dump(config, file, indent=2)
         
     def load_config(self):
         try:

@@ -3,6 +3,8 @@ from . import config_generation
 import json
 from jsonschema import validate, ValidationError
 
+from ..util import compact_int_list_string
+
 setup_bp = Blueprint('setup', __name__)
 
 _generator = config_generation.ConfigGenerator()
@@ -10,9 +12,11 @@ _generator = config_generation.ConfigGenerator()
 with open('app/setup/schemas.json', 'r') as schemas_file:
     _schemas = json.load(schemas_file)
 
-@setup_bp.route('/')
-def setup():
-    return render_template('settings.html')
+##########################################
+#   
+#   Data endpoints
+#   v   v   v   v  
+##########################################
 
 @setup_bp.route('/', methods=['POST'])
 def set_config_data():
@@ -22,22 +26,18 @@ def set_config_data():
 
     try:
         validate(data, _schemas.get('full_settings'))
-        validate(data['internet'], _schemas.get('internet'))
-        validate(data['zigbee'], _schemas.get('zigbee'))
+        if data.get('internet', None):
+            validate(data['internet'], _schemas.get('internet'))
+        if data.get('zigbee', None):
+            validate(data['zigbee'], _schemas.get('zigbee'))
     except ValidationError as e:
         print("Error validating data")
         print(e)
         return "Invalid format", 400
     print(data)
 
-    zigbee = data['zigbee']
-    internet = data['internet']
-
     _generator.reset()
-    _generator.set_ids(data['ids'])
-    _generator.set_internet_data(internet)
-    _generator.set_zigbee_config(zigbee)
-
+    _generator.set_config(data)
     _generator.generate()
 
     return redirect('/setup/status')
@@ -46,6 +46,42 @@ def set_config_data():
 def setup_completed_callback(id: int):
     _generator.set_status_ok(id)
     return "updated"
+
+@setup_bp.route('/zigbee', methods=['GET'])
+def get_zigbee_config():
+    filename = 'res/zigbee_sample.txt'
+    with open(filename) as file:
+        data = json.load(file)
+        return data
+
+@setup_bp.route('/last_updated/<int:id>')
+def last_changed(id: int):
+    return jsonify(last_changed = _generator.last_updated(id))
+
+@setup_bp.route('/current')
+def get_current_config():
+    return _generator.get_config()
+
+@setup_bp.route('/config_<int:id>')
+def get_config(id: int):
+    id = int(id)
+    return _generator.get_config_for_id(id)
+
+##########################################
+#   
+#   Template render endpoints
+#   v   v   v   v   v   v   v
+##########################################
+
+@setup_bp.route('/')
+def setup():
+    last_config = _generator.get_config()
+    # format data for template
+    last_config['ids'] = compact_int_list_string(last_config['ids'])
+    last_config['internet']['ids'] = compact_int_list_string(last_config['internet']['ids'])
+    last_config['zigbee']['ids'] = compact_int_list_string(last_config['zigbee']['ids'])
+
+    return render_template('settings.html', config=last_config)
 
 @setup_bp.route('/status', methods=['GET'])
 def status_page():
@@ -65,35 +101,6 @@ def get_item_table():
     print(f"status: {items}")
     data= {'data':items}
     return render_template('setup_item_table.html', data=data)
-
-@setup_bp.route('/zigbee', methods=['POST'])
-def define_zigbee():
-    data = request.get_json()
-
-    schema = _schemas.get('zigbee')
-
-    validate(instance=data, schema=schema)
-
-    print(data)
-
-    _generator.set_zigbee_config(data)
-    return "ok"
-
-@setup_bp.route('/zigbee', methods=['GET'])
-def get_zigbee_config():
-    filename = 'res/zigbee_sample.txt'
-    with open(filename) as file:
-        data = json.load(file)
-        return data
-
-@setup_bp.route('/last_updated/<int:id>')
-def last_changed(id: int):
-    return jsonify(last_changed = _generator.last_updated(id))
-
-@setup_bp.route('/config_<int:id>')
-def get_config(id: int):
-    id = int(id)
-    return _generator.get_config_for_id(id)
 
 @setup_bp.route('/install_<int:id>')
 def get_installation_script(id: int):
