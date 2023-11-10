@@ -6,7 +6,7 @@
                 "type": "boolean",
                 "default": false
             },
-            "internet_nodes": {
+            "ids": {
                 "type": "array",
                 "items": {
                     "type": "integer"

@@ -35,7 +35,7 @@ function formatFormData(form) {
         internet: {
             use_internet: use_internet,
             url: form.get("url"),
-            internet_nodes: splitStringtoArray(form.get("internet"))
+            ids: splitStringtoArray(form.get("internet"))
         },
         zigbee: {
             use_zigbee: use_zigbee,

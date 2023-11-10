@@ -1,0 +1,13 @@
+{
+  "internet": {
+    "enable": false,
+    "ids": [],
+    "url": ""
+  },
+  "zigbee": {
+    "enable": false,
+    "coordinator": -1,
+    "internet": [],
+    "ids": []
+  }
+}
