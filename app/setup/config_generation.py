@@ -1,9 +1,25 @@
-import logging
 import datetime
 import time
 
 from typing import Dict, List
+from flask import current_app
+import json
 import logging
+
+def get_empty_config():
+    return {
+        'internet': {
+            'enable': False,
+            'ids': [],
+            'url': ''
+        },
+        'zigbee': {
+            'enable': False,
+            'coordinator': -1,
+            'internet': [],
+            'ids': []
+        }
+    }
 
 class ConfigGenerator:
 
@@ -11,8 +27,15 @@ class ConfigGenerator:
     _device_status = {}
 
     def __init__(self):
+        self.last_config_path = 'res/last_config.json'
         self.basic_config_path = 'res/default_config.ini'
         self.reset()
+
+    def reset(self):
+        with open(self.basic_config_path) as file:
+            self.basic_config = file.read()
+
+        self._config = self.load_config()
 
     def generate(self):
         now = int(time.time())
@@ -23,36 +46,48 @@ class ConfigGenerator:
 
         self.prepare_internet()
         self.prepare_zigbee()
+        self.save_config(self._config)
 
-        print(f"Generated new config at {now}")
+        logging.info(f"Generated new config at {now}")
 
 
     def set_zigbee_config(self, zigbee: Dict):
-        self.zigbee_data = zigbee
-        if not zigbee['use_zigbee']:
-            self.zigbee_data['ids'] = []
+        zig = self._config['zigbee']
+
+        zig['ids'] = zigbee.get('ids', [])
+        zig['internet'] = zigbee.get('internet', [])
+        zig['coordinator'] = zigbee.get('coordinator', -1)
+        zig['enable'] = zigbee.get('enable', False)
+
+        if not zig['enable']:
+            zig['ids'] = []
 
     def set_internet_data(self, data: Dict):
-        self.internet_data = data
-        if not data['use_internet']:
-            self.internet_data['ids'] = []
+        net = self._config['internet']
+
+        net['ids'] = data.get('ids', [])
+        net['url'] = data.get('url', '')
+        net['enable'] = data.get('enable', False)
+
+        if not net['enable']:
+            net['ids'] = []
 
     def set_ids(self, ids: List[int]):
         self.ids = ids
         self._device_status = {id: 'waiting' for id in ids}
 
-    def reset(self):
-        with open(self.basic_config_path) as file:
-            self.basic_config = file.read()
-        self.zigbee_data = {'use_zigbee': False,'coordinator': 0, 'internet': [], 'ids': []}
-        self.internet_data = {'use_internet': False, 'url': '', 'ids': []}
-        self.ids = []
-        self.prepared = self.basic_config
+    def get_zigbee_data(self):
+        # thread safe deep copy
+        return json.load(json.dump(self._config['zigbee']))
+    
+    def get_internet_data(self):
+        # thread safe deep copy
+        return json.load(json.dump(self._config['internet']))
 
     def prepare_zigbee(self):
         config = self.prepared
 
-        config = config.replace('$ZIGBEE_INTERNET', ','.join([str(_) for _ in self.zigbee_data['internet']]))
+        config = config.replace('$ZIGBEE_INTERNET', ','.join([str(_) for _ in self._config['zigbee']['internet']]))
         self.prepared = config
 
     def prepare_internet(self):
@@ -65,10 +100,10 @@ class ConfigGenerator:
         
         config = self.basic_config.replace('$ID', str(id))
 
-        config = config.replace('$USE_ZIGBEE', f"{1 if self.zigbee_data['use_zigbee'] else 0}")
-        config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self.zigbee_data['coordinator'] else 0}")
+        config = config.replace('$USE_ZIGBEE', f"{1 if id in self._config['zigbee']['ids'] else 0}")
+        config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
 
-        config = config.replace('$USE_INTERNET', f"{1 if id in self.internet_data['ids'] else 0}")
+        config = config.replace('$USE_INTERNET', f"{1 if id in self._config['internet']['ids'] else 0}")
 
         self._device_status[id] = 'requested'
 
@@ -85,8 +120,27 @@ class ConfigGenerator:
     def get_device_status_all(self):
         return self._device_status
     
-    def last_updated(self, id: int) -> datetime.datetime:
+    def last_updated(self, id: int) -> int:
         if id in self._device_updates.keys():
             return self._device_updates[id]
         else:
             return 0
+        
+    def save_config(self, config):
+        #logging.debug("saving config {}", config)
+        with open(self.last_config_path, 'w') as file:
+            file.write(json.dump(config, file, indent=2))
+        
+    def load_config(self):
+        try:
+            with open(self.last_config_path, 'a+') as file:
+                file.seek(0)
+                last = json.load(file)
+                logging.debug("last config found: {last}")
+                return last
+        except json.JSONDecodeError: 
+            pass
+        conf = get_empty_config()
+        self.save_config(conf)
+        return conf
+        
