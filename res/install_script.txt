@@ -2,25 +2,39 @@
 
 # this installation is very special for raspberry pis in tokyo lab
 
+# disable old blescan
+sudo systemctl disable blescan.service
+sudo systemctl stop blescan.service
+
 id=$DEVICE_ID
 server_url=192.168.1.100:5000
 git_url=git@github.com:tobiasarens/blescan.git
 
 # install basic packages needed
-sudo apt install git python3-virtualenv
+sudo apt update -y
+sudo apt upgrade -y
+sudo apt install vim git python3-venv -y  
+
+echo -------- apt installation done -------- 
 
 # add user to bluetooth group, such that blescan can be executed without sudo
 sudo usermod -a -G bluetooth `whoami`
 
 git clone $git_url
-cd blescan
-git checkout wrapper
+cd ./blescan
 
-echo "id = $id \n url = $server_url \n" > wrapper/config.ini
+pwd
+
+echo -------- creating python environment --------
 
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+
+pip install -r blescan/requirements.txt
+
+echo -------- running install.py -------
+
+python etc/install.py $id $server_url
 
 # add to autostart
 
