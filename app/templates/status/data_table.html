@@ -1,0 +1,17 @@
+<table>
+
+    <TR>
+        <TD>ID</TD>
+        <td>last updated</td>
+    </TR>
+
+    {% for item in data.data %}
+
+    <TR>
+        <TD class="c1">{{item.id}}</TD>
+        <TD>{{item.last_updated}}</TD>
+    </TR>
+
+    {% endfor %}
+
+</table>
