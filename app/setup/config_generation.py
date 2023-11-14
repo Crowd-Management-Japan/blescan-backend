@@ -33,6 +33,7 @@ class ConfigGenerator:
         self.last_config_path = 'res/last_config.json'
         self.basic_config_path = 'res/default_config.ini'
         self.reset()
+        self.generate()
 
     def reset(self):
         with open(self.basic_config_path) as file:
@@ -109,10 +110,12 @@ class ConfigGenerator:
 
     def get_config_for_id(self, id: int) -> str:
         if self.prepared == '':
-            return ''
+            logging.debug("prepared string is empty")
+            return 'error: data was not perpared', 500
 
         if id not in self._config['ids']:
-            return ''
+            logging.debug("given ID not present in used devices")
+            return 'given ID not present in used devices', 400
 
         config = self.prepared.replace('$ID', str(id))
 

@@ -43,7 +43,7 @@ def set_config_data():
 
     return redirect('/setup/status')
 
-@setup_bp.route('/completed_<int:id>')
+@setup_bp.route('/completed_<int:id>', methods=['POST'])
 def setup_completed_callback(id: int):
     _generator.set_status_ok(id)
     return "updated"
