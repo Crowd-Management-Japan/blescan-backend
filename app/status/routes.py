@@ -13,7 +13,16 @@ def getStatus():
     data = {}
     return render_template('status/status.html')
 
+@status_bp.route('/update', methods = ['POST'])
+def update_status():
+    logging.debug("received post request")
+    logging.debug(request.get_data())
+    data = request.get_json()
+
+    _dataReceiver.set_data(data)
+    return "ok", 200
+
 @status_bp.route('/status_last_updated_table')
 def get_status_table():
-    data = {}
-    return render_template('status/data_table.html', data=data)
+    data = {'data': _dataReceiver.get_data_online_first()}
+    return render_template('status/status_table.html', data=data)

@@ -1,0 +1,23 @@
+<table style="width: 40%;" border="2" cellpadding="4">
+
+    <TR>
+        <TD>ID</TD>
+        <td>Count</td>
+        <td>avg RSSI</td>
+        <td>last updated</td>
+        <td>online</td>
+    </TR>
+
+    {% for item in data.data %}
+
+    <TR>
+        <TD class="c1">{{item.id}}</TD>
+        <td>{{item.count}}</td>
+        <td>{{item.avgRSSI}}</td>
+        <TD>{{item.last_updated}}</TD>
+        <td>{{item.is_online}}</td>
+    </TR>
+
+    {% endfor %}
+
+</table>

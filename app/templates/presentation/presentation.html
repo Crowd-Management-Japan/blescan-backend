@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BleScan</title>
+</head>
+
+<body>
+    <h1>Blescan Data</h1>
+
+    
+    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
+    <!-- use htmx to update table -->
+    <button id="btnUpdate" hx-get="data_table" hx-swap="innerHTML" hx-target="#item_table">
+        Update
+    </button>
+
+    <label>Last updated:</label>
+    <label id="update_timestamp">XX</label> <br>
+
+    <div id="item_table">
+    </div>
+            
+    <script>
+
+        function updateData() {
+            time = new Date().toLocaleTimeString();
+
+            document.getElementById("btnUpdate").click();
+
+            document.getElementById("update_timestamp").innerHTML = time;
+        }
+
+        setInterval(updateData, 5000);
+        updateData();
+    </script>
+</body>
+
+</html>
