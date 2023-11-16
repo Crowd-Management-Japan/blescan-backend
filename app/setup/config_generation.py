@@ -68,6 +68,9 @@ class ConfigGenerator:
         zig['coordinator'] = zigbee.get('coordinator', -1)
         zig['enable'] = zigbee.get('enable', False)
 
+        # default pan should not be 0 because 0 is a special zigbee id for automatically searching free network
+        zig['pan'] = zigbee.get('pan', 1)
+
         if not zig['enable']:
             zig['ids'] = []
 
@@ -122,6 +125,7 @@ class ConfigGenerator:
 
         config = config.replace('$USE_ZIGBEE', f"{1 if id in self._config['zigbee']['ids'] else 0}")
         config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
+        config = config.replace('$PAN', str(self._config['zigbee']['pan']))
 
         config = config.replace('$USE_INTERNET', f"{1 if id in self._config['internet']['ids'] else 0}")
 
