@@ -39,15 +39,13 @@ function gatherData() {
     let data = {
         ids: sget("ids"),
         internet: {
-            enable: get("use_internet") == "on",
-            url: get("url"),
-            ids: sget("internet_ids")
+            url: get("url")
         },
         zigbee: {
             enable: get("use_zigbee") == "on",
             coordinator: parseInt(get("zigbee_coordinator")),
             internet: sget("zigbee_internet"),
-            ids: sget("zigbee_ids")
+            pan: parseInt(get("zigbee_pan"))
         }
     }
     return data

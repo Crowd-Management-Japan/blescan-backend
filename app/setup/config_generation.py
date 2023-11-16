@@ -18,7 +18,8 @@ def get_empty_config():
             'enable': False,
             'coordinator': -1,
             'internet': [],
-            'ids': []
+            'ids': [],
+            'pan': 1
         }
     }
 
@@ -162,4 +163,4 @@ class ConfigGenerator:
         conf = get_empty_config()
         self.save_config(conf)
         return conf
-        
+    
