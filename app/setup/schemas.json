@@ -42,6 +42,10 @@
                     "type": "integer"
                 },
                 "default": []
+            },
+            "pan": {
+                "type": "integer",
+                "default": 1
             }
         }
     },

@@ -13,18 +13,11 @@
         <label for="ids">Define the IDs of all devices that are used for this setup (form: 1,2-5,44-50)</label><br>
         <input type="text" id="ids" name="ids" value="{{config.ids}}"><br><br>
     
-        <input type="checkbox" id="use_internet" name="use_internet" 
-        {% if config.internet.enable %}
-        checked
-        {% endif %}
-        >
-        <label for="use_internet">Check if the internet functionality should be used</label> <br>
 
         <label>Define the url to connect to</label><br>
         <input type="text" id="url" name="url" value="{{config.internet.url}}"><br>
 
-        <label for="internet">Define the IDs of all devices that will be connected to the internet</label><br>
-        <input type="text" id="internet_ids" name="internet_ids" value="{{config.internet.ids}}"><br><br>
+        <br>
     
         <input type="checkbox" id="use_zigbee" name="use_zigbee"
         {% if config.zigbee.enable %}
@@ -32,16 +25,14 @@
         {% endif %}
         >
         <label for="use_zigbee">Check if the zigbee functionality should be used</label><br>
-        <label for="zigbee_ids">Define all IDs of used Zigbee nodes</label><br>
-        <input type="text" id="zigbee_ids" name="zigbee_ids" value="{{config.zigbee.ids}}"><br>
-        <!--input type="checkbox" id="zigbee_all" name="zigbee_all">
-        <label for="zigbee_all">all</label><br-->
-
         <label>Define IDs of zigbee nodes that are connected to the internet</label><br>
         <input type="text" id="zigbee_internet" name="zigbee_internet" value="{{config.zigbee.internet}}"><br>
 
         <label>Define ID of the Coordinator of the Network</label><br>
         <input type="number" id="zigbee_coordinator" name="zigbee_coordinator" value="{{config.zigbee.coordinator}}"><br>
+
+        <label>Define the PAN-ID of the network</label><br>
+        <input type="number" id="zigbee_pan" name="zigbee_pan" value="{{config.zigbee.pan}}"><br>
     
         <input type="submit" value="submit" onclick="submitForm()">
                     

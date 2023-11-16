@@ -31,6 +31,7 @@ def set_config_data():
             validate(data['internet'], _schemas.get('internet'))
         if data.get('zigbee', None):
             validate(data['zigbee'], _schemas.get('zigbee'))
+
     except ValidationError as e:
         print("Error validating data")
         print(e)
@@ -83,7 +84,7 @@ def setup():
     last_config['zigbee']['internet'] = compact_int_list_string(last_config['zigbee']['internet'])
     last_config['zigbee']['ids'] = compact_int_list_string(last_config['zigbee']['ids'])
 
-    return render_template('settings.html', config=last_config)
+    return render_template('setup/settings.html', config=last_config)
 
 @setup_bp.route('/status', methods=['GET'])
 def status_page():
@@ -94,7 +95,7 @@ def status_page():
 
     print(f"status: {items}")
 
-    return render_template('setup_status.html', data=data)
+    return render_template('setup/setup_status.html', data=data)
 
 @setup_bp.route('/status_item_table', methods=['GET'])
 def get_item_table():
@@ -102,7 +103,7 @@ def get_item_table():
     items = [{'id': did, 'status': dstatus} for did, dstatus in _generator.get_device_status_all().items()]
     print(f"status: {items}")
     data= {'data':items}
-    return render_template('setup_item_table.html', data=data)
+    return render_template('setup/setup_item_table.html', data=data)
 
 @setup_bp.route('/install_<int:id>')
 def get_installation_script(id: int):
