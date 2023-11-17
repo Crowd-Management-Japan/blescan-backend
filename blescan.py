@@ -2,12 +2,18 @@ import logging
 logging.basicConfig(level=logging.DEBUG, 
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
 from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
 from app.setup.routes import setup_bp
 from app.status.routes import status_bp
 from app.presentation.routes import presentation_bp
 
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.logger.setLevel('DEBUG')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
 
 @app.route('/')
 def index():
