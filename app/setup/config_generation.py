@@ -10,7 +10,7 @@ def get_empty_config():
     return {
         'ids': [],
         'internet': {
-            'enable': False,
+            'enable': True,
             'ids': [],
             'url': ''
         },
@@ -23,7 +23,7 @@ def get_empty_config():
         }
     }
 
-
+_DEFAULT_CONFIG = get_empty_config()
 
 class ConfigGenerator:
 
@@ -63,10 +63,10 @@ class ConfigGenerator:
     def set_zigbee_config(self, zigbee: Dict):
         zig = self._config['zigbee']
 
-        zig['ids'] = zigbee.get('ids', [])
-        zig['internet'] = zigbee.get('internet', [])
-        zig['coordinator'] = zigbee.get('coordinator', -1)
-        zig['enable'] = zigbee.get('enable', False)
+        zig['ids'] = zigbee.get('ids', _DEFAULT_CONFIG['zigbee']['ids'])
+        zig['internet'] = zigbee.get('internet', _DEFAULT_CONFIG['zigbee']['internet'])
+        zig['coordinator'] = zigbee.get('coordinator', _DEFAULT_CONFIG['zigbee']['coordinator'])
+        zig['enable'] = zigbee.get('enable', _DEFAULT_CONFIG['zigbee']['enable'])
 
         # default pan should not be 0 because 0 is a special zigbee id for automatically searching free network
         zig['pan'] = zigbee.get('pan', 1)
@@ -77,9 +77,9 @@ class ConfigGenerator:
     def set_internet_data(self, data: Dict):
         net = self._config['internet']
 
-        net['ids'] = data.get('ids', [])
-        net['url'] = data.get('url', '')
-        net['enable'] = data.get('enable', False)
+        net['ids'] = data.get('ids', _DEFAULT_CONFIG['internet']['url'])
+        net['url'] = data.get('url', _DEFAULT_CONFIG['internet']['url'])
+        net['enable'] = data.get('enable', _DEFAULT_CONFIG['internet']['enable'])
 
         if not net['enable']:
             net['ids'] = []
@@ -126,8 +126,6 @@ class ConfigGenerator:
         config = config.replace('$USE_ZIGBEE', f"{1 if id in self._config['zigbee']['ids'] else 0}")
         config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
         config = config.replace('$PAN', str(self._config['zigbee']['pan']))
-
-        config = config.replace('$USE_INTERNET', f"{1 if id in self._config['internet']['ids'] else 0}")
 
         self._device_status[id] = 'requested'
 

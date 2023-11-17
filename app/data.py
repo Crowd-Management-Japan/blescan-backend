@@ -43,6 +43,12 @@ class DataReceiver:
         offline = [d for d in self._data.values() if not d['is_online']]
 
         return online + offline
+    
+    def get_total_count(self):
+        sum = 0
+        for device in self._data.values():
+            sum += device.get('count', 0)
+        return sum
 
 
 def _get_empty_field(id: int):
