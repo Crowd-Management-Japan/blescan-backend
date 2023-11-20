@@ -11,10 +11,9 @@ _data = DataReceiver.get_instance()
 
 @presentation_bp.route('/latest')
 def get_presentation():
-    data = {'total': _data.get_total_count()}
-    return render_template('presentation/presentation.html', data=data)
+    return render_template('presentation/presentation.html')
 
 @presentation_bp.route('/data_table', methods=['GET'])
 def get_data_table():
-    data = {'data': _data.get_data_online_first()}
+    data = {'total': _data.get_total_count(),'data': _data.get_data_online_first()}
     return render_template('presentation/data_table.html', data=data)

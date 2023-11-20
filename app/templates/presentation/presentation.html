@@ -22,11 +22,7 @@
     <label>Last updated:</label>
     <label id="update_timestamp">XX</label> <br>
 
-    <div>Total count: {{data.total}}</div>
-
     <div id="item_table"></div>
-
-
             
     <script>
 
@@ -38,8 +34,8 @@
             document.getElementById("update_timestamp").innerHTML = time;
         }
 
-        setInterval(updateData, 5000);
         updateData();
+        setInterval(updateData, 5000);
     </script>
 </body>
 

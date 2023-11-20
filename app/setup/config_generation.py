@@ -158,7 +158,6 @@ class ConfigGenerator:
             with open(self.last_config_path, 'a+') as file:
                 file.seek(0)
                 last = json.load(file)
-                logging.debug("last config found: {last}")
                 return last
         except json.JSONDecodeError: 
             pass
