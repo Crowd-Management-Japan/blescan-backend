@@ -27,12 +27,6 @@ def set_config_data():
 
     try:
         validate(data, _schemas.get('full_settings'))
-        if data.get('internet', None):
-            validate(data['internet'], _schemas.get('internet'))
-        if data.get('zigbee', None):
-            validate(data['zigbee'], _schemas.get('zigbee'))
-        if data.get('counting', None):
-            validate(data['counting'], _schemas.get('counting'))
 
     except ValidationError as e:
         print("Error validating data")

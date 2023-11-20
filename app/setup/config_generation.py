@@ -52,7 +52,10 @@ class ConfigGenerator:
             self.basic_config = file.read()
         self.prepared = ''
         self._config = get_empty_config()
-        util.dict_deep_update(self._config, self.load_config())
+        util.dict_strict_deep_update(self._config, self.load_config())
+
+    def set_default(self):
+        self.set_config(get_empty_config())
 
     def generate(self):
         now = int(time.time())
