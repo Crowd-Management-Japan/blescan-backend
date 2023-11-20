@@ -18,7 +18,7 @@ class DataReceiver:
         self._data = {_: _get_empty_field(_) for _ in range(50)}
 
     def set_data(self, data: Dict):
-        id = data['id']
+        id = int(data['id'])
         time = datetime.now()
         
         data.update({'last_updated': time, 'is_online': True})

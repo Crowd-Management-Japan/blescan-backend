@@ -123,7 +123,7 @@ class ConfigGenerator:
 
         config = self.prepared.replace('$ID', str(id))
 
-        config = config.replace('$USE_ZIGBEE', f"{1 if id in self._config['zigbee']['ids'] else 0}")
+        config = config.replace('$USE_ZIGBEE', f"{1 if self._config['zigbee']['enable'] else 0}")
         config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
         config = config.replace('$PAN', str(self._config['zigbee']['pan']))
 

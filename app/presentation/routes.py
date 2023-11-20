@@ -15,5 +15,5 @@ def get_presentation():
 
 @presentation_bp.route('/data_table', methods=['GET'])
 def get_data_table():
-    data = {'data': _data.get_data_as_list()}
+    data = {'data': _data.get_data_online_first()}
     return render_template('presentation/data_table.html', data=data)
