@@ -1,54 +1,4 @@
 {
-    "internet": {
-        "type": "object",
-        "properties": {
-            "enable": {
-                "type": "boolean",
-                "default": false
-            },
-            "ids": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                },
-                "default": []
-            },
-            "url": {
-                "type": "string"
-            }
-        }
-    },
-    "zigbee": {
-        "type": "object",
-        "properties": {
-            "enable": {
-                "type": "boolean",
-                "default": false
-            },
-            "coordinator": {
-                "type": ["integer", "null"],
-                "default": 0
-            },
-            "internet": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                },
-                "default": []
-            },
-            "ids": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                },
-                "default": []
-            },
-            "pan": {
-                "type": "integer",
-                "default": 1
-            }
-        }
-    },
     "full_settings": {
         "type": "object",
         "properties": {
@@ -59,10 +9,87 @@
                 }
             },
             "internet": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                    "enable": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "default": []
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                }
             },
             "zigbee": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                    "enable": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "coordinator": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": 0
+                    },
+                    "internet": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "default": []
+                    },
+                    "ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "default": []
+                    },
+                    "pan": {
+                        "type": "integer",
+                        "default": 1
+                    }
+                }
+            },
+            "counting": {
+                "type": "object",
+                "properties": {
+                    "rssi_threshold": {
+                        "type": "integer"
+                    },
+                    "rssi_close_threshold": {
+                        "type": "integer"
+                    },
+                    "delta": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "beacon": {
+                "type": "object",
+                "properties": {
+                    "target_id": {
+                        "type": "string"
+                    },
+                    "scans": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "threshold": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
             }
         }
     }
