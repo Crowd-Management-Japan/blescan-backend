@@ -22,14 +22,16 @@ app.register_blueprint(presentation_bp, url_prefix='/data')
 
 @app.template_filter()
 def format_datetime(value, format='medium'):
+    if value < datetime(2000, 1, 1):
+        return "-"
     if format == 'full':
         format="EEEE, d. MMMM y 'at' HH:mm"
     elif format == 'medium':
         format="EE dd.MM.y HH:mm"
     elif format == 'delta':
-        return bdates.format_timedelta(datetime.now() - value)
+        return bdates.format_timedelta(datetime.now() - value, locale='en')
     
-    return bdates.format_datetime(value, format)
+    return bdates.format_datetime(value, format, locale='en')
 
 if __name__ == "__main__":
     app.run(debug=True, host='192.168.1.100', port=5000)
