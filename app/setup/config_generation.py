@@ -3,6 +3,7 @@ import time
 
 from typing import Dict, List
 from flask import current_app
+import app.util as util
 import json
 import logging
 
@@ -51,7 +52,7 @@ class ConfigGenerator:
             self.basic_config = file.read()
         self.prepared = ''
         self._config = get_empty_config()
-        self._config.update(self.load_config())
+        util.dict_deep_update(self._config, self.load_config())
 
     def generate(self):
         now = int(time.time())
@@ -62,6 +63,8 @@ class ConfigGenerator:
 
         self.prepare_internet()
         self.prepare_zigbee()
+        self.prepare_counting()
+        self.prepare_beacon()
         self.save_config(self._config)
 
         logging.info(f"Generated new config at {now}")
@@ -140,6 +143,25 @@ class ConfigGenerator:
         config = config.replace('$INTERNET_URL', self._config['internet']['url'])
 
         self.prepared = config
+
+    def prepare_counting(self):
+        config = self.prepared
+        
+        config = config.replace('$RSSI_THRESHOLD', str(self._config['counting']['rssi_threshold']))
+        config = config.replace('$RSSI_CLOSE_THRESHOLD', str(self._config['counting']['rssi_close_threshold']))
+        config = config.replace('$DELTA', str(self._config['counting']['delta']))
+
+        self.prepared = config
+
+    def prepare_beacon(self):
+        config = self.prepared
+        
+        config = config.replace('$TARGET_ID', self._config['beacon']['target_id'])
+        config = config.replace('$SCANS', str(self._config['beacon']['scans']))
+        config = config.replace('$BEACON_THRESHOLD', str(self._config['beacon']['threshold']))
+
+        self.prepared = config
+
 
     def get_config_for_id(self, id: int) -> str:
         if self.prepared == '':
