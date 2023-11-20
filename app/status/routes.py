@@ -13,15 +13,21 @@ def getStatus():
     data = {}
     return render_template('status/status.html')
 
+<<<<<<< HEAD
 @status_bp.route('update', methods = ['GET'])
 def is_online():
+=======
+@status_bp.route('update', methods= ['GET'])
+def get_status():
+>>>>>>> dev
     return "ok", 200
 
 @status_bp.route('/update', methods = ['POST'])
 def update_status():
     logging.debug("received post request")
-    logging.debug(request.get_data())
     data = request.get_json()
+
+    logging.debug(data)
 
     _dataReceiver.set_data(data)
     return "ok", 200

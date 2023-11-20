@@ -7,7 +7,10 @@
 </head>
 
 <body>
-    <h1>Blescan Data</h1>
+    <h1>Blescan Data</h1> 
+    <button onclick="window.location.href='/';">
+        Back to frontpage</button>
+        <br><br>
 
     
     <script src="https://unpkg.com/htmx.org@1.9.8"></script>
@@ -19,8 +22,11 @@
     <label>Last updated:</label>
     <label id="update_timestamp">XX</label> <br>
 
-    <div id="item_table">
-    </div>
+    <div>Total count: {{data.total}}</div>
+
+    <div id="item_table"></div>
+
+
             
     <script>
 

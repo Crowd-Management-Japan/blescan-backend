@@ -18,7 +18,7 @@ def index():
 
 app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
-app.register_blueprint(presentation_bp, url_prefix='/presentation')
+app.register_blueprint(presentation_bp, url_prefix='/data')
 
 @app.template_filter()
 def format_datetime(value, format='medium'):

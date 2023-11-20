@@ -8,6 +8,9 @@
 
 <body>
     <h1>Configuration Status</h1>
+    <button onclick="window.location.href='/';">
+        Back to frontpage</button>
+        <br><br>
 
     
     <script src="https://unpkg.com/htmx.org@1.9.8"></script>
@@ -20,7 +23,7 @@
     <label id="update_timestamp">XX</label> <br>
 
     <div id="item_table">
-        <table>
+        <table style="width: 40%;" border="2" cellpadding="4">
             {% for item in data.data %}
             <TR>
                <TD class="c1">{{item.id}}</TD>
