@@ -116,3 +116,14 @@ def get_installation_script(id: int):
         text = text.replace("$DEVICE_ID", str(id))
 
         return text
+    
+@setup_bp.route('/install_ip')
+def get_installation_script_via_ip():
+    """
+    Returns the correct installation script based on the request id.
+    Since the raspberry pi's in the tokyo lab use the last 2 digits as id, we can use it for making a single command installation.
+    """
+    ip = request.remote_addr
+    id = int(ip[-2:])
+    logging.debug("getting install script for request of ip %s -> ip: %d", ip, id)
+    return get_installation_script(id)
