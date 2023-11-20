@@ -36,6 +36,10 @@ function gatherData() {
         return splitStringtoArray(get(name));
     }
 
+    function iget(name) {
+        return parseInt(get(name))
+    }
+
     let data = {
         ids: sget("ids"),
         internet: {
@@ -46,6 +50,16 @@ function gatherData() {
             coordinator: parseInt(get("zigbee_coordinator")),
             internet: sget("zigbee_internet"),
             pan: parseInt(get("zigbee_pan"))
+        },
+        counting: {
+            rssi_threshold:iget("counting_rssi"),
+            rssi_close_threshold: iget("counting_close"),
+            delta: iget("counting_delta")
+        },
+        beacon: {
+            target_id: get("beacon_target_id"),
+            scans: iget("beacon_scans"),
+            threshold: iget("beacon_threshold")
         }
     }
     return data
