@@ -24,14 +24,21 @@ def compact_int_list_string(lst: List[int]) -> str:
 
     return ','.join(result)
 
-def dict_deep_update(d1: Dict, d2: Dict):
+def dict_strict_deep_update(d1: Dict, d2: Dict):
     """
     Use the dict.update method for updating nested dicts.
     If a field in dict 1 is a dict itself, it will be updated deeply.
+
+    This method will not add any fields!
+    It just updates existing fields
     """
-    cpy = d2.copy()
+    cpy = {}
     for k, v in d1.items():
+        # only add fields to cpy, that are not a dict, and present in d1
+        # we don't want to add fields of d2
         if type(v) == type({}):
-            dict_deep_update(v, d2.get(k, {}))
-            cpy.pop(k, None)
+            dict_strict_deep_update(v, d2.get(k, {}))
+        else:
+            cpy[k] = d2.get(k, d1[k])
+
     d1.update(cpy)
