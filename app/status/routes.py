@@ -13,6 +13,10 @@ def getStatus():
     data = {}
     return render_template('status/status.html')
 
+@status_bp.route('update', methods = ['GET'])
+def is_online():
+    return "ok", 200
+
 @status_bp.route('/update', methods = ['POST'])
 def update_status():
     logging.debug("received post request")
