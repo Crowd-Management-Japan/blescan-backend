@@ -45,13 +45,6 @@ def setup_completed_callback(id: int):
     _generator.set_status_ok(id)
     return "updated"
 
-@setup_bp.route('/zigbee', methods=['GET'])
-def get_zigbee_config():
-    filename = 'res/zigbee_sample.txt'
-    with open(filename) as file:
-        data = json.load(file)
-        return data
-
 @setup_bp.route('/last_updated/<int:id>')
 def last_changed(id: int):
     return jsonify(last_changed = _generator.last_updated(id))
