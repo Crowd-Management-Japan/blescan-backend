@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Dict
+import logging
 
 _instance = None
 
@@ -18,7 +19,7 @@ class DataReceiver:
         self._data = {_: _get_empty_field(_) for _ in range(50)}
 
     def set_data(self, data: Dict):
-        id = data['id']
+        id = int(data['id'])
         time = datetime.now()
         
         data.update({'last_updated': time, 'is_online': True})
@@ -43,6 +44,12 @@ class DataReceiver:
         offline = [d for d in self._data.values() if not d['is_online']]
 
         return online + offline
+    
+    def get_total_count(self):
+        sum = 0
+        for device in self._data.values():
+            sum += device.get('count', 0)
+        return sum
 
 
 def _get_empty_field(id: int):

@@ -9,11 +9,11 @@ from ..util import compact_int_list_string
 presentation_bp = Blueprint('presentation', __name__)
 _data = DataReceiver.get_instance()
 
-@presentation_bp.route('/')
+@presentation_bp.route('/latest')
 def get_presentation():
     return render_template('presentation/presentation.html')
 
 @presentation_bp.route('/data_table', methods=['GET'])
 def get_data_table():
-    data = {'data': _data.get_data_as_list()}
+    data = {'total': _data.get_total_count(),'data': _data.get_data_online_first()}
     return render_template('presentation/data_table.html', data=data)

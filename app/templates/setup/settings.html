@@ -8,32 +8,81 @@
 
 <body>
     <h1>Configuration Setup</h1>
+    <button onclick="window.location.href='/';">
+        Back to frontpage</button>
+        <br><br>
+        
     <div id="settings">
         <h2>General Settings</h2>
         <label for="ids">Define the IDs of all devices that are used for this setup (form: 1,2-5,44-50)</label><br>
         <input type="text" id="ids" name="ids" value="{{config.ids}}"><br><br>
-    
-
-        <label>Define the url to connect to</label><br>
-        <input type="text" id="url" name="url" value="{{config.internet.url}}"><br>
 
         <br>
     
-        <input type="checkbox" id="use_zigbee" name="use_zigbee"
-        {% if config.zigbee.enable %}
-        checked
-        {% endif %}
-        >
-        <label for="use_zigbee">Check if the zigbee functionality should be used</label><br>
-        <label>Define IDs of zigbee nodes that are connected to the internet</label><br>
-        <input type="text" id="zigbee_internet" name="zigbee_internet" value="{{config.zigbee.internet}}"><br>
+        <details open>
+            <summary>
+                <strong>Settings for Mode 1: Counting all devices</strong>
+            </summary>
+            <p>
+                <label>Define the Threshold below which devices will not be counted at all</label><br>
+                <input type="number" id="counting_rssi" name="counting_rssi" value="{{config.counting.rssi_threshold}}"><br>
 
-        <label>Define ID of the Coordinator of the Network</label><br>
-        <input type="number" id="zigbee_coordinator" name="zigbee_coordinator" value="{{config.zigbee.coordinator}}"><br>
+                <label>Define the Threshold above which device will be counted as close</label><br>
+                <input type="number" id="counting_close" value="{{config.counting.rssi_close_threshold}}"> <br>
 
-        <label>Define the PAN-ID of the network</label><br>
-        <input type="number" id="zigbee_pan" name="zigbee_pan" value="{{config.zigbee.pan}}"><br>
-    
+                <label>Define the delta-time between scans (best: multiple of 10) (warning: use with care, can produce multiple entries for a single timestamp!)</label> <br>
+                <input type="number" id="counting_delta" value="{{config.counting.delta}}"> <br>
+
+                <label>Define the url to connect to and send updates</label><br>
+                <input type="text" id="url" name="url" value="{{config.internet.url}}" size="50"><br>
+            </p>
+        </details>
+
+        <br>
+
+        <details open>
+            <summary>
+                <strong>Settings for Mode 2: Beacon functionality</strong>
+            </summary>
+            <p>
+                <label>Define the target_id (uuid) of the used beacons. If empty, this mode will not be used</label><br>
+                <input type="text" id="beacon_target_id" value="{{config.beacon.target_id}}" size="50"><br>
+
+                <label>Define the number of scans out of which the threshold must be hit to count as a stay</label><br>
+                <input type="number" id="beacon_scans" value="{{config.beacon.scans}}"> <br>
+
+                <label>Define the threshold to use for detecting a stay</label><br>
+                <input type="number" id="beacon_threshold" value="{{config.beacon.threshold}}">
+            </p>
+        </details>
+
+        <br>
+
+        <details open>
+            <summary>
+                <strong>Zigbee Settings</strong>
+            </summary>
+            <p>
+
+                <input type="checkbox" id="use_zigbee" name="use_zigbee"
+                {% if config.zigbee.enable %}
+                checked
+                {% endif %}
+                >
+                <label for="use_zigbee">Check if the zigbee functionality should be used</label><br>
+                <label>Define IDs of zigbee nodes that are connected to the internet</label><br>
+                <input type="text" id="zigbee_internet" name="zigbee_internet" value="{{config.zigbee.internet}}"><br>
+        
+                <label>Define ID of the Coordinator of the Network</label><br>
+                <input type="number" id="zigbee_coordinator" name="zigbee_coordinator" value="{{config.zigbee.coordinator}}"><br>
+        
+                <label>Define the PAN-ID of the network</label><br>
+                <input type="number" id="zigbee_pan" name="zigbee_pan" value="{{config.zigbee.pan}}"><br>
+                <br>
+            </p>
+        </details>
+
+
         <input type="submit" value="submit" onclick="submitForm()">
                     
         </div>

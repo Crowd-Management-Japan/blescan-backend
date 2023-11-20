@@ -3,6 +3,7 @@ import time
 
 from typing import Dict, List
 from flask import current_app
+import app.util as util
 import json
 import logging
 
@@ -10,7 +11,7 @@ def get_empty_config():
     return {
         'ids': [],
         'internet': {
-            'enable': False,
+            'enable': True,
             'ids': [],
             'url': ''
         },
@@ -20,10 +21,20 @@ def get_empty_config():
             'internet': [],
             'ids': [],
             'pan': 1
+        },
+        'counting': {
+            'rssi_threshold': -100,
+            'rssi_close_threshold': -50,
+            'delta': 10
+        },
+        'beacon': {
+            'target_id': '1233aacc0dc140a78085303a6d64ddb5',
+            'scans': 8,
+            'threshold': 3
         }
     }
 
-
+_DEFAULT_CONFIG = get_empty_config()
 
 class ConfigGenerator:
 
@@ -40,7 +51,11 @@ class ConfigGenerator:
         with open(self.basic_config_path) as file:
             self.basic_config = file.read()
         self.prepared = ''
-        self._config = self.load_config()
+        self._config = get_empty_config()
+        util.dict_strict_deep_update(self._config, self.load_config())
+
+    def set_default(self):
+        self.set_config(get_empty_config())
 
     def generate(self):
         now = int(time.time())
@@ -51,6 +66,8 @@ class ConfigGenerator:
 
         self.prepare_internet()
         self.prepare_zigbee()
+        self.prepare_counting()
+        self.prepare_beacon()
         self.save_config(self._config)
 
         logging.info(f"Generated new config at {now}")
@@ -59,14 +76,16 @@ class ConfigGenerator:
         self.set_ids(config.get('ids', []))
         self.set_zigbee_config(config.get('zigbee', {}))
         self.set_internet_data(config.get('internet', {}))
+        self.set_counting_config(config.get('counting', {}))
+        self.set_beacon_config(config.get('beacon', {}))
 
     def set_zigbee_config(self, zigbee: Dict):
         zig = self._config['zigbee']
 
-        zig['ids'] = zigbee.get('ids', [])
-        zig['internet'] = zigbee.get('internet', [])
-        zig['coordinator'] = zigbee.get('coordinator', -1)
-        zig['enable'] = zigbee.get('enable', False)
+        zig['ids'] = zigbee.get('ids', _DEFAULT_CONFIG['zigbee']['ids'])
+        zig['internet'] = zigbee.get('internet', _DEFAULT_CONFIG['zigbee']['internet'])
+        zig['coordinator'] = zigbee.get('coordinator', _DEFAULT_CONFIG['zigbee']['coordinator'])
+        zig['enable'] = zigbee.get('enable', _DEFAULT_CONFIG['zigbee']['enable'])
 
         # default pan should not be 0 because 0 is a special zigbee id for automatically searching free network
         zig['pan'] = zigbee.get('pan', 1)
@@ -77,12 +96,28 @@ class ConfigGenerator:
     def set_internet_data(self, data: Dict):
         net = self._config['internet']
 
-        net['ids'] = data.get('ids', [])
-        net['url'] = data.get('url', '')
-        net['enable'] = data.get('enable', False)
+        net['ids'] = data.get('ids', _DEFAULT_CONFIG['internet']['url'])
+        net['url'] = data.get('url', _DEFAULT_CONFIG['internet']['url'])
+        net['enable'] = data.get('enable', _DEFAULT_CONFIG['internet']['enable'])
 
         if not net['enable']:
             net['ids'] = []
+
+    def set_counting_config(self, data: Dict):
+        count = self._config['counting']
+        default = _DEFAULT_CONFIG['counting']
+
+        keys = ['rssi_threshold', 'rssi_close_threshold', 'delta']
+
+        for key in keys:
+            count[key] = data.get(key, default[key])
+
+    def set_beacon_config(self, data: Dict):
+        beacon = self._config['beacon']
+        default = _DEFAULT_CONFIG['beacon']
+        keys = ['target_id', 'scans', 'threshold']
+        for key in keys:
+            beacon[key] = data.get(key, default[key])
 
     def set_ids(self, ids: List[int]):
         self._config['ids'] = ids
@@ -112,6 +147,25 @@ class ConfigGenerator:
 
         self.prepared = config
 
+    def prepare_counting(self):
+        config = self.prepared
+        
+        config = config.replace('$RSSI_THRESHOLD', str(self._config['counting']['rssi_threshold']))
+        config = config.replace('$RSSI_CLOSE_THRESHOLD', str(self._config['counting']['rssi_close_threshold']))
+        config = config.replace('$DELTA', str(self._config['counting']['delta']))
+
+        self.prepared = config
+
+    def prepare_beacon(self):
+        config = self.prepared
+        
+        config = config.replace('$TARGET_ID', self._config['beacon']['target_id'])
+        config = config.replace('$SCANS', str(self._config['beacon']['scans']))
+        config = config.replace('$BEACON_THRESHOLD', str(self._config['beacon']['threshold']))
+
+        self.prepared = config
+
+
     def get_config_for_id(self, id: int) -> str:
         if self.prepared == '':
             logging.debug("prepared string is empty")
@@ -123,11 +177,9 @@ class ConfigGenerator:
 
         config = self.prepared.replace('$ID', str(id))
 
-        config = config.replace('$USE_ZIGBEE', f"{1 if id in self._config['zigbee']['ids'] else 0}")
+        config = config.replace('$USE_ZIGBEE', f"{1 if self._config['zigbee']['enable'] else 0}")
         config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
         config = config.replace('$PAN', str(self._config['zigbee']['pan']))
-
-        config = config.replace('$USE_INTERNET', f"{1 if id in self._config['internet']['ids'] else 0}")
 
         self._device_status[id] = 'requested'
 
@@ -160,7 +212,6 @@ class ConfigGenerator:
             with open(self.last_config_path, 'a+') as file:
                 file.seek(0)
                 last = json.load(file)
-                logging.debug("last config found: {last}")
                 return last
         except json.JSONDecodeError: 
             pass

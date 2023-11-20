@@ -1,10 +1,16 @@
+
+
+<div>
+Total count: {{data.total}} <br>
 <table style="width: 40%;" border="2" cellpadding="4">
 
     <TR>
         <TD>ID</TD>
-        <td>Count</td>
+        <td>Total Count</td>
+        <td>Close Count</td>
         <td>avg RSSI</td>
         <td>last updated</td>
+        <td>update delta</td>
         <td>online</td>
     </TR>
 
@@ -12,12 +18,15 @@
 
     <TR>
         <TD class="c1">{{item.id}}</TD>
+        <td>{{item.total}}</td>
         <td>{{item.count}}</td>
-        <td>{{item.avgRSSI}}</td>
-        <TD>{{item.last_updated}}</TD>
+        <td>{{item.rssi_avg}}</td>
+        <TD>{{item.last_updated|format_datetime('medium')}}</TD>
+        <TD>{{item.last_updated|format_datetime('delta')}}</TD>
         <td>{{item.is_online}}</td>
     </TR>
 
     {% endfor %}
 
 </table>
+</div>

@@ -27,10 +27,6 @@ def set_config_data():
 
     try:
         validate(data, _schemas.get('full_settings'))
-        if data.get('internet', None):
-            validate(data['internet'], _schemas.get('internet'))
-        if data.get('zigbee', None):
-            validate(data['zigbee'], _schemas.get('zigbee'))
 
     except ValidationError as e:
         print("Error validating data")
@@ -48,13 +44,6 @@ def set_config_data():
 def setup_completed_callback(id: int):
     _generator.set_status_ok(id)
     return "updated"
-
-@setup_bp.route('/zigbee', methods=['GET'])
-def get_zigbee_config():
-    filename = 'res/zigbee_sample.txt'
-    with open(filename) as file:
-        data = json.load(file)
-        return data
 
 @setup_bp.route('/last_updated/<int:id>')
 def last_changed(id: int):
@@ -116,3 +105,14 @@ def get_installation_script(id: int):
         text = text.replace("$DEVICE_ID", str(id))
 
         return text
+    
+@setup_bp.route('/install_ip')
+def get_installation_script_via_ip():
+    """
+    Returns the correct installation script based on the request id.
+    Since the raspberry pi's in the tokyo lab use the last 2 digits as id, we can use it for making a single command installation.
+    """
+    ip = request.remote_addr
+    id = int(ip[-2:])
+    logging.debug("getting install script for request of ip %s -> ip: %d", ip, id)
+    return get_installation_script(id)

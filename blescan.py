@@ -6,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from app.setup.routes import setup_bp
 from app.status.routes import status_bp
 from app.presentation.routes import presentation_bp
+import babel.dates as bdates
+from datetime import datetime
 
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.logger.setLevel('DEBUG')
@@ -22,8 +24,20 @@ def index():
 
 app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
-app.register_blueprint(presentation_bp, url_prefix='/presentation')
+app.register_blueprint(presentation_bp, url_prefix='/data')
 
+@app.template_filter()
+def format_datetime(value, format='medium'):
+    if value < datetime(2000, 1, 1):
+        return "-"
+    if format == 'full':
+        format="EEEE, d. MMMM y 'at' HH:mm"
+    elif format == 'medium':
+        format="EE dd.MM.y HH:mm"
+    elif format == 'delta':
+        return bdates.format_timedelta(datetime.now() - value, locale='en')
+    
+    return bdates.format_datetime(value, format, locale='en')
 
 if __name__ == "__main__":
     app.run(debug=True, host='192.168.1.100', port=5000)
