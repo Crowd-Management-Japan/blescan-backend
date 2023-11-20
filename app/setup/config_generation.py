@@ -20,6 +20,16 @@ def get_empty_config():
             'internet': [],
             'ids': [],
             'pan': 1
+        },
+        'counting': {
+            'rssi_threshold': -100,
+            'rssi_close_threshold': -50,
+            'delta': 10
+        },
+        'beacon': {
+            'target_id': '1233aacc0dc140a78085303a6d64ddb5',
+            'scans': 8,
+            'threshold': 3
         }
     }
 
@@ -40,7 +50,8 @@ class ConfigGenerator:
         with open(self.basic_config_path) as file:
             self.basic_config = file.read()
         self.prepared = ''
-        self._config = self.load_config()
+        self._config = get_empty_config()
+        self._config.update(self.load_config())
 
     def generate(self):
         now = int(time.time())
@@ -59,6 +70,8 @@ class ConfigGenerator:
         self.set_ids(config.get('ids', []))
         self.set_zigbee_config(config.get('zigbee', {}))
         self.set_internet_data(config.get('internet', {}))
+        self.set_counting_config(config.get('counting', {}))
+        self.set_beacon_config(config.get('beacon', {}))
 
     def set_zigbee_config(self, zigbee: Dict):
         zig = self._config['zigbee']
@@ -83,6 +96,22 @@ class ConfigGenerator:
 
         if not net['enable']:
             net['ids'] = []
+
+    def set_counting_config(self, data: Dict):
+        count = self._config['counting']
+        default = _DEFAULT_CONFIG['counting']
+
+        keys = ['rssi_threshold', 'rssi_close_threshold', 'delta']
+
+        for key in keys:
+            count[key] = data.get(key, default[key])
+
+    def set_beacon_config(self, data: Dict):
+        beacon = self._config['beacon']
+        default = _DEFAULT_CONFIG['beacon']
+        keys = ['target_id', 'scans', 'threshold']
+        for key in keys:
+            beacon[key] = data.get(key, default[key])
 
     def set_ids(self, ids: List[int]):
         self._config['ids'] = ids
