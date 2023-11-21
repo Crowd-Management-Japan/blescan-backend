@@ -8,6 +8,7 @@ import sqlalchemy
 import datetime
 from app.database.models import CountEntry
 from app.database.database import db
+import app.database.database as dbFunc
 
 db_bp = Blueprint('database', __name__)
 
@@ -38,3 +39,8 @@ def reset_database():
 
 
     return "forbidden", 403
+
+@db_bp.route('/data')
+def get_data():
+    df = dbFunc.get_time_dataframe()
+    return jsonify(df.to_dict('list'))

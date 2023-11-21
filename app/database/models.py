@@ -37,4 +37,3 @@ class CountEntry(db.Model):
 
     def __repr__(self):
         return 'Entry %r' % self.last_updated
-    

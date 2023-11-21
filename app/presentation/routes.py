@@ -13,6 +13,11 @@ _data = DataReceiver.get_instance()
 def get_presentation():
     return render_template('presentation/presentation.html')
 
+
+@presentation_bp.route('/graph')
+def get_graph_page():
+    return render_template('presentation/graph.html')
+
 @presentation_bp.route('/data_table', methods=['GET'])
 def get_data_table():
     data = {'total': _data.get_total_count(),'data': _data.get_data_online_first()}
