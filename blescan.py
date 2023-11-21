@@ -9,13 +9,20 @@ from app.presentation.routes import presentation_bp
 import babel.dates as bdates
 from datetime import datetime
 
+from app.database.database import init_db, db
+
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.logger.setLevel('DEBUG')
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+init_db(app)
+
+with app.app_context():
+    db.create_all()
+    logging.debug(db.get_engine().url)
 
 @app.route('/')
 def index():

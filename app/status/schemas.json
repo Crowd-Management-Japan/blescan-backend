@@ -1,0 +1,34 @@
+{
+    "countentry": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "timestamp": {
+                "type": "string"
+            },
+            "count": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "close": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "rssi_avg": {
+                "type": "number"
+            },
+            "rssi_std": {
+                "type": "number"
+            },
+            "rssi_min": {
+                "type": "integer"
+            },
+            "rssi_max": {
+                "type": "integer"
+            }
+        },
+        "required": ["id", "timestamp"]
+    }
+}
