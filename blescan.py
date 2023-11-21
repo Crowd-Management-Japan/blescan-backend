@@ -5,6 +5,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from app.setup.routes import setup_bp
 from app.status.routes import status_bp
+from app.database.routes import db_bp
 from app.presentation.routes import presentation_bp
 import babel.dates as bdates
 from datetime import datetime
@@ -32,6 +33,7 @@ def index():
 app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
 app.register_blueprint(presentation_bp, url_prefix='/data')
+app.register_blueprint(db_bp, url_prefix='/database')
 
 @app.template_filter()
 def format_datetime(value, format='medium'):
