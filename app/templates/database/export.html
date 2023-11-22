@@ -67,14 +67,14 @@
                     alert("Invalid To date");
                     return;
                 }
-                url += "before="+ before;
+                url += "&before="+ before;
             }
             if (! document.getElementById('no_after').checked) {
                 if (after == "") {
                     alert("Invalid From date");
                     return;
                 }
-                url += "after=" + after;
+                url += "&after=" + after;
             }
             
             type = "json";

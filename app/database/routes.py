@@ -1,10 +1,11 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response
 import json
 from jsonschema import validate, ValidationError
 import logging
 from ..data import DataReceiver
 import sqlalchemy
 import app.util as util
+import pandas as pd
 
 import datetime
 from app.database.models import CountEntry
@@ -48,6 +49,8 @@ def get_data():
 
 DATE_FILTER_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+
+
 @db_bp.route('/export_data', methods=['GET'])
 def get_filtered_data():
     """
@@ -56,7 +59,8 @@ def get_filtered_data():
     id: a string list of IDs (41,42,44-50)
     before: a string timestamp of an excluding upper boundary of the timestamp
     after: a string timestamp of an excluding lower boundary of the timestamp
-    format: a string defining the format of the upper two values. If none is given "%Y-%m-%d %H:%M:%S" is used.
+    format: a string defining the format of the upper two values. If none is given "%Y-%m-%d %H:%M:%S" is used
+    type: either json or csv
     """
     query = CountEntry.query
 
@@ -75,16 +79,29 @@ def get_filtered_data():
     before = request.args.get('before')
     if before:
         before = datetime.datetime.strptime(before, date_format)
+        logging.debug("filtering before: %s", before)
         query = query.filter(CountEntry.timestamp < before)
 
     after = request.args.get('after')
     if after:
         after = datetime.datetime.strptime(after, date_format)
-        query = query.filter(CountEntry.timestamp < after)
+        logging.debug("filtering after: %s", after)
+        query = query.filter(CountEntry.timestamp > after)
 
     result = query.all()
 
+
     data = [res.to_dict() for res in result]
+    
+
+    if request.args.get('type') == 'csv':
+        df = pd.DataFrame(data)
+        logging.debug(df.head())
+        csv = df.to_csv(index=False)
+        output = make_response(csv)
+        output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+        output.headers["Content-type"] = "text/csv"
+        return output
 
     return jsonify(data)
 
