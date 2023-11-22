@@ -28,7 +28,31 @@
 
     <script>
 
-        chart = false;
+            chart = new Chart("myChart", {
+            type: "line",
+            data: {
+                datasets: [{
+                    label: "Total Count",
+                    data: [],
+                    spanGaps: 10000
+                },
+                {
+                    label: "Devices online",
+                    data: [],
+                    spanGaps: 10000
+                }
+
+            ]
+            },
+            options: {
+                legend: { display: true },
+                scales: {
+                    x: {
+                        type: 'time',
+                    }
+                }
+            }
+        });
 
         function setValues(data) {
 
@@ -42,38 +66,9 @@
                 y: e.dev_count}
             })
 
-            if (chart) {
-                chart.destroy();
-            }
-
-            chart = new Chart("myChart", {
-            type: "line",
-            data: {
-                datasets: [{
-                    label: "Total Count",
-                    data: data_count,
-                    spanGaps: 10000
-                },
-                {
-                    label: "Devices online",
-                    data: data_online,
-                    spanGaps: 10000
-                }
-
-            ]
-            },
-            options: {
-                legend: { display: true },
-                animation: {
-                    duration: 0
-                },
-                scales: {
-                    x: {
-                        type: 'time',
-                    }
-                }
-            }
-        });
+            chart.data.datasets[0].data = data_count;
+            chart.data.datasets[1].data = data_online;
+            chart.update();
 
         }
 
