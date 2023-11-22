@@ -43,4 +43,4 @@ def reset_database():
 @db_bp.route('/data')
 def get_data():
     df = dbFunc.get_time_dataframe()
-    return jsonify(df.to_dict('list'))
+    return jsonify(df.to_dict('records'))

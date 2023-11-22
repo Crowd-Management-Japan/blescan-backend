@@ -12,46 +12,35 @@
         Back to frontpage</button>
     <br><br>
 
-
-    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
-    <!-- use htmx to update table -->
-    <button id="btnUpdate" onclick="fetchData()"> <!--hx-get="data_table" hx-swap="innerHTML" hx-target="#item_table"-->
+    <button id="btnUpdate" onclick="fetchData()">
         Update
     </button>
 
     <label>Last updated:</label>
     <label id="update_timestamp">XX</label> <br>
 
-    <script>
-
-        function updateData() {
-            return;
-            time = new Date().toLocaleTimeString();
-
-            document.getElementById("btnUpdate").click();
-
-            document.getElementById("update_timestamp").innerHTML = time;
-        }
-
-        updateData();
-        setInterval(updateData, 5000);
-    </script>
-
 
     <canvas id="myChart" style="width:100%;max-width:100%"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
+
     <script>
 
         chart = false;
 
         function setValues(data) {
-            console.log("setting data: " + data);
-            time = data.timestamp;
-            count = data.count_avg;
-            online = data.dev_count;
 
-            console.log("data count: " + time.length);
+            data_count = data.map(e => { return {
+                x: e.timestamp,
+                y: e.count_avg
+            }; });
+
+            data_online = data.map(e => { 
+                return {x: e.timestamp,
+                y: e.dev_count}
+            })
 
             if (chart) {
                 chart.destroy();
@@ -60,19 +49,17 @@
             chart = new Chart("myChart", {
             type: "line",
             data: {
-                labels: time,
                 datasets: [{
                     label: "Total Count",
-                    data: count,
-                    borderColor: "red",
-                    fill: true
+                    data: data_count,
+                    spanGaps: 10000
                 },
                 {
-                    label: "Devices Online",
-                    data: online,
-                    borderColor: "blue",
-                    fill: false
+                    label: "Devices online",
+                    data: data_online,
+                    spanGaps: 10000
                 }
+
             ]
             },
             options: {
@@ -82,10 +69,7 @@
                 },
                 scales: {
                     x: {
-                        ticks: {
-                            autoSkip: true,
-                            autoSkipPadding: time.length/10
-                        }
+                        type: 'time',
                     }
                 }
             }
@@ -105,6 +89,15 @@
                 console.error('Error:', error);
             })
         }
+        
+        function updateData() {
+            time = new Date().toLocaleTimeString();
+            fetchData();
+            document.getElementById("update_timestamp").innerHTML = time;
+        }
+
+        updateData();
+        setInterval(updateData, 5000);
     </script>
 </body>
 
