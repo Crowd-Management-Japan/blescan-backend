@@ -48,7 +48,7 @@ def get_data():
 
 DATE_FILTER_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-@db_bp.route('/export', methods=['GET'])
+@db_bp.route('/export_data', methods=['GET'])
 def get_filtered_data():
     """
     Get data of the database with possible filters.
@@ -87,3 +87,7 @@ def get_filtered_data():
     data = [res.to_dict() for res in result]
 
     return jsonify(data)
+
+@db_bp.route('export', methods=['GET'])
+def get_export_page():
+    return render_template('database/export.html')

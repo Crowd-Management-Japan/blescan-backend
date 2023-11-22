@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BleScan</title>
+</head>
+
+<body>
+    <h1>Export Data</h1> 
+    <button onclick="window.location.href='/';">
+        Back to frontpage</button>
+        <br><br>
+
+    
+        <h2>
+            Export the data from the database to csv or json.
+        </h2>
+
+        <div>
+            <h3>Select Data</h3>
+
+            <label for="ids">IDs (string-list form: 41,42,45-50). Leave empty for all</label>
+            <input type="text" id="ids"> <br>
+
+            <label for="after">From (excluding)</label>
+            <input type="datetime-local" id="after">
+            <input type="checkbox" id="no_after">
+            <label for="no_after">First entry</label>
+            <br>
+            <label for="before">To (excluding)</label>
+            <input type="datetime-local" id="before">
+            <input type="checkbox" id="no_before">
+            <label for="no_before">Last entry</label>
+            <br>
+            <label for="type">Return type</label>
+            <input id="type_json" type="radio" name="type">
+            <label for="type_json">json</label>
+            <input id="type_csv" type="radio" name="type">
+            <label for="type_csv">csv</label> 
+            <br>
+        </div>
+        
+        <br>
+
+        <div>
+            <button onclick="exportData()">Export</button>
+        </div>
+        
+<script>
+        function exportData(url) {
+        
+            ids = document.getElementById('ids').value;
+
+            // this seems to be the correct format of datetime-local fields
+            format = "%Y-%m-%dT%H:%M";
+
+            url = "/database/export_data?id=" + ids + "&format=" + format;
+
+
+            before = document.getElementById('before').value;
+            after = document.getElementById('after').value;
+
+            console.log(document.getElementById('no_before').value);
+            if (! document.getElementById('no_before').checked) {
+                if (before == "") {
+                    alert("Invalid To date");
+                    return;
+                }
+                url += "before="+ before;
+            }
+            if (! document.getElementById('no_after').checked) {
+                if (after == "") {
+                    alert("Invalid From date");
+                    return;
+                }
+                url += "after=" + after;
+            }
+            
+            type = "json";
+            if (document.getElementById('type_csv').checked) {
+                type = "csv";
+            }
+
+            url += "&type=" + type;
+
+            console.log("request url: " + url);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "Blescan_" + (new Date()).toDateString();
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+</script>
+
+</body>
+
+</html>
