@@ -33,7 +33,15 @@ class CountEntry(db.Model):
 
         return entry
 
-
-
-    def __repr__(self):
-        return 'Entry %r' % self.last_updated
+    def to_dict(self, datetime_format="%Y-%m-%d %H:%M:%S"):
+        data = {
+            'id': self.id,
+            'timestamp': self.timestamp.strftime(datetime_format),
+            'count': self.count,
+            'close': self.close,
+            'rssi_avg': self.rssi_avg,
+            'rssi_std': self.rssi_std,
+            'rssi_min': self.rssi_min,
+            'rssi_max': self.rssi_max
+        }
+        return data

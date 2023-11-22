@@ -22,8 +22,6 @@ def get_time_dataframe():
     dtypes=[('timestamp', 'M8[us]'), ('count_avg', 'float'), ('dev_count', 'i4')]
     devices = np.array([(np.datetime64(d), avg, c) for (d,avg,c) in devices], dtype=dtypes)
 
-    logging.debug(len(devices))
-
     df = pd.DataFrame(devices)
 
     return df

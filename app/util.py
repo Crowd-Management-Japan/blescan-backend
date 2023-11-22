@@ -24,6 +24,24 @@ def compact_int_list_string(lst: List[int]) -> str:
 
     return ','.join(result)
 
+def compact_string_to_int_list(s: str) -> List[int]:
+    """
+    Decode a string of ints of form: 40,41,42-45
+    where integers can either be separated by commas or a range is given.
+    """
+    result = []
+    
+    elements = s.split(',')
+    
+    for element in elements:
+        if '-' in element:
+            start, end = map(int, element.split('-'))
+            result.extend(range(start, end + 1))
+        else:
+            result.append(int(element))
+    
+    return result
+
 def dict_strict_deep_update(d1: Dict, d2: Dict):
     """
     Use the dict.update method for updating nested dicts.
