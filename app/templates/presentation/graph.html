@@ -25,18 +25,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"
         integrity="sha512-UOJe4paV6hYWBnS0c9GnIRH8PLm2nFK22uhfAvsTIqd3uwnWsVri1OPn5fJYdLtGY3wB11LGHJ4yPU1WFJeBYQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.css" integrity="sha512-MKxcSu/LDtbIYHBNAWUQwfB3iVoG9xeMCm32QV5hZ/9lFaQZJVaXfz9aFa0IZExWzCpm7OWvp9zq9gVip/nLMg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.css"
+        integrity="sha512-MKxcSu/LDtbIYHBNAWUQwfB3iVoG9xeMCm32QV5hZ/9lFaQZJVaXfz9aFa0IZExWzCpm7OWvp9zq9gVip/nLMg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
 
     <p>
         <label for="amount">Date range:</label>
         <input type="text" id="amount" style="border: 0; color: #f6931f; font-weight: bold;" size="100" />
     </p>
-    <div style="margin-left: 3%; margin-right: 3%;">
-    <div id="slider_range"></div>
+    <div style="margin-left: 3%; margin-right: 3%; margin-bottom: 1cm; margin-top: 1cm;">
+        <div id="slider_range"></div>
     </div>
 
-    <canvas id="myChart" style="width:100%;max-width:100%"></canvas>
+    <div style="padding: 1cm; padding-bottom: 0%; ">
+        <canvas id="myChart" style="width: 95vw !important; height: 80vh !important; "></canvas>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
@@ -61,6 +65,8 @@
                 ]
             },
             options: {
+                responsive: true,
+                maintainAspectRation: false,
                 legend: { display: true },
                 scales: {
                     x: {
@@ -96,8 +102,6 @@
                 }
             })
 
-            console.log("Setting values. Size = " + data_count.length);
-
             chart.data.datasets[0].data = data_count;
             chart.data.datasets[1].data = data_online;
             chart.update();
@@ -105,8 +109,7 @@
         }
 
         function fetchData() {
-            url = `/database/data`;//?before=${lastDate}&after=${firstDate}&format=${FORMAT}`;
-            console.log("fetching " + url);
+            url = `/database/data`;
             fetch(url, {
                 method: 'GET'
             })
@@ -118,33 +121,28 @@
                 })
         }
 
-        
-        function toSec(dateString) {
-                if (dateString == "first") {
-                    return firstDateSec;
-                }
-                if (dateString == "last") {
-                    return lastDateSec;
-                }
-                    // Extract a date from a string value with a specified format.
-                    // See: https://api.jqueryui.com/datepicker/
-                    var dt = moment(dateString, FORMAT_JS);
-                    //var dt = $.datepicker.parseDate("yy.mm.dd hh:MM:ss", dateString);
-                    return dt.unix();
-                }
 
-            function secToDate(s) {
-                if (s == firstDateSec) {
-                    return "first";
-                }
-                if (s == lastDateSec) {
-                    return "last";
-                }
-                dt = moment.unix(s);
-                // Format a date into a string value with a specified format.
-                // See: https://api.jqueryui.com/datepicker/
-                return dt.format(FORMAT_JS);
+        function toSec(dateString) {
+            if (dateString == "first") {
+                return firstDateSec;
             }
+            if (dateString == "last") {
+                return lastDateSec;
+            }
+            var dt = moment(dateString, FORMAT_JS);
+            return dt.unix();
+        }
+
+        function secToDate(s) {
+            if (s == firstDateSec) {
+                return "first";
+            }
+            if (s == lastDateSec) {
+                return "last";
+            }
+            dt = moment.unix(s);
+            return dt.format(FORMAT_JS);
+        }
 
         function updateData() {
             time = new Date().toLocaleTimeString();
@@ -164,12 +162,11 @@
 
                 var newPositions = [null, null];
                 if (oldPositions[0] == 0) {
-                   newPositions[0] = 'first';
+                    newPositions[0] = 'first';
                 }
                 if (oldPositions[1] == 100) {
                     newPositions[1] = 'last';
                 }
-                console.log(newPositions);
                 myslider.noUiSlider.set(newPositions);
             });
             document.getElementById("update_timestamp").innerHTML = time;
@@ -184,7 +181,6 @@
                     firstDate = moment(data.first).format(FORMAT_JS);
                     lastDate = moment(data.last).format(FORMAT_JS);
 
-                    console.log("fetched data: first: {}, last: {}", firstDate, lastDate);
                     return { first: data.first, last: data.last }
                 })
         }
@@ -209,7 +205,7 @@
                     tooltips: true,
                     pips: {
                         mode: 'positions',
-                        values: [0, 100],
+                        values: [0, 33, 66, 100],
                         format: {
                             to: secToDate,
                             from: toSec
@@ -221,26 +217,23 @@
                     }
                 });
 
-                myslider.noUiSlider.on('update', function(values, handle) {
-                    //$('#amount').val(secToDate(values[0]) + ' - ' + secToDate(values[1]));
+                myslider.noUiSlider.on('update', function (values, handle) {
                     $('#amount').val((values[0]) + ' - ' + (values[1]));
 
                     if (handle === 0) {
                         if (values[0] == 'first') {
-                            console.log('removing min value');
                             chart.options.scales.x.min = null;
                             return;
                         }
                     }
                     else if (handle === 1) {
                         if (values[1] == 'last') {
-                            console.log("remove max value");
                             chart.options.scales.x.max = null;
                             return;
                         }
                     }
 
-                    
+
                     chart.options.scales.x.min = (values[0]);
                     chart.options.scales.x.max = (values[1]);
                     chart.update();
