@@ -28,14 +28,14 @@
 
         function updateData() {
             time = new Date().toLocaleTimeString();
-
             document.getElementById("btnUpdate").click();
-
             document.getElementById("update_timestamp").innerHTML = time;
         }
 
-        updateData();
-        setInterval(updateData, 5000);
+        document.addEventListener('DOMContentLoaded', function() {
+            updateData();
+            setInterval(updateData, 5000);
+        });
     </script>
 </body>
 
