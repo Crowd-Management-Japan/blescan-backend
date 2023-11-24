@@ -4,6 +4,7 @@ from jsonschema import validate, ValidationError
 import logging
 from ..data import DataReceiver
 import sqlalchemy
+from sqlalchemy import func
 import app.util as util
 import pandas as pd
 
@@ -18,6 +19,8 @@ db_bp = Blueprint('database', __name__)
 # and will not contain series data, we use this solution.
 # It is just to prevent accidentally deleting data
 PASSWORD = "admin"
+
+DATE_FILTER_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 @db_bp.route('/delete', methods=['POST'])
 def reset_database():
@@ -44,10 +47,18 @@ def reset_database():
 
 @db_bp.route('/data')
 def get_data():
-    df = dbFunc.get_time_dataframe()
-    return jsonify(df.to_dict('records'))
+    df = dbFunc.get_time_dataframe(request, DATE_FILTER_FORMAT)
+    return jsonify(df)
 
-DATE_FILTER_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+@db_bp.route('/data/dates')
+def get_end_dates():
+    query = db.session.query(func.min(CountEntry.timestamp), func.max(CountEntry.timestamp)).all()
+
+    logging.debug(query)
+    logging.debug(query[0][0].tzinfo)
+
+    return jsonify({'first': query[0][0].strftime(DATE_FILTER_FORMAT), 'last': query[0][1].strftime(DATE_FILTER_FORMAT)})
 
 
 
