@@ -44,8 +44,11 @@
             document.getElementById("update_timestamp").innerHTML = time;
         }
 
-        setInterval(updateData, 5000);
-        updateData();
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setInterval(updateData, 5000);
+            updateData();
+        });
     </script>
 </body>
 
