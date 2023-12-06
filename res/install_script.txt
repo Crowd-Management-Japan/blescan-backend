@@ -8,7 +8,7 @@ sudo systemctl stop blescan.service
 
 id=$DEVICE_ID
 server_url=192.168.1.100:5000
-git_url=git@github.com:Crowd-Management-Japan/blescan.git
+git_url=https://github.com/Crowd-Management-Japan/blescan.git
 
 # install basic packages needed
 sudo apt update -y
@@ -30,7 +30,7 @@ echo -------- creating python environment --------
 python3 -m venv .venv
 source .venv/bin/activate
 
-pip install -r blescan/requirements.txt
+pip install -r requirements.txt
 
 echo -------- running install.py -------
 
