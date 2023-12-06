@@ -23,7 +23,6 @@ init_db(app)
 
 with app.app_context():
     db.create_all()
-    logging.debug(db.get_engine().url)
 
 @app.route('/')
 def index():
