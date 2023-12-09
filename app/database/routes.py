@@ -55,10 +55,10 @@ def get_data():
 def get_end_dates():
     query = db.session.query(func.min(CountEntry.timestamp), func.max(CountEntry.timestamp)).all()
 
-    logging.debug(query)
-    logging.debug(query[0][0].tzinfo)
+    first = query[0][0] or datetime.datetime.now()
+    last = query[0][1] or datetime.datetime.now()
 
-    return jsonify({'first': query[0][0].strftime(DATE_FILTER_FORMAT), 'last': query[0][1].strftime(DATE_FILTER_FORMAT)})
+    return jsonify({'first': first.strftime(DATE_FILTER_FORMAT), 'last': last.strftime(DATE_FILTER_FORMAT)})
 
 
 
