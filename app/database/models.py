@@ -2,10 +2,23 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String, DateTime, Float
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
+from flask_login import UserMixin
 
 from typing import Dict
 
 from .database import db
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False, unique=True)
+    password = db.Column(db.String(100), nullable=False)
+    superuser = db.Column(db.Boolean, nullable=False, default=True)
+
+    @property
+    def is_superuser(self):
+        # override UserMixin property which always returns true
+        # return the value of the superuser column instead
+        return self.superuser
 
 class CountEntry(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)

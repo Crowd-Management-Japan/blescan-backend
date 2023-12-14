@@ -4,7 +4,7 @@ from jsonschema import validate, ValidationError
 import logging
 from ..data import DataReceiver
 import sqlalchemy
-
+from flask_login import login_required
 import datetime
 from app.database.models import CountEntry
 from app.database.database import db
@@ -17,15 +17,18 @@ with open('app/status/schemas.json', 'r') as schemas_file:
     _schemas = json.load(schemas_file)
 
 @status_bp.route('/')
+@login_required
 def getStatus():
     data = {}
     return render_template('status/status.html')
 
 @status_bp.route('update', methods= ['GET'])
+@login_required
 def get_status():
     return "ok", 200
 
 @status_bp.route('/update', methods = ['POST'])
+@login_required
 def update_status():
     data = request.get_json()
     logging.debug("received post request from %d", data['id'])
@@ -50,6 +53,7 @@ def update_status():
     return "ok", 200
 
 @status_bp.route('/status_last_updated_table')
+@login_required
 def get_status_table():
     data = {'data': _dataReceiver.get_data_online_first()}
     return render_template('status/status_table.html', data=data)

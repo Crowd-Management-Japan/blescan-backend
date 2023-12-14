@@ -3,6 +3,7 @@ from . import config_generation
 import json
 from jsonschema import validate, ValidationError
 import logging
+from flask_login import login_required
 
 from ..util import compact_int_list_string
 
@@ -20,6 +21,7 @@ with open('app/setup/schemas.json', 'r') as schemas_file:
 ##########################################
 
 @setup_bp.route('/', methods=['POST'])
+@login_required
 def set_config_data():
     print("received post request")
     print(request.get_data())
@@ -41,19 +43,23 @@ def set_config_data():
     return redirect('/setup/status')
 
 @setup_bp.route('/completed_<int:id>', methods=['POST'])
+@login_required
 def setup_completed_callback(id: int):
     _generator.set_status_ok(id)
     return "updated"
 
 @setup_bp.route('/last_updated/<int:id>')
+@login_required
 def last_changed(id: int):
     return jsonify(last_changed = _generator.last_updated(id))
 
 @setup_bp.route('/current')
+@login_required
 def get_current_config():
     return _generator.get_config()
 
 @setup_bp.route('/config_<int:id>')
+@login_required
 def get_config(id: int):
     id = int(id)
     return _generator.get_config_for_id(id)
@@ -65,6 +71,7 @@ def get_config(id: int):
 ##########################################
 
 @setup_bp.route('/')
+@login_required
 def setup():
     last_config = _generator.get_config()
     # format data for template
@@ -76,6 +83,7 @@ def setup():
     return render_template('setup/settings.html', config=last_config)
 
 @setup_bp.route('/status', methods=['GET'])
+@login_required
 def status_page():
     data = {}
 
@@ -87,6 +95,7 @@ def status_page():
     return render_template('setup/setup_status.html', data=data)
 
 @setup_bp.route('/status_item_table', methods=['GET'])
+@login_required
 def get_item_table():
 
     items = [{'id': did, 'status': dstatus} for did, dstatus in _generator.get_device_status_all().items()]
@@ -95,6 +104,7 @@ def get_item_table():
     return render_template('setup/setup_item_table.html', data=data)
 
 @setup_bp.route('/install_<int:id>')
+@login_required
 def get_installation_script(id: int):
     if type(id) != int:
         return "id must be integer", 400
@@ -105,8 +115,9 @@ def get_installation_script(id: int):
         text = text.replace("$DEVICE_ID", str(id))
 
         return text
-    
+
 @setup_bp.route('/install_ip')
+@login_required
 def get_installation_script_via_ip():
     """
     Returns the correct installation script based on the request id.
