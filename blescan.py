@@ -35,7 +35,6 @@ login_manager.login_view = 'login'  # Set the login view
 
 @app.route('/')
 @app.route('/home')
-@login_required
 def home():
     return render_template('index.html', data={'name':'To'})
 @login_manager.user_loader
