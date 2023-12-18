@@ -23,7 +23,6 @@ PASSWORD = "admin"
 DATE_FILTER_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 @db_bp.route('/delete', methods=['POST'])
-@login_required
 def reset_database():
     """
     Use with care.
@@ -47,14 +46,12 @@ def reset_database():
     return "forbidden", 403
 
 @db_bp.route('/data')
-@login_required
 def get_data():
     df = dbFunc.get_time_dataframe(request, DATE_FILTER_FORMAT)
     return jsonify(df)
 
 
 @db_bp.route('/data/dates')
-@login_required
 def get_end_dates():
     query = db.session.query(func.min(CountEntry.timestamp), func.max(CountEntry.timestamp)).all()
 
@@ -66,7 +63,6 @@ def get_end_dates():
 
 
 @db_bp.route('/export_data', methods=['GET'])
-@login_required
 def get_filtered_data():
     """
     Get data of the database with possible filters.
@@ -121,6 +117,5 @@ def get_filtered_data():
     return jsonify(data)
 
 @db_bp.route('export', methods=['GET'])
-@login_required
 def get_export_page():
     return render_template('database/export.html')

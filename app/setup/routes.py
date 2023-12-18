@@ -49,17 +49,14 @@ def setup_completed_callback(id: int):
     return "updated"
 
 @setup_bp.route('/last_updated/<int:id>')
-@login_required
 def last_changed(id: int):
     return jsonify(last_changed = _generator.last_updated(id))
 
 @setup_bp.route('/current')
-@login_required
 def get_current_config():
     return _generator.get_config()
 
 @setup_bp.route('/config_<int:id>')
-@login_required
 def get_config(id: int):
     id = int(id)
     return _generator.get_config_for_id(id)
@@ -83,7 +80,6 @@ def setup():
     return render_template('setup/settings.html', config=last_config)
 
 @setup_bp.route('/status', methods=['GET'])
-@login_required
 def status_page():
     data = {}
 
@@ -95,7 +91,6 @@ def status_page():
     return render_template('setup/setup_status.html', data=data)
 
 @setup_bp.route('/status_item_table', methods=['GET'])
-@login_required
 def get_item_table():
 
     items = [{'id': did, 'status': dstatus} for did, dstatus in _generator.get_device_status_all().items()]
@@ -104,7 +99,6 @@ def get_item_table():
     return render_template('setup/setup_item_table.html', data=data)
 
 @setup_bp.route('/install_<int:id>')
-@login_required
 def get_installation_script(id: int):
     if type(id) != int:
         return "id must be integer", 400
