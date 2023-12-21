@@ -43,7 +43,6 @@ def set_config_data():
     return redirect('/setup/status')
 
 @setup_bp.route('/completed_<int:id>', methods=['POST'])
-@login_required
 def setup_completed_callback(id: int):
     _generator.set_status_ok(id)
     return "updated"
@@ -111,7 +110,6 @@ def get_installation_script(id: int):
         return text
 
 @setup_bp.route('/install_ip')
-@login_required
 def get_installation_script_via_ip():
     """
     Returns the correct installation script based on the request id.
