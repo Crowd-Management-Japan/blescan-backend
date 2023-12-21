@@ -3,6 +3,7 @@ from . import config_generation
 import json
 from jsonschema import validate, ValidationError
 import logging
+from flask_login import login_required
 
 from ..util import compact_int_list_string
 
@@ -20,6 +21,7 @@ with open('app/setup/schemas.json', 'r') as schemas_file:
 ##########################################
 
 @setup_bp.route('/', methods=['POST'])
+@login_required
 def set_config_data():
     print("received post request")
     print(request.get_data())
@@ -65,6 +67,7 @@ def get_config(id: int):
 ##########################################
 
 @setup_bp.route('/')
+@login_required
 def setup():
     last_config = _generator.get_config()
     # format data for template
@@ -105,7 +108,7 @@ def get_installation_script(id: int):
         text = text.replace("$DEVICE_ID", str(id))
 
         return text
-    
+
 @setup_bp.route('/install_ip')
 def get_installation_script_via_ip():
     """

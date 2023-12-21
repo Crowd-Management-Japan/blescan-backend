@@ -7,7 +7,7 @@ import sqlalchemy
 from sqlalchemy import func
 import app.util as util
 import pandas as pd
-
+from flask_login import login_required
 import datetime
 from app.database.models import CountEntry
 from app.database.database import db

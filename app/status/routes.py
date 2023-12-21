@@ -4,7 +4,6 @@ from jsonschema import validate, ValidationError
 import logging
 from ..data import DataReceiver
 import sqlalchemy
-
 import datetime
 from app.database.models import CountEntry
 from app.database.database import db
