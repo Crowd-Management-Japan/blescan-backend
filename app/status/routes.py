@@ -7,6 +7,7 @@ import sqlalchemy
 import datetime
 from app.database.models import CountEntry
 from app.database.database import db
+import app.util as util
 
 status_bp = Blueprint('status', __name__)
 
@@ -33,15 +34,8 @@ def update_status():
         validate(data, _schemas.get('countentry'))
         data['timestamp'] = datetime.datetime.strptime(data.get('timestamp', ''), '%Y-%m-%d %H:%M:%S')
         
-        try:
-            data['longitude'] = float(data['longitude'])
-        except ValueError:
-            data['longitude'] = None
-            
-        try:
-            data['latitude'] = float(data['latitude'])
-        except ValueError:
-            data['latitude'] = None
+        data['latitude'] = util.float_or_None(data['latitude'])
+        data['longitude'] = util.float_or_None(data['longitude'])
 
     except ValidationError as e:
         logging.error("Validation error validating update")
