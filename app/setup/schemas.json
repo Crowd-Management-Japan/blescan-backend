@@ -8,6 +8,9 @@
                     "type": "integer"
                 }
             },
+            "locations": {
+                "type": "object"
+            },
             "internet": {
                 "type": "object",
                 "properties": {

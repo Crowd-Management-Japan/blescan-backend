@@ -1,5 +1,5 @@
 
-from typing import List, Dict
+from typing import List, Dict, Union
 import logging
 
 def compact_int_list_string(lst: List[int]) -> str:
@@ -60,3 +60,20 @@ def dict_strict_deep_update(d1: Dict, d2: Dict):
             cpy[k] = d2.get(k, d1[k])
 
     d1.update(cpy)
+
+def location_dict_to_string(loc: Dict) -> str:
+    """
+    Create the String format for the textfield of the setup page.
+    It contains one line per device, formatted like 'id: lat, lon'
+    """
+    return "\n".join([f"{id}: {l}" for id, l in loc.items()])
+
+def float_or_None(value: str) -> Union[float,None]:
+    """
+    Cast a string value to a float if possible. If not, return None
+    """
+    try:
+        return float(value)
+    except ValueError:
+        return None
+    

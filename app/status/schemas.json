@@ -27,6 +27,12 @@
             },
             "rssi_max": {
                 "type": "integer"
+            },
+            "latitude": {
+                "type": ["number", "string"]
+            },
+            "longitude": {
+                "type": ["number", "string"]
             }
         },
         "required": ["id", "timestamp"]

@@ -13,10 +13,24 @@
         Back to frontpage</button>
         <br><br>
         
+
     <div id="settings">
         <h2>General Settings</h2>
         <label for="ids">Define the IDs of all devices that are used for this setup (form: 1,2-5,44-50)</label><br>
         <input type="text" id="ids" name="ids" value="{{config.ids}}"><br><br>
+
+        <br>
+
+        <details>
+            <summary><strong>Location Settings</strong></summary>
+            <p>
+                <label for="textarea-loc">Define Latitude and Longitude for devices. All devices not present here, will not use location feature.
+                    <br>Format: One per line <code>[ID]<strong>:</strong> [lat]<strong>,</strong> [long]</code></label> 
+                <br>
+                <textarea id="textarea-loc" name="textarea-loc" cols="50" rows="10" >{{config.locations}}</textarea>
+                <br>
+            </p>
+        </details>
 
         <br>
     
