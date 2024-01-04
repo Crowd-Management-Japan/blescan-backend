@@ -5,9 +5,9 @@ function splitStringtoArray(inputString) {
     console.log("Splitting string: " + inputString);
     let result = [];
     // remove all spaces first
-    inputString.replace(' ', ''); 
+    inputString.replace(' ', '');
     let groups = inputString.split(',');
-    
+
     groups.forEach(group => {
         if (group.includes('-')) {
             // If the group contains a range (e.g., "2-4")
@@ -26,6 +26,27 @@ function splitStringtoArray(inputString) {
     return result;
 }
 
+function getLocations() {
+    try {
+        let raw = document.getElementById("textarea-loc").value.split("\n");
+        let locations = {};
+
+        for (var i = 0; i < raw.length; i++) {
+            let line = raw[i];
+            if (line == "") {
+                continue;
+            }
+            let split = line.split(":");
+            locations[split[0].trim()] = split[1].trim();
+        }
+
+        return locations;
+    } catch {
+        alert("Invalid location format. Ignoring. \n (Check for empty lines)");
+        return {};
+    }
+}
+
 function gatherData() {
 
     function get(name) {
@@ -42,6 +63,7 @@ function gatherData() {
 
     let data = {
         ids: sget("ids"),
+        locations: getLocations(),
         internet: {
             url: get("url")
         },
@@ -52,7 +74,7 @@ function gatherData() {
             pan: parseInt(get("zigbee_pan"))
         },
         counting: {
-            rssi_threshold:iget("counting_rssi"),
+            rssi_threshold: iget("counting_rssi"),
             rssi_close_threshold: iget("counting_close"),
             delta: iget("counting_delta")
         },
@@ -80,11 +102,11 @@ function submitForm() {
         },
         redirect: 'follow'
     })
-    .then(response => {
-        if (response.redirected) {
-            window.location.href = response.url;
-        }
-    }).catch(error => {
-        console.error('Error:', error);
-    })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            }
+        }).catch(error => {
+            console.error('Error:', error);
+        })
 }

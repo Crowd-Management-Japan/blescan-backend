@@ -6,6 +6,7 @@ import logging
 from flask_login import login_required
 
 from ..util import compact_int_list_string
+import app.util as util
 
 setup_bp = Blueprint('setup', __name__)
 
@@ -75,6 +76,10 @@ def setup():
     last_config['internet']['ids'] = compact_int_list_string(last_config['internet']['ids'])
     last_config['zigbee']['internet'] = compact_int_list_string(last_config['zigbee']['internet'])
     last_config['zigbee']['ids'] = compact_int_list_string(last_config['zigbee']['ids'])
+
+    last_config['locations'] = util.location_dict_to_string(last_config['locations'])
+    logging.debug(last_config['locations'])
+    
 
     return render_template('setup/settings.html', config=last_config)
 

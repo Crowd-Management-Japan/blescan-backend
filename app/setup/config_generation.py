@@ -3,6 +3,7 @@ import time
 
 from typing import Dict, List
 from flask import current_app
+from collections import defaultdict
 import app.util as util
 import json
 import logging
@@ -10,6 +11,7 @@ import logging
 def get_empty_config():
     return {
         'ids': [],
+        'locations': defaultdict(lambda: "0"),
         'internet': {
             'enable': True,
             'ids': [],
@@ -78,6 +80,7 @@ class ConfigGenerator:
         self.set_internet_data(config.get('internet', {}))
         self.set_counting_config(config.get('counting', {}))
         self.set_beacon_config(config.get('beacon', {}))
+        self.set_locations(config.get('locations', {}))
 
     def set_zigbee_config(self, zigbee: Dict):
         zig = self._config['zigbee']
@@ -134,6 +137,10 @@ class ConfigGenerator:
     def get_config(self):
         # thread safe deep copy
         return json.loads(json.dumps(self._config))
+    
+    def get_locations(self):
+        # thread safe deep copy
+        return json.loads(json.dumps(self._config['locations']))
 
     def prepare_zigbee(self):
         logging.debug("preparing zigbee data")
@@ -181,6 +188,8 @@ class ConfigGenerator:
         config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
         config = config.replace('$PAN', str(self._config['zigbee']['pan']))
 
+        config = config.replace('$LOCATION', self._config['locations'].get(str(id), "0"))
+
         self._device_status[id] = 'requested'
 
         return config
@@ -219,3 +228,11 @@ class ConfigGenerator:
         self.save_config(conf)
         return conf
     
+    def set_locations(self, locations: Dict):
+        self._config['locations'] = {str(k): v for k, v in locations.items()}
+
+    def set_location_str(self, id, location: str):
+        self._config['locations'][str(id)] = location
+    
+    def set_location(self, id, latitude: float, longitude: float):
+        self.set_location_str(id, f"{latitude}, {longitude}")

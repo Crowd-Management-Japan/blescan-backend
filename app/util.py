@@ -60,3 +60,7 @@ def dict_strict_deep_update(d1: Dict, d2: Dict):
             cpy[k] = d2.get(k, d1[k])
 
     d1.update(cpy)
+
+def location_dict_to_string(loc: Dict) -> str:
+    return "\n".join([f"{id}: {l}" for id, l in loc.items()])
+    
