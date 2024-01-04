@@ -29,10 +29,10 @@
                 "type": "integer"
             },
             "latitude": {
-                "type": "number"
+                "type": ["number", "string"]
             },
             "longitude": {
-                "type": "number"
+                "type": ["number", "string"]
             }
         },
         "required": ["id", "timestamp"]

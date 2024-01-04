@@ -36,8 +36,8 @@ def reset_database():
     logging.debug(data)
     if data.get('password', '') == PASSWORD:
 
-        db.drop_all()
-        db.create_all()
+        CountEntry.metadata.drop_all(db.engine)
+        CountEntry.metadata.create_all(db.engine)
 
         return "deleted data", 200
     
