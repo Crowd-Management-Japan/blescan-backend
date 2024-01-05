@@ -48,7 +48,7 @@
             type: "line",
             data: {
                 datasets: [{
-                    label: "Avg. Count",
+                    label: "Summed Rolling mean (5min)",
                     data: [],
                     spanGaps: 10000
                 },
@@ -86,14 +86,14 @@
             data_count = data.map(e => {
                 return {
                     x: e.timestamp,
-                    y: e.count_avg
+                    y: e.rolling_mean
                 };
             });
 
             data_online = data.map(e => {
                 return {
                     x: e.timestamp,
-                    y: e.dev_count
+                    y: 0//e.dev_count
                 }
             })
 

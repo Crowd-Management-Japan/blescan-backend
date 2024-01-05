@@ -47,6 +47,29 @@ def reset_database():
 
 @db_bp.route('/data')
 def get_data():
+
+    date_format = request.args.get('format')
+    if not date_format:
+        date_format = DATE_FILTER_FORMAT
+
+
+    before = request.args.get('before')
+    if before:
+        before = datetime.datetime.strptime(before, date_format)
+        logging.debug("filtering before: %s", before)
+        query = query.filter(CountEntry.timestamp < before)
+
+    after = request.args.get('after')
+    if after:
+        after = datetime.datetime.strptime(after, date_format)
+        logging.debug("filtering after: %s", after)
+        query = query.filter(CountEntry.timestamp > after)
+
+    limit = request.args.get('limit', None)
+
+    return dbFunc.get_graph_data(before, after, limit)
+
+
     df = dbFunc.get_time_dataframe(request, DATE_FILTER_FORMAT)
     return jsonify(df)
 
