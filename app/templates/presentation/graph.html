@@ -29,13 +29,9 @@
         integrity="sha512-MKxcSu/LDtbIYHBNAWUQwfB3iVoG9xeMCm32QV5hZ/9lFaQZJVaXfz9aFa0IZExWzCpm7OWvp9zq9gVip/nLMg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-
-    <p>
-        <label for="amount">Date range:</label>
-        <input type="text" id="amount" style="border: 0; color: #f6931f; font-weight: bold;" size="100" />
-    </p>
-    <div style="margin-left: 3%; margin-right: 3%; margin-bottom: 1cm; margin-top: 1cm;">
-        <div id="slider_range"></div>
+    <div>
+        <label for="input-limit" >Limit data (8460 is one day continuous data)</label>
+        <input type="number" id="input-limit" name="limit" step="360" min="1" max="20000"/>
     </div>
 
     <div style="padding: 1cm; padding-bottom: 0%; ">
@@ -76,18 +72,17 @@
             }
         });
 
-        var myslider = null
-
         var firstDate = null;
         var firstDateSec = null;
         var lastDate = null;
-        var lastDateSec = null
+        var lastDateSec = null;
 
         FORMAT = "%Y-%m-%d_%H:%M";
-        FORMAT_JS = "YYYY-MM-DD HH:mm:ss"
+        FORMAT_JS = "YYYY-MM-DD HH:mm:ss";
+        DATA_LIMIT = 8460 * 1.5;
 
         function setValues(data) {
-
+            raw_data = data;
             data_count = data.map(e => {
                 return {
                     x: e.timestamp,
@@ -108,9 +103,9 @@
 
         }
 
-        function fetchData() {
-            url = `/database/data`;
-            fetch(url, {
+        async function fetchData() {
+            var url = "/database/data?limit=" + (DATA_LIMIT);
+            await fetch(url, {
                 method: 'GET'
             })
                 .then(response => response.json())
@@ -121,125 +116,15 @@
                 })
         }
 
-
-        function toSec(dateString) {
-            if (dateString == "first") {
-                return firstDateSec;
-            }
-            if (dateString == "last") {
-                return lastDateSec;
-            }
-            var dt = moment(dateString, FORMAT_JS);
-            return dt.unix();
-        }
-
-        function secToDate(s) {
-            if (s == firstDateSec) {
-                return "first";
-            }
-            if (s == lastDateSec) {
-                return "last";
-            }
-            dt = moment.unix(s);
-            return dt.format(FORMAT_JS);
-        }
-
         function updateData() {
             time = new Date().toLocaleTimeString();
+            DATA_LIMIT = document.getElementById("input-limit").value;
             fetchData();
-            fetchDates().then(dates => {
-                firstDateSec = toSec(dates.first);
-                lastDateSec = toSec(dates.last);
-
-                var oldPositions = myslider.noUiSlider.getPositions();
-
-                myslider.noUiSlider.updateOptions({
-                    range: {
-                        'min': firstDateSec,
-                        'max': lastDateSec
-                    }
-                });
-
-                var newPositions = [null, null];
-                if (oldPositions[0] == 0) {
-                    newPositions[0] = 'first';
-                }
-                if (oldPositions[1] == 100) {
-                    newPositions[1] = 'last';
-                }
-                myslider.noUiSlider.set(newPositions);
-            });
             document.getElementById("update_timestamp").innerHTML = time;
         }
-
-        async function fetchDates() {
-            return fetch('/database/data/dates', {
-                method: 'GET'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    firstDate = moment(data.first).format(FORMAT_JS);
-                    lastDate = moment(data.last).format(FORMAT_JS);
-
-                    return { first: data.first, last: data.last }
-                })
-        }
+    
 
         $(function () {
-            console.log('init');
-            myslider = document.getElementById('slider_range');
-
-
-
-            fetchDates().then(dates => {
-
-                console.log(dates);
-
-                noUiSlider.create(myslider, {
-                    range: {
-                        'min': toSec(dates.first),
-                        'max': toSec(dates.last)
-                    },
-                    step: 60,
-                    start: [(dates.first), (dates.last)],
-                    tooltips: true,
-                    pips: {
-                        mode: 'positions',
-                        values: [0, 33, 66, 100],
-                        format: {
-                            to: secToDate,
-                            from: toSec
-                        }
-                    },
-                    format: {
-                        to: secToDate,
-                        from: toSec
-                    }
-                });
-
-                myslider.noUiSlider.on('update', function (values, handle) {
-                    $('#amount').val((values[0]) + ' - ' + (values[1]));
-
-                    if (handle === 0) {
-                        if (values[0] == 'first') {
-                            chart.options.scales.x.min = null;
-                            return;
-                        }
-                    }
-                    else if (handle === 1) {
-                        if (values[1] == 'last') {
-                            chart.options.scales.x.max = null;
-                            return;
-                        }
-                    }
-
-
-                    chart.options.scales.x.min = (values[0]);
-                    chart.options.scales.x.max = (values[1]);
-                    chart.update();
-                })
-            });
-
             updateData();
             setInterval(updateData, 5000);
         });

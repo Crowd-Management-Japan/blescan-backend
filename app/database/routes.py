@@ -72,6 +72,7 @@ def get_filtered_data():
     after: a string timestamp of an excluding lower boundary of the timestamp
     format: a string defining the format of the upper two values. If none is given "%Y-%m-%d %H:%M:%S" is used
     type: either json or csv
+    limit: a number limiting the amount of values
     """
     query = CountEntry.query
 
@@ -98,6 +99,13 @@ def get_filtered_data():
         after = datetime.datetime.strptime(after, date_format)
         logging.debug("filtering after: %s", after)
         query = query.filter(CountEntry.timestamp > after)
+
+    limit = request.args.get("limit")
+    if limit:
+        try:
+            query = query.limit(int(limit))
+        except:
+            pass
 
     result = query.all()
 
