@@ -17,7 +17,7 @@ def init_db(app):
 def get_time_dataframe(request, DATE_FILTER_FORMAT):
     CountEntry = models.CountEntry
     
-    query = db.session.query(CountEntry.timestamp, func.avg(CountEntry.count), func.count(CountEntry.id)).group_by(CountEntry.timestamp)
+    query = db.session.query(CountEntry.timestamp, func.avg(CountEntry.count), func.count(CountEntry.id)).group_by(CountEntry.timestamp).order_by(CountEntry.timestamp.desc())
 
 
     date_format = request.args.get('format')
@@ -37,19 +37,17 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
         logging.debug("filtering after: %s", after)
         query = query.filter(CountEntry.timestamp > after)
 
+    limit = request.args.get('limit')
+    if limit:
+        try:
+            query = query.limit(int(limit))
+        except:
+            pass    
+
     devices = query.all()
-
-    #logging.debug(devices[0][0].strftime(date_format))
-
-   #dtypes=[('timestamp', 'U'), ('count_avg', 'float'), ('dev_count', 'i4')]
-   # devices = np.array([(d.strftime(date_format), avg, c) for (d,avg,c) in devices], dtype=dtypes)
 
     return [{
         'timestamp': device[0].strftime(date_format),
         'count_avg': device[1],
         'dev_count': device[2]
     } for device in devices]
-
-    df = pd.DataFrame(devices)
-
-    return df
