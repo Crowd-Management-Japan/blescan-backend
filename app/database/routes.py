@@ -67,7 +67,7 @@ def get_data():
 
     limit = request.args.get('limit', None)
 
-    return dbFunc.get_graph_data(before, after, limit)
+    return dbFunc.get_graph_data(before, after, limit, date_format)
 
 
     df = dbFunc.get_time_dataframe(request, DATE_FILTER_FORMAT)

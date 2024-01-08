@@ -54,10 +54,10 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
         'dev_count': device[2]
     } for device in devices]
 
-def get_graph_data(before_date: datetime.datetime = None, after_date:datetime.datetime = None, limit: int = None) -> List[Dict[str, Any]]:
+def get_graph_data(before_date: datetime.datetime = None, after_date:datetime.datetime = None, limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
     CountEntry = models.CountEntry
 
-    query = db.session.query(CountEntry.id, CountEntry.timestamp, CountEntry.count).order_by(CountEntry.timestamp.desc());
+    query = db.session.query(CountEntry).order_by(CountEntry.timestamp.desc());
 
     if before_date:
         query = query.filter(CountEntry.timestamp < before_date)
@@ -67,13 +67,19 @@ def get_graph_data(before_date: datetime.datetime = None, after_date:datetime.da
         query = query.limit(limit)
 
     df = pd.read_sql(query.statement, db.engine)
+
     df['timestamp'] = pd.to_datetime(df['timestamp'])
+    result = pd.DataFrame()
 
-    windowed = df.groupby('id').apply(lambda x: x.set_index('timestamp').rolling('5min')['count'].mean())
+    grouped = df.groupby('timestamp')
 
-    result = windowed.sum(axis=0).reset_index()
+    result['device_count'] = grouped['id'].count()
 
-    result.columns = ['timestamp', 'rolling_mean']
+    rolling = df.set_index('timestamp').groupby('id')['count'].rolling(window='5min').mean()
+    result['rolling_avg_sum'] = rolling.reset_index().groupby('timestamp').sum()['count']
+    
+    result.reset_index(inplace=True)
+    result['timestamp'] = result['timestamp'].map(lambda date: date.strftime(date_format))
 
     json = result.to_json(orient='records')
     return json
