@@ -48,7 +48,7 @@
             type: "line",
             data: {
                 datasets: [{
-                    label: "Avg. Count",
+                    label: "Summed Rolling mean (5min)",
                     data: [],
                     spanGaps: 10000
                 },
@@ -77,34 +77,29 @@
         var lastDate = null;
         var lastDateSec = null;
 
-        FORMAT = "%Y-%m-%d_%H:%M";
+        FORMAT = "%Y-%m-%d %H:%M:%S";
         FORMAT_JS = "YYYY-MM-DD HH:mm:ss";
         DATA_LIMIT = 8460 * 1.5;
 
         function setValues(data) {
-            raw_data = data;
-            data_count = data.map(e => {
-                return {
-                    x: e.timestamp,
-                    y: e.count_avg
-                };
+
+            var rolling_avg = [];
+            var device_count = [];
+
+            data.forEach(e => {
+                rolling_avg.push({x: e.timestamp, y: e.rolling_avg_sum});
+                device_count.push({x: e.timestamp, y: e.device_count});
             });
 
-            data_online = data.map(e => {
-                return {
-                    x: e.timestamp,
-                    y: e.dev_count
-                }
-            })
-
-            chart.data.datasets[0].data = data_count;
-            chart.data.datasets[1].data = data_online;
+            chart.data.datasets[0].data = rolling_avg;
+            chart.data.datasets[1].data = device_count;
             chart.update();
 
         }
 
         async function fetchData() {
             var url = "/database/data?limit=" + (DATA_LIMIT);
+            url += "&format=" + (FORMAT);
             await fetch(url, {
                 method: 'GET'
             })

@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import datetime
 import logging
+from typing import List, Dict, Any
+from flask import jsonify
 
 db = SQLAlchemy()
 
@@ -51,3 +53,35 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
         'count_avg': device[1],
         'dev_count': device[2]
     } for device in devices]
+
+def get_graph_data(before_date: datetime.datetime = None, after_date:datetime.datetime = None, limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
+    CountEntry = models.CountEntry
+
+    query = db.session.query(CountEntry).order_by(CountEntry.timestamp.desc());
+
+    if before_date:
+        query = query.filter(CountEntry.timestamp < before_date)
+    if after_date:
+        query = query.filter(CountEntry.timestamp > after_date)
+    if limit:
+        query = query.limit(limit)
+
+    df = pd.read_sql(query.statement, db.engine)
+
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    result = pd.DataFrame()
+
+    grouped = df.groupby('timestamp')
+
+    result['device_count'] = grouped['id'].count()
+
+    rolling = df.set_index('timestamp').groupby('id')['count'].rolling(window='5min').mean()
+    result['rolling_avg_sum'] = rolling.reset_index().groupby('timestamp').sum()['count']
+    
+    result.reset_index(inplace=True)
+    result['timestamp'] = result['timestamp'].map(lambda date: date.strftime(date_format))
+
+    json = result.to_json(orient='records')
+    return json
+
+    
