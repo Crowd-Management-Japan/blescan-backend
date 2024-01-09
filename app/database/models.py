@@ -26,10 +26,10 @@ class CountEntry(db.Model):
 
     count: Mapped[int] = mapped_column(Integer)
     close: Mapped[int] = mapped_column(Integer)
-    rssi_avg: Mapped[float] = mapped_column(Float)
-    rssi_std: Mapped[float] = mapped_column(Float)
-    rssi_min: Mapped[int] = mapped_column(Integer)
-    rssi_max: Mapped[int] = mapped_column(Integer)
+    rssi_avg: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    rssi_std: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    rssi_min: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    rssi_max: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
 
     latitude: Mapped[float] = mapped_column(Float, nullable=True, default=None)
     longitude: Mapped[float] = mapped_column(Float, nullable=True, default=None)
@@ -42,10 +42,10 @@ class CountEntry(db.Model):
 
         entry.count = data.get('count', 0)
         entry.close = data.get('close', 0)
-        entry.rssi_avg = data.get('rssi_avg', 0)
-        entry.rssi_std = data.get('rssi_std', 0)
-        entry.rssi_min = data.get('rssi_min', 0)
-        entry.rssi_max = data.get('rssi_max', 0)
+        entry.rssi_avg = data.get('rssi_avg', None)
+        entry.rssi_std = data.get('rssi_std', None)
+        entry.rssi_min = data.get('rssi_min', None)
+        entry.rssi_max = data.get('rssi_max', None)
 
         entry.latitude = data.get('latitude', None)
         entry.longitude = data.get('longitude', None)

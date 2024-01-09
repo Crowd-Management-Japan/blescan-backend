@@ -34,8 +34,8 @@ def update_status():
         validate(data, _schemas.get('countentry'))
         data['timestamp'] = datetime.datetime.strptime(data.get('timestamp', ''), '%Y-%m-%d %H:%M:%S')
         
-        data['latitude'] = util.float_or_None(data.get('latitude', 'null'))
-        data['longitude'] = util.float_or_None(data.get('longitude', 'null'))
+        data['latitude'] = util.float_or_None(data.get('latitude', None))
+        data['longitude'] = util.float_or_None(data.get('longitude', None))
 
     except ValidationError as e:
         logging.error("Validation error validating update")

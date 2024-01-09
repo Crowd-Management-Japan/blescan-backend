@@ -74,6 +74,6 @@ def float_or_None(value: str) -> Union[float,None]:
     """
     try:
         return float(value)
-    except ValueError:
+    except (ValueError, TypeError):
         return None
     

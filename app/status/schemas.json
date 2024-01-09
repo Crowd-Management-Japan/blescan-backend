@@ -17,24 +17,24 @@
                 "minimum": 0
             },
             "rssi_avg": {
-                "type": "number"
+                "type": ["number", "null"]
             },
             "rssi_std": {
-                "type": "number"
+                "type": ["number", "null"]
             },
             "rssi_min": {
-                "type": "integer"
+                "type": ["integer", "null"]
             },
             "rssi_max": {
-                "type": "integer"
+                "type": ["integer", "null"]
             },
             "latitude": {
-                "type": ["number", "string"]
+                "type": ["number", "null"]
             },
             "longitude": {
-                "type": ["number", "string"]
+                "type": ["number", "null"]
             }
         },
-        "required": ["id", "timestamp"]
+        "required": ["id", "timestamp", "count"]
     }
 }
