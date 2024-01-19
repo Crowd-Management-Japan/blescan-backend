@@ -41,4 +41,8 @@ python etc/install.py $id $server_url
 sudo cp etc/blescan.service /lib/systemd/system/
 sudo systemctl enable blescan.service
 
+# add crontab for daily restart for every night 1 am
+(crontab -l && echo "0 1 * * * sudo reboot") | crontab
+
 # finally reboot or state that user should reboot
+echo Please reboot the device to finish the setup
