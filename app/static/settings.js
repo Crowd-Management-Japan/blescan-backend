@@ -68,7 +68,7 @@ function gatherData() {
             url: get("url")
         },
         zigbee: {
-            enable: get("use_zigbee") == "on",
+            enable: get("use_zigbee").checked,
             coordinator: parseInt(get("zigbee_coordinator")),
             internet: sget("zigbee_internet"),
             pan: parseInt(get("zigbee_pan"))
