@@ -17,6 +17,8 @@ from app.database.models import User
 from flask_login import current_user, login_required
 from app.database.database import init_db, db
 
+from app.template_filters import setup_template_filters
+
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.logger.setLevel('DEBUG')
 
@@ -25,6 +27,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'  # Change this to a secure secret key
 
 init_db(app)
+setup_template_filters(app)
 
 with app.app_context():
     db.create_all()
@@ -65,19 +68,6 @@ app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
 app.register_blueprint(presentation_bp, url_prefix='/data')
 app.register_blueprint(db_bp, url_prefix='/database')
-
-@app.template_filter()
-def format_datetime(value, format='medium'):
-    if value < datetime(2000, 1, 1):
-        return "-"
-    if format == 'full':
-        format="EEEE, d. MMMM y 'at' HH:mm"
-    elif format == 'medium':
-        format="EE dd.MM.y HH:mm"
-    elif format == 'delta':
-        return bdates.format_timedelta(datetime.now() - value, locale='en')
-    
-    return bdates.format_datetime(value, format, locale='en')
 
 # create command function
 @click.command(name='createadmin')
