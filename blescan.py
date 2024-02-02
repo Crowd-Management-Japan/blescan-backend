@@ -19,6 +19,8 @@ from app.database.database import init_db, db
 
 from app.template_filters import setup_template_filters
 
+from config import Config
+
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.logger.setLevel('DEBUG')
 
@@ -83,4 +85,4 @@ def create():
 app.cli.add_command(create)
 
 if __name__ == "__main__":
-    app.run(debug=True, host='localhost', port=5000)
+    app.run(debug=True, host=Config.HOSTNAME, port=Config.PORT)
