@@ -21,9 +21,9 @@ Total count: {{data.total}} <br>
         <td>{{item.count}}</td>
         <td>{{item.close}}</td>
         <td>{{item.rssi_avg}}</td>
-        <TD>{{item.last_updated|format_datetime('medium')}}</TD>
+        <TD>{{item.timestamp|format_datetime('medium')}}</TD>
         <TD>{{item.last_updated|format_datetime('delta')}}</TD>
-        <td>{{item.is_online}}</td>
+        <td>{{item.last_updated|is_online()}}</td>
     </TR>
 
     {% endfor %}
