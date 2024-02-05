@@ -20,7 +20,4 @@ def setup_template_filters(app):
 
     @app.template_filter()
     def is_online(value):
-
-        logging.debug(f"checking onlines status for {value}")
-
         return (datetime.now() - value) < timedelta(minutes=5)
