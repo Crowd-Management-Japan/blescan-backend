@@ -97,7 +97,7 @@ def get_filtered_data():
     type: either json or csv
     limit: a number limiting the amount of values
     """
-    query = CountEntry.query
+    query = CountEntry.query.order_by(CountEntry.timestamp.desc())
 
     ids = request.args.get('id')
     if ids:
