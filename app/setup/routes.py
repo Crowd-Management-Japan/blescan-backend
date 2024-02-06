@@ -112,7 +112,7 @@ def get_installation_script(id: int):
     with open(filename) as file:
         text = file.read()
         text = text.replace("$DEVICE_ID", str(id))
-        text = text.replace("$SERVER_URL", f"{Config.HOSTNAME}:{Config.PORT}")
+        text = text.replace("$SERVER_URL", f"{Config.SERVER_IP}:{Config.PORT}")
 
         return text
 
