@@ -68,7 +68,7 @@ function gatherData() {
             url: get("url")
         },
         zigbee: {
-            enable: get("use_zigbee") == "on",
+            enable: document.getElementById("use_zigbee").checked,
             coordinator: parseInt(get("zigbee_coordinator")),
             internet: sget("zigbee_internet"),
             pan: parseInt(get("zigbee_pan"))
@@ -84,7 +84,7 @@ function gatherData() {
             threshold: iget("beacon_threshold")
         }
     }
-    return data
+    return data;
 }
 
 function submitForm() {

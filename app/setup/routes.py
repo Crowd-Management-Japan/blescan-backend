@@ -7,6 +7,7 @@ from flask_login import login_required
 
 from ..util import compact_int_list_string
 import app.util as util
+from config import Config
 
 setup_bp = Blueprint('setup', __name__)
 
@@ -111,6 +112,7 @@ def get_installation_script(id: int):
     with open(filename) as file:
         text = file.read()
         text = text.replace("$DEVICE_ID", str(id))
+        text = text.replace("$SERVER_URL", f"{Config.HOSTNAME}:{Config.PORT}")
 
         return text
 

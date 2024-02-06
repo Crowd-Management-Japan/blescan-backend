@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import Dict
+from datetime import datetime, timedelta
+from typing import Dict, List
 import logging
 
 _instance = None
@@ -20,9 +20,8 @@ class DataReceiver:
 
     def set_data(self, data: Dict):
         id = int(data['id'])
-        time = datetime.now()
         
-        data.update({'last_updated': time, 'is_online': True})
+        data.update({'last_updated': datetime.now(), 'is_online': True})
 
         self._data[id] = data
 
@@ -39,7 +38,7 @@ class DataReceiver:
     def get_data_as_list(self):
         return [_ for _ in self._data.values()]
     
-    def get_data_online_first(self):
+    def get_data_online_first(self) -> List:
         online = [d for d in self._data.values() if d['is_online']]
         offline = [d for d in self._data.values() if not d['is_online']]
 
@@ -58,7 +57,8 @@ def _get_empty_field(id: int):
     """
     return {
         'id': id,
-        'last_updated': datetime.min,
+        'timestamp': datetime.min,
+        'last_updated': datetime.min, # last updated is the local time of the server
         'is_online': False,
         'count': 0,
         'avgRSSI': 0
