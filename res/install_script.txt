@@ -7,13 +7,15 @@ sudo systemctl disable blescan.service
 sudo systemctl stop blescan.service
 
 id=$DEVICE_ID
-server_url=192.168.1.100:5000
+server_url=$SERVER_URL
 git_url=https://github.com/Crowd-Management-Japan/blescan.git
 
 # install basic packages needed
 sudo apt update -y
 sudo apt upgrade -y
-sudo apt install vim git python3-venv -y  
+
+# libatlas-base-dev needed for numpy c-libs
+sudo apt install vim git python3-venv libatlas-base-dev -y  
 
 echo -------- apt installation done -------- 
 
@@ -32,6 +34,11 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 
+# somehow pyserial is installed with the current version but still there
+# is some issue that we have to reinstall it to work.
+yes | pip uninstall pyserial
+pip install pyserial
+
 echo -------- running install.py -------
 
 python etc/install.py $id $server_url
@@ -42,7 +49,7 @@ sudo cp etc/blescan.service /lib/systemd/system/
 sudo systemctl enable blescan.service
 
 # add crontab for daily restart for every night 1 am
-(crontab -l && echo "0 1 * * * sudo reboot") | crontab
+(sudo crontab -l && echo "0 1 * * * reboot") | sudo crontab
 
 # finally reboot or state that user should reboot
 echo Please reboot the device to finish the setup
