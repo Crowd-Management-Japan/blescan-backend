@@ -66,8 +66,15 @@ def get_data():
         query = query.filter(CountEntry.timestamp > after)
 
     limit = request.args.get('limit', None)
+    limit_val = 1
+    if limit:
+        try:
+            limit_val = max(1, int(limit))
+        except ValueError:
+            logging.warning("invalid limit value. Ignoring")
+            limit_val = 1
 
-    return dbFunc.get_graph_data(before, after, limit, date_format)
+    return dbFunc.get_graph_data(limit_val, date_format)
 
 
     df = dbFunc.get_time_dataframe(request, DATE_FILTER_FORMAT)
