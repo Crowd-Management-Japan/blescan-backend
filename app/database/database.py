@@ -54,17 +54,18 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
         'dev_count': device[2]
     } for device in devices]
 
-def get_graph_data(before_date: datetime.datetime = None, after_date:datetime.datetime = None, limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
+def get_graph_data(limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
     CountEntry = models.CountEntry
 
     query = db.session.query(CountEntry).order_by(CountEntry.timestamp.desc());
 
-    if before_date:
-        query = query.filter(CountEntry.timestamp < before_date)
-    if after_date:
-        query = query.filter(CountEntry.timestamp > after_date)
     if limit:
-        query = query.limit(limit)
+        limit = max(1, limit)
+        subquery = db.session.query(CountEntry.timestamp).distinct(CountEntry.timestamp).order_by(CountEntry.timestamp.desc()).limit(1).offset(limit - 1)
+        first = subquery.first()
+        if len(first) > 0:
+            first_ts = first[0]
+            query = query.filter(CountEntry.timestamp >= first_ts)
 
     df = pd.read_sql(query.statement, db.engine)
 
@@ -77,7 +78,6 @@ def get_graph_data(before_date: datetime.datetime = None, after_date:datetime.da
 
     rolling = df.set_index('timestamp').groupby('id')['count'].rolling(window='5min').mean()
     result['rolling_avg_sum'] = rolling.reset_index().groupby('timestamp').sum()['count']
-    
     result.reset_index(inplace=True)
     result['timestamp'] = result['timestamp'].map(lambda date: date.strftime(date_format))
 
