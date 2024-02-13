@@ -31,7 +31,7 @@
 
     <div>
         <label for="input-limit" >Limit data (8460 is one day continuous data)</label>
-        <input type="number" id="input-limit" name="limit" step="360" min="1" max="20000"/>
+        <input type="number" id="input-limit" name="limit" step="360" min="1" max="20000" value="8460"/>
     </div>
 
     <div style="padding: 1cm; padding-bottom: 0%; ">
@@ -100,6 +100,7 @@
         async function fetchData() {
             var url = "/database/data?limit=" + (DATA_LIMIT);
             url += "&format=" + (FORMAT);
+            console.log("fetching data (" + url + ")" );
             await fetch(url, {
                 method: 'GET'
             })
@@ -113,7 +114,10 @@
 
         function updateData() {
             time = new Date().toLocaleTimeString();
-            DATA_LIMIT = document.getElementById("input-limit").value;
+            let entered = parseInt(document.getElementById("input-limit").value);
+            if (entered > 0 ) {
+                DATA_LIMIT = entered;
+            }
             fetchData();
             document.getElementById("update_timestamp").innerHTML = time;
         }
