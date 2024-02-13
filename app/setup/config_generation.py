@@ -31,6 +31,7 @@ def get_empty_config():
         },
         'beacon': {
             'target_id': '1233aacc0dc140a78085303a6d64ddb5',
+            'shutdown_id': '',
             'scans': 8,
             'threshold': 3
         }
@@ -118,7 +119,7 @@ class ConfigGenerator:
     def set_beacon_config(self, data: Dict):
         beacon = self._config['beacon']
         default = _DEFAULT_CONFIG['beacon']
-        keys = ['target_id', 'scans', 'threshold']
+        keys = ['target_id', 'scans', 'threshold', 'shutdown_id']
         for key in keys:
             beacon[key] = data.get(key, default[key])
 
@@ -167,6 +168,7 @@ class ConfigGenerator:
         config = self.prepared
         
         config = config.replace('$TARGET_ID', self._config['beacon']['target_id'])
+        config = config.replace('$BEACON_SHUTDOWN', self._config['beacon']['shutdown_id'])
         config = config.replace('$SCANS', str(self._config['beacon']['scans']))
         config = config.replace('$BEACON_THRESHOLD', str(self._config['beacon']['threshold']))
 

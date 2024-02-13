@@ -84,6 +84,9 @@
                     "target_id": {
                         "type": "string"
                     },
+                    "shutdown_id": {
+                        "type": "string"
+                    },
                     "scans": {
                         "type": "integer",
                         "minimum": 1
