@@ -81,7 +81,8 @@ function gatherData() {
         beacon: {
             target_id: get("beacon_target_id"),
             scans: iget("beacon_scans"),
-            threshold: iget("beacon_threshold")
+            threshold: iget("beacon_threshold"),
+            shutdown_id: get("beacon_shutdown")
         }
     }
     return data;

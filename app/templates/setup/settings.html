@@ -67,7 +67,11 @@
                 <input type="number" id="beacon_scans" value="{{config.beacon.scans}}"> <br>
 
                 <label>Define the threshold to use for detecting a stay</label><br>
-                <input type="number" id="beacon_threshold" value="{{config.beacon.threshold}}">
+                <input type="number" id="beacon_threshold" value="{{config.beacon.threshold}}"> <br>
+
+                <label for="beacon_shutdown">Define a shutdown id. Combination of Major and Minor (e.g. 99999999) that, when scanned, make the raspberry shutdown. <br>
+                    Be aware with decimal and hexadecimal values. This field is represented as hexadecimal value.</label> <br>
+                <input type="text" id="beacon_shutdown" value="{{config.beacon.shutdown_id}}">
             </p>
         </details>
 
