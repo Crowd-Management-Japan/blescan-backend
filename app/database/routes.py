@@ -137,6 +137,8 @@ def get_filtered_data():
         except:
             pass
 
+    query = query.order_by(None).order_by(CountEntry.timestamp.asc())
+
     result = query.all()
 
 

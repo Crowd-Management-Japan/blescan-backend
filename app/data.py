@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Dict, List
 import logging
+import math
 
 _instance = None
 
@@ -22,6 +23,9 @@ class DataReceiver:
         id = int(data['id'])
         
         data.update({'last_updated': datetime.now(), 'is_online': True})
+
+        data['rssi_avg'] = (data.get('rssi_avg', 0) * 1000 // 1) / 1000
+
 
         self._data[id] = data
 
