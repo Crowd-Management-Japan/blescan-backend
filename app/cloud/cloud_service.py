@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from requests.auth import HTTPBasicAuth
 import json
 
+from app.config import Configs
+
 DOTENV_PATH = "app/cloud/.env"
 
 class CloudService:
@@ -43,13 +45,20 @@ class CloudService:
 
     def send_to_cloud(self, data: Dict):
 
+        devID = data['id']
+
+        device_filter = Configs.CloudConfig.DEVICES_TO_SEND
+
+        if device_filter and devID not in device_filter:
+            logging.debug(f"device {devID} not in cloud device filter ({device_filter})")
+            return
+
         if not (self.CLOUD_ADDRESS and self.CLOUD_TOKEN):
             logging.error(f"no cloud address and token. Maybe the file {DOTENV_PATH} is missing?")
             return
 
         # send the data
 
-        devID = data['id']
         date = data['timestamp'].strftime("%Y-%m-%d")
         time = data['timestamp'].strftime("%Y%m%d%H%M%S")
         url = f"{self.CLOUD_ADDRESS}/objects/v1/utokyo_sandbox/utokyo/ble{devID}/{date}/{time}.json"
@@ -58,7 +67,8 @@ class CloudService:
 
         formatted_data = self._format_data(data)
         #logging.debug(f"data to send to cloud: {formatted_data}")
-        response = requests.put(url, timeout=5, headers={"Authorization": f"Basic {self.CLOUD_TOKEN}"}, data=formatted_data)
+        response = requests.put(url, headers={"Authorization": f"Basic {self.CLOUD_TOKEN}"}, data=formatted_data)
+
 
         logging.debug(f"response code: {response.status_code}")
 

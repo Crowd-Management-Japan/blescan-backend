@@ -21,6 +21,11 @@ from app.template_filters import setup_template_filters
 
 from config import Config
 
+import app.config as backConf
+
+backConf.init_config()
+
+
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.logger.setLevel('DEBUG')
 
