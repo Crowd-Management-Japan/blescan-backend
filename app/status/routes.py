@@ -33,9 +33,6 @@ def update_status():
     try:
         validate(data, _schemas.get('countentry'))
         data['timestamp'] = datetime.datetime.strptime(data.get('timestamp', ''), '%Y-%m-%d %H:%M:%S')
-
-        logging.debug(f"timestamp parsed to: {data['timestamp']}°")
-        
         data['latitude'] = util.float_or_None(data.get('latitude', None))
         data['longitude'] = util.float_or_None(data.get('longitude', None))
 
