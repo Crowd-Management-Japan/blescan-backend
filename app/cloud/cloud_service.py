@@ -47,7 +47,7 @@ class CloudService:
 
         devID = data['id']
 
-        device_filter = Configs.CloudConfig.DEVICES_TO_SEND
+        device_filter = Configs.CloudConfig.DEVICE_FILTER
 
         if device_filter and devID not in device_filter:
             logging.debug(f"device {devID} not in cloud device filter ({device_filter})")

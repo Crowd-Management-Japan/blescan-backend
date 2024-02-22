@@ -7,9 +7,11 @@ logging.debug("loading cloudconfig")
 
 class CloudConfig:
 
+    IS_ENABLED: bool = False
+
     # define a list of device IDs to send to the cloud
     # if `None`, all devices will be sent. If the List is empty, no data will be sent
-    DEVICES_TO_SEND: Union[List[int], None] = None
+    DEVICE_FILTER: Union[List[int], None] = None
 
     def __init__(self, path: Union[str, None]):
         self.path = path
@@ -41,11 +43,13 @@ class CloudConfig:
 
     def _to_dict(self) -> Dict: 
         return {
-            'DEVICES_TO_SEND': self.DEVICES_TO_SEND
+            'DEVICE_FILTER': self.DEVICE_FILTER,
+            'IS_ENABLED': self.IS_ENABLED
         }
 
     def _from_dict(self, d: Dict) -> bool:
-        self.DEVICES_TO_SEND = d.get('DEVICES_TO_SEND', _default.DEVICES_TO_SEND)
+        self.DEVICE_FILTER = d.get('DEVICE_FILTER', _default.DEVICE_FILTER)
+        self.IS_ENABLED = d.get('IS_ENABLED', _default.IS_ENABLED)
 
 # some private instance to get the default values
 _default = CloudConfig(None)
