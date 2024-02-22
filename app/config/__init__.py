@@ -14,4 +14,8 @@ class _Configs:
 Configs = _Configs()
 
 def init_config(base_dir='res/config'):
+    logging.debug("initializing configs")
     Configs.CloudConfig = cloud_config.CloudConfig(f"{base_dir}/{ConfigType.CLOUD.value}")
+
+
+init_config()

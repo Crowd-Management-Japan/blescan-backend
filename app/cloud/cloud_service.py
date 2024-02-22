@@ -5,6 +5,7 @@ import requests
 import os
 from dotenv import load_dotenv
 from requests.auth import HTTPBasicAuth
+from app.config.cloud_config import CloudConfig
 import json
 
 from app.config import Configs
@@ -19,7 +20,7 @@ class CloudService:
     CLOUD_ADDRESS = None
 
     def __init__(self):
-        self.filter = []
+        self.config: CloudConfig = Configs.CloudConfig
         self.reload_env()
 
     def reload_env(self, path=DOTENV_PATH):
@@ -39,11 +40,13 @@ class CloudService:
         self.CLOUD_TOKEN = os.getenv("CLOUD_TOKEN")
         self.CLOUD_ADDRESS = os.getenv("CLOUD_ADDRESS")
 
-
-    def set_id_filter(self, ids: List[int]):
-        self.filter = ids
+    def set_config(self, config: CloudConfig):
+        self.config = config
 
     def send_to_cloud(self, data: Dict):
+
+        if not self.config.IS_ENABLED:
+            return
 
         devID = data['id']
 

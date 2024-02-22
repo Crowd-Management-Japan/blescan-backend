@@ -7,6 +7,7 @@ logging.debug("loading cloudconfig")
 
 class CloudConfig:
 
+    # select if the cloud functionality should be used
     IS_ENABLED: bool = False
 
     # define a list of device IDs to send to the cloud
