@@ -9,6 +9,7 @@ from app.setup.routes import setup_bp
 from app.status.routes import status_bp
 from app.database.routes import db_bp
 from app.presentation.routes import presentation_bp
+from app.logging.routes import log_bp
 import babel.dates as bdates
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -27,6 +28,7 @@ app.logger.setLevel('DEBUG')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'  # Change this to a secure secret key
+app.config['UPLOAD_FOLDER'] = 'res/uploads'
 
 init_db(app)
 setup_template_filters(app)
@@ -70,6 +72,7 @@ app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
 app.register_blueprint(presentation_bp, url_prefix='/data')
 app.register_blueprint(db_bp, url_prefix='/database')
+app.register_blueprint(log_bp, url_prefix='/log')
 
 # create command function
 @click.command(name='createadmin')
