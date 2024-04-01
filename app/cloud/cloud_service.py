@@ -63,35 +63,39 @@ class CloudService:
         # send the data
 
         date = data['timestamp'].strftime("%Y-%m-%d")
-        time = data['timestamp'].strftime("%Y%m%d%H%M%S")
-        url = f"{self.CLOUD_ADDRESS}/objects/v1/utokyo_sandbox/utokyo/ble{devID}/{date}/{time}.json"
+        time = data['timestamp'].strftime("%y%m%d%H%M%S")
+        url = f"{self.CLOUD_ADDRESS}/objects/v1/share_sandbox/utokyo_sandbox/ble{devID}/{date}/{time}.json"
 
         logging.debug(f"sending data to {url}")
 
         formatted_data = self._format_data(data)
-        #logging.debug(f"data to send to cloud: {formatted_data}")
+        logging.debug(f"data to send to cloud: {formatted_data}")
         response = requests.put(url, headers={"Authorization": f"Basic {self.CLOUD_TOKEN}"}, data=formatted_data)
 
 
         logging.debug(f"response code: {response.status_code}")
 
     def _format_data(self, data: Dict) -> Dict:
-        timestamp = data['timestamp'].isoformat(timespec='seconds')
+        timestamp = str(data['timestamp'].isoformat(timespec='seconds'))
 
-        keys_to_send = set(['close', 'count', 'latitude', 'longitude', 'rssi_avg', 'rssi_std'])
+        keys_to_send = set(["close", "count", "latitude", "longitude", "rssi_avg", "rssi_std"])
 
-        data = {k: data[k] for k in  keys_to_send.intersection(data.keys())}
+        data = {k: str(data[k]) for k in  keys_to_send.intersection(data.keys())}
 
         print(f"timestamp for cloud data: {timestamp}")
 
         formatted = {
-            'data': [
+            "data": [
                 {
-                'time': timestamp,
-                'value': data
+                "time": timestamp,
+                "value": data
                 }
             ]
         }
-        return formatted
+        
+        # Convert the dictionary to JSON with double quotes
+        formatted_json = json.dumps(formatted, ensure_ascii=True)
+
+        return formatted_json
 
 cloud_service = CloudService()

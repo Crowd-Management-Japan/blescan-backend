@@ -76,7 +76,7 @@ def get_graph_data(limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") ->
 
     result['device_count'] = grouped['id'].count()
 
-    rolling = df.set_index('timestamp').groupby('id')['count'].rolling(window='5min').mean()
+    rolling = df.set_index('timestamp').groupby('id')['count'].rolling(window='10min').mean()
     result['rolling_avg_sum'] = rolling.reset_index().groupby('timestamp').sum()['count']
     result.reset_index(inplace=True)
     result['timestamp'] = result['timestamp'].map(lambda date: date.strftime(date_format))
