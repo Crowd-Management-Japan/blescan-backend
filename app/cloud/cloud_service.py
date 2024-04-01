@@ -93,7 +93,7 @@ class CloudService:
             ]
         }
         
-        # Convert the dictionary to JSON with double quotes
+        # convert the dictionary to JSON with double quotes
         formatted_json = json.dumps(formatted, ensure_ascii=True)
 
         return formatted_json
