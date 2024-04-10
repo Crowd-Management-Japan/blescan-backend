@@ -16,7 +16,6 @@ class CloudService:
 
     # These values are read from the file specified by `DOTENV_PATH`.
 
-    CLOUD_ENVIRONMENT = None
     CLOUD_TOKEN = None
     CLOUD_ADDRESS = None
 
@@ -37,13 +36,9 @@ class CloudService:
         if not dotenv_loaded:
             logging.error(f"could not load dotenv for cloud service. (file: {DOTENV_PATH})")
 
-        logging.debug(f"cloud environment: {os.getenv('CLOUD_ENVIRONMENT')}")
-        if self.CLOUD_ENVIRONMENT == 'sandbox':
-            self.CLOUD_TOKEN = os.getenv("SANDBOX_TOKEN")
-            self.CLOUD_ADDRESS = os.getenv("SANDBOX_ADDRESS")
-        if self.CLOUD_ENVIRONMENT == 'live':
-            self.CLOUD_TOKEN = os.getenv("LIVE_TOKEN")
-            self.CLOUD_ADDRESS = os.getenv("LIVE_ADDRESS")           
+        logging.debug(f"cloud address: {os.getenv('CLOUD_ADDRESS')}")
+        self.CLOUD_TOKEN = os.getenv("CLOUD_TOKEN")
+        self.CLOUD_ADDRESS = os.getenv("CLOUD_ADDRESS")
 
     def set_config(self, config: CloudConfig):
         self.config = config
@@ -68,7 +63,6 @@ class CloudService:
         # send the data
         date = data['timestamp'].strftime("%Y-%m-%d")
         time = data['timestamp'].strftime("%y%m%d%H%M%S")
-
         # sandbox
         #url = f"{self.CLOUD_ADDRESS}/objects/v1/share_sandbox/utokyo_sandbox/ble{devID}/{date}/{time}.json"
         # real environment
