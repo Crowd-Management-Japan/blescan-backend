@@ -43,6 +43,11 @@
                 <input type="number" id="input-limit" name="limit" step="360" min="1" max="20000" value="8460"/>
             </div>
             <div class="input-container">
+                <button id="btnUpdate" onclick="updateData()">
+                    Update settings
+                </button>
+            </div>
+            <div class="input-container">
                 <label for="device-from" >Restrict to specific devices: from </label>
                 <input type="number" id="device-from" name="id-from" step="1" min="1" max="100" value="1"/>
                 <label for="device-to" > to </label>
@@ -151,11 +156,7 @@
             document.getElementById("update_timestamp").innerHTML = time;
         }
     
-
-        $(function () {
-            updateData();
-            setInterval(updateData, 5000);
-        });
+        setInterval(updateData, 10000);
 
     </script>
 </body>
