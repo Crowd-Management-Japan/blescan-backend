@@ -74,7 +74,25 @@ def get_data():
             logging.warning("invalid limit value. Ignoring")
             limit_val = 1
 
-    return dbFunc.get_graph_data(limit_val, date_format)
+    id_from = request.args.get('id-from', None)
+    id_from_val = 1
+    if id_from:
+        try:
+            id_from_val = max(1, int(id_from))
+        except ValueError:
+            logging.warning("invalid ID from value. Ignoring")
+            id_from_val = 1
+
+    id_to = request.args.get('id-to', None)
+    id_to_val = 1
+    if id_to:
+        try:
+            id_to_val = max(1, int(id_to))
+        except ValueError:
+            logging.warning("invalid ID to value. Ignoring")
+            id_to_val = 100
+
+    return dbFunc.get_graph_data(limit_val, id_from_val, id_to_val, date_format)
 
 
     df = dbFunc.get_time_dataframe(request, DATE_FILTER_FORMAT)

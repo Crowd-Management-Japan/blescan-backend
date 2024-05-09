@@ -54,10 +54,11 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
         'dev_count': device[2]
     } for device in devices]
 
-def get_graph_data(limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
+def get_graph_data(limit: int = None, id_from: int = None, id_to: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
     CountEntry = models.CountEntry
 
     query = db.session.query(CountEntry).order_by(CountEntry.timestamp.desc());
+    logging.debug(f"got value {id_from} for from id")
 
     if limit:
         limit = max(1, limit)
@@ -68,6 +69,7 @@ def get_graph_data(limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") ->
             query = query.filter(CountEntry.timestamp >= first_ts)
 
     df = pd.read_sql(query.statement, db.engine)
+    df = df[df['id'].isin(list(range(id_from, id_to + 1)))]
 
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     result = pd.DataFrame()

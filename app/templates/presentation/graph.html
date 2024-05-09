@@ -4,20 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <title>BleScan</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .input-container {
+            flex-grow: 1;
+            margin-left: 50px;
+            margin-right: 5px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Blescan Data</h1>
+    <!-- <h1>Blescan Data</h1>
     <button onclick="window.location.href='/';">
-        Back to frontpage</button>
-    <br><br>
-
-    <button id="btnUpdate" onclick="updateData()">
-        Update
+        Back to frontpage
     </button>
-
-    <label>Last updated:</label>
-    <label id="update_timestamp">XX</label> <br>
+    <label>     Last updated:</label>
+    <label id="update_timestamp">XX</label> -->
 
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
     <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
@@ -28,14 +35,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.css"
         integrity="sha512-MKxcSu/LDtbIYHBNAWUQwfB3iVoG9xeMCm32QV5hZ/9lFaQZJVaXfz9aFa0IZExWzCpm7OWvp9zq9gVip/nLMg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    
     <div>
-        <label for="input-limit" >Limit data (8460 is one day continuous data)</label>
-        <input type="number" id="input-limit" name="limit" step="360" min="1" max="20000" value="8460"/>
+        <div class="container">
+            <div class="input-container">
+                <label for="input-limit" >Limit data (8460 is one day continuous data)</label>
+                <input type="number" id="input-limit" name="limit" step="360" min="1" max="20000" value="8460"/>
+            </div>
+            <div class="input-container">
+                <label for="device-from" >Restrict to specific devices: from </label>
+                <input type="number" id="device-from" name="id-from" step="1" min="1" max="100" value="1"/>
+                <label for="device-to" > to </label>
+                <input type="number" id="device-to" name="id-to" step="1" min="1" max="100" value="100"/>
+            </div>
+        </div>
     </div>
 
     <div style="padding: 1cm; padding-bottom: 0%; ">
-        <canvas id="myChart" style="width: 95vw !important; height: 80vh !important; "></canvas>
+        <canvas id="myChart" style="width: 95vw !important; height: 95vh !important; "></canvas>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -80,6 +97,8 @@
         FORMAT = "%Y-%m-%d %H:%M:%S";
         FORMAT_JS = "YYYY-MM-DD HH:mm:ss";
         DATA_LIMIT = 8460 * 1.5;
+        ID_FROM = 1;
+        ID_TO = 100;
 
         function setValues(data) {
 
@@ -99,6 +118,8 @@
 
         async function fetchData() {
             var url = "/database/data?limit=" + (DATA_LIMIT);
+            url += "&id-from=" + (ID_FROM);
+            url += "&id-to=" + (ID_TO);
             url += "&format=" + (FORMAT);
             console.log("fetching data (" + url + ")" );
             await fetch(url, {
@@ -114,9 +135,17 @@
 
         function updateData() {
             time = new Date().toLocaleTimeString();
-            let entered = parseInt(document.getElementById("input-limit").value);
-            if (entered > 0 ) {
-                DATA_LIMIT = entered;
+            let data_limit = parseInt(document.getElementById("input-limit").value);
+            if (data_limit > 0 ) {
+                DATA_LIMIT = data_limit;
+            }
+            let id_from = parseInt(document.getElementById("device-from").value);
+            if (id_from > 0 ) {
+                ID_FROM = id_from;
+            }
+            let id_to = parseInt(document.getElementById("device-to").value);
+            if (id_to > 0 ) {
+                ID_TO = id_to;
             }
             fetchData();
             document.getElementById("update_timestamp").innerHTML = time;
