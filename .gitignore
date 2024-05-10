@@ -1,6 +1,6 @@
 # Code specifics
 config.py
-res/config/last_config.json
+res/last_config.json
 last_config.json
 cloud/
 
