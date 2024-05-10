@@ -1,3 +1,7 @@
+# Code specifics
+config.py
+res/config/last_config.json
+
 *.ipynb
 # Byte-compiled / optimized / DLL files
 __pycache__/
