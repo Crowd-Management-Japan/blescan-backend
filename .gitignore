@@ -2,6 +2,7 @@
 config.py
 res/config/last_config.json
 last_config.json
+cloud/
 
 *.ipynb
 # Byte-compiled / optimized / DLL files
