@@ -1,39 +1,39 @@
 {
   "ids": [
-    40,
-    41,
-    42,
-    43,
-    44,
-    45,
-    46,
-    47,
-    48,
-    49,
-    50
+    51,
+    52,
+    53,
+    54
   ],
+  "locations": {
+    "40": "-1,-1",
+    "41": "-1,-1",
+    "42": "-1,-1",
+    "43": "-1,-1"
+  },
   "internet": {
     "enable": true,
     "ids": "",
-    "url": "http://194.195.92.252:5000/status/update"
+    "url": "http://127.0.0.1:5000/status/update"
   },
   "zigbee": {
-    "enable": true,
-    "coordinator": 45,
+    "enable": false,
+    "coordinator": 0,
     "internet": [
-      45
+      0
     ],
     "ids": [],
-    "pan": 1
+    "pan": 0
   },
   "counting": {
     "rssi_threshold": -100,
-    "rssi_close_threshold": -50,
+    "rssi_close_threshold": -80,
     "delta": 10
   },
   "beacon": {
     "target_id": "1233aacc0dc140a78085303a6d64ddb5",
-    "scans": 8,
+    "shutdown_id": "",
+    "scans": 10,
     "threshold": 3
   }
 }
