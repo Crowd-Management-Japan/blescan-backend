@@ -8,6 +8,7 @@ import datetime
 import logging
 from typing import List, Dict, Any
 from flask import jsonify
+import pytz
 
 db = SQLAlchemy()
 
@@ -56,17 +57,19 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
 
 def get_graph_data(limit: int = None, id_from: int = None, id_to: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
     CountEntry = models.CountEntry
+    jst = pytz.timezone('Asia/Tokyo')
 
     query = db.session.query(CountEntry).order_by(CountEntry.timestamp.desc());
-    logging.debug(f"got value {id_from} for from id")
+    past_dt = datetime.datetime.now(jst) - datetime.timedelta(seconds=30)
 
     if limit:
         limit = max(1, limit)
-        subquery = db.session.query(CountEntry.timestamp).distinct(CountEntry.timestamp).order_by(CountEntry.timestamp.desc()).limit(1).offset(limit - 3)
+        subquery = db.session.query(CountEntry.timestamp).distinct(CountEntry.timestamp).order_by(CountEntry.timestamp.desc()).limit(1).offset(limit - 1)
         first = subquery.first()
         if len(first) > 0:
             first_ts = first[0]
             query = query.filter(CountEntry.timestamp >= first_ts)
+            query = query.filter(CountEntry.timestamp < past_dt)
 
     df = pd.read_sql(query.statement, db.engine)
     df = df[df['id'].isin(list(range(id_from, id_to + 1)))]
