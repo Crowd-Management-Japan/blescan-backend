@@ -62,7 +62,7 @@ def get_graph_data(limit: int = None, id_from: int = None, id_to: int = None, da
 
     if limit:
         limit = max(1, limit)
-        subquery = db.session.query(CountEntry.timestamp).distinct(CountEntry.timestamp).order_by(CountEntry.timestamp.desc()).limit(1).offset(limit - 1)
+        subquery = db.session.query(CountEntry.timestamp).distinct(CountEntry.timestamp).order_by(CountEntry.timestamp.desc()).limit(1).offset(limit - 3)
         first = subquery.first()
         if len(first) > 0:
             first_ts = first[0]
