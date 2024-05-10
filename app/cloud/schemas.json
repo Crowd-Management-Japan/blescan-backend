@@ -1,0 +1,13 @@
+{
+    "cloud_config": {
+        "type": "object",
+        "properties": {
+            "is_enabled": {
+                "type": "boolean"
+            },
+            "device_filter": {
+                "type": ["string", "null"]
+            }
+        }
+    }
+}

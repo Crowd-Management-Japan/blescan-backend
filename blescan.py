@@ -8,6 +8,8 @@ from flask.cli import with_appcontext
 from app.setup.routes import setup_bp
 from app.status.routes import status_bp
 from app.database.routes import db_bp
+from app.config.routes import config_bp
+from app.cloud.routes import cloud_bp
 from app.presentation.routes import presentation_bp
 import babel.dates as bdates
 from datetime import datetime
@@ -20,6 +22,11 @@ from app.database.database import init_db, db
 from app.template_filters import setup_template_filters
 
 from config import Config
+
+import app.config as backConf
+
+backConf.init_config()
+
 
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.logger.setLevel('DEBUG')
@@ -70,6 +77,8 @@ app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
 app.register_blueprint(presentation_bp, url_prefix='/data')
 app.register_blueprint(db_bp, url_prefix='/database')
+app.register_blueprint(config_bp, url_prefix='/config')
+app.register_blueprint(cloud_bp, url_prefix='/cloud')
 
 # create command function
 @click.command(name='createadmin')
