@@ -8,6 +8,8 @@ Total count: {{data.total}} <br>
         <TD>ID</TD>
         <td>Total Count</td>
         <td>Close Count</td>
+        <td>Static Total</td>
+        <td>Static close</td>
         <td>avg RSSI</td>
         <td>last updated</td>
         <td>update delta</td>
@@ -20,6 +22,8 @@ Total count: {{data.total}} <br>
         <TD class="c1">{{item.id}}</TD>
         <td>{{item.count}}</td>
         <td>{{item.close}}</td>
+        <td>{{item.static_total}}</td>
+        <td>{{item.static_close}}</td>
         <td>{{item.rssi_avg}}</td>
         <TD>{{item.timestamp|format_datetime('medium')}}</TD>
         <TD>{{item.last_updated|format_datetime('delta')}}</TD>

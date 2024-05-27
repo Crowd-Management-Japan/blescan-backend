@@ -75,6 +75,9 @@
                     },
                     "delta": {
                         "type": "integer"
+                    },
+                    "static_ratio": {
+                        "type": "integer"
                     }
                 }
             },

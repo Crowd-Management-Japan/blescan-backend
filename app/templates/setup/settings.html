@@ -48,6 +48,9 @@
                 <label>Define the delta-time between scans (best: multiple of 10) (warning: use with care, can produce multiple entries for a single timestamp!)</label> <br>
                 <input type="number" id="counting_delta" value="{{config.counting.delta}}"> <br>
 
+                <label>Defines the existence probability that determines the retention state.</label><br>
+                <input type="number" id="static_ratio" value="{{config.counting.static_ratio}}"><br>
+
                 <label>Define the url to connect to and send updates</label><br>
                 <input type="text" id="url" name="url" value="{{config.internet.url}}" size="50"><br>
             </p>
