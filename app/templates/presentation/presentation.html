@@ -9,15 +9,20 @@
 <body>
     <h1>Blescan Data</h1> 
     <button onclick="window.location.href='/';">
-        Back to frontpage</button>
-        <br><br>
+        Back to frontpage
+    </button>
+    <br><br>
 
-    
     <script src="https://unpkg.com/htmx.org@1.9.8"></script>
     <!-- use htmx to update table -->
     <button id="btnUpdate" hx-get="data_table" hx-swap="innerHTML" hx-target="#item_table">
         Update
     </button>
+
+    <button id="remove_offline_equipment" onclick="hideOfflineRows();">
+        Remove offline equipment
+    </button>
+    <br>
 
     <label>Last updated:</label>
     <label id="update_timestamp">XX</label> <br>
@@ -25,18 +30,61 @@
     <div id="item_table"></div>
             
     <script>
+        const hiddenRows = new Set();
 
         function updateData() {
-            time = new Date().toLocaleTimeString();
-            document.getElementById("btnUpdate").click();
+            const time = new Date().toLocaleTimeString();
             document.getElementById("update_timestamp").innerHTML = time;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             updateData();
-            setInterval(updateData, 5000);
+            setInterval(function() {
+                document.getElementById("btnUpdate").click();
+                setTimeout(restoreHiddenRows, 500);  // Restore hide after table update
+            }, 5000);
         });
+
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.target.id === "item_table") {
+                restoreHiddenRows();
+            }
+        });
+
+        function hideOfflineRows() {
+            const rows = document.querySelectorAll('#item_table table tbody tr');
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName('td');
+                const rowId = cells[0].innerText.trim(); // Get ID column.
+                const lastUpdatedValue = cells[cells.length - 3].innerText.trim(); // Get the value of the last updated column.
+                const onlineValue = cells[cells.length - 1].innerText.trim().toLowerCase(); // Get the value of the online column
+
+                const datePattern = /^[a-zA-Z]{3}\s\d{2}\.\d{2}\.\d{4}\s\d{2}:\d{2}$/; // Regular expressions in date format
+
+                if (onlineValue === 'false' && datePattern.test(lastUpdatedValue)) {
+                    row.style.display = 'none';
+                    hiddenRows.add(rowId);
+                }
+            });
+        }
+
+        function restoreHiddenRows() {
+            const rows = document.querySelectorAll('#item_table table tbody tr');
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName('td');
+                const rowId = cells[0].innerText.trim(); // Get ID column.
+                const onlineValue = cells[cells.length - 1].innerText.trim().toLowerCase(); // Get the value of the online column
+
+                if (hiddenRows.has(rowId) && onlineValue === 'false') {
+                    row.style.display = 'none';
+                } else if (hiddenRows.has(rowId) && onlineValue === 'true') {
+                    row.style.display = '';
+                    hiddenRows.delete(rowId);
+                }
+            });
+        }
     </script>
+    
 </body>
 
 </html>
