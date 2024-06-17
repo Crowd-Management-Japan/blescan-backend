@@ -34,6 +34,9 @@ class CountEntry(db.Model):
     latitude: Mapped[float] = mapped_column(Float, nullable=True, default=None)
     longitude: Mapped[float] = mapped_column(Float, nullable=True, default=None)
 
+    static_total: Mapped[int] = mapped_column(Integer)
+    static_close: Mapped[int] = mapped_column(Integer)
+
     @staticmethod
     def of_dict(data: Dict):
         entry = CountEntry()
@@ -50,6 +53,9 @@ class CountEntry(db.Model):
         entry.latitude = data.get('latitude', None)
         entry.longitude = data.get('longitude', None)
 
+        entry.static_total = data.get('static_total', 0)
+        entry.static_close = data.get('static_close', 0)
+
         return entry
 
     def to_dict(self, datetime_format="%Y-%m-%d %H:%M:%S"):
@@ -63,6 +69,8 @@ class CountEntry(db.Model):
             'rssi_min': self.rssi_min,
             'rssi_max': self.rssi_max,
             'latitude': self.latitude,
-            'longitude': self.longitude
+            'longitude': self.longitude,
+            'static_total':self.static_total,
+            'static_close':self.static_close
         }
         return data

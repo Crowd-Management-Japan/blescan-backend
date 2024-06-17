@@ -76,7 +76,8 @@ function gatherData() {
         counting: {
             rssi_threshold: iget("counting_rssi"),
             rssi_close_threshold: iget("counting_close"),
-            delta: iget("counting_delta")
+            delta: iget("counting_delta"),
+            static_ratio: iget("static_ratio")
         },
         beacon: {
             target_id: get("beacon_target_id"),

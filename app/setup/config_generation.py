@@ -27,7 +27,8 @@ def get_empty_config():
         'counting': {
             'rssi_threshold': -100,
             'rssi_close_threshold': -50,
-            'delta': 10
+            'delta': 10,
+            'static_ratio': 7
         },
         'beacon': {
             'target_id': '1233aacc0dc140a78085303a6d64ddb5',
@@ -111,7 +112,7 @@ class ConfigGenerator:
         count = self._config['counting']
         default = _DEFAULT_CONFIG['counting']
 
-        keys = ['rssi_threshold', 'rssi_close_threshold', 'delta']
+        keys = ['rssi_threshold', 'rssi_close_threshold', 'delta', 'static_ratio']
 
         for key in keys:
             count[key] = data.get(key, default[key])
@@ -161,6 +162,7 @@ class ConfigGenerator:
         config = config.replace('$RSSI_THRESHOLD', str(self._config['counting']['rssi_threshold']))
         config = config.replace('$RSSI_CLOSE_THRESHOLD', str(self._config['counting']['rssi_close_threshold']))
         config = config.replace('$DELTA', str(self._config['counting']['delta']))
+        config = config.replace('$STATIC_RATIO', str(self._config['counting']['static_ratio']))#ここ追加したよ
 
         self.prepared = config
 
