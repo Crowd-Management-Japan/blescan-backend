@@ -8,6 +8,7 @@ import datetime
 import logging
 from typing import List, Dict, Any
 from flask import jsonify
+import pytz
 
 db = SQLAlchemy()
 
@@ -54,10 +55,12 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
         'dev_count': device[2]
     } for device in devices]
 
-def get_graph_data(limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
+def get_graph_data(limit: int = None, id_from: int = None, id_to: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
     CountEntry = models.CountEntry
+    jst = pytz.timezone('Asia/Tokyo')
 
     query = db.session.query(CountEntry).order_by(CountEntry.timestamp.desc());
+    past_dt = datetime.datetime.now(jst) - datetime.timedelta(seconds=30)
 
     if limit:
         limit = max(1, limit)
@@ -66,8 +69,10 @@ def get_graph_data(limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") ->
         if len(first) > 0:
             first_ts = first[0]
             query = query.filter(CountEntry.timestamp >= first_ts)
+            query = query.filter(CountEntry.timestamp < past_dt)
 
     df = pd.read_sql(query.statement, db.engine)
+    df = df[df['id'].isin(list(range(id_from, id_to + 1)))]
 
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     result = pd.DataFrame()
@@ -76,7 +81,7 @@ def get_graph_data(limit: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") ->
 
     result['device_count'] = grouped['id'].count()
 
-    rolling = df.set_index('timestamp').groupby('id')['count'].rolling(window='5min').mean()
+    rolling = df.set_index('timestamp').groupby('id')['count'].rolling(window='10min').mean()
     result['rolling_avg_sum'] = rolling.reset_index().groupby('timestamp').sum()['count']
     result.reset_index(inplace=True)
     result['timestamp'] = result['timestamp'].map(lambda date: date.strftime(date_format))

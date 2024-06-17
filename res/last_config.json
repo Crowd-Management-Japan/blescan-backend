@@ -40,20 +40,28 @@
     37,
     38,
     39,
-    40
+    40,
+    51,
+    52,
+    53,
+    54
   ],
+  "locations": {
+    "40": "-1,-1",
+    "41": "-1,-1",
+    "42": "-1,-1",
+    "43": "-1,-1"
+  },
   "internet": {
     "enable": true,
-    "ids": [
-      45
-    ],
-    "url": "http://www.claudiofeliciani.online/ble_system/get_count.php"
+    "ids": "",
+    "url": "http://127.0.0.1:5000/status/update"
   },
   "zigbee": {
-    "enable": true,
-    "coordinator": 40,
+    "enable": false,
+    "coordinator": 0,
     "internet": [
-      45
+      0
     ],
     "ids": [],
     "pan": 1
@@ -62,12 +70,18 @@
     "rssi_threshold": -100,
     "rssi_close_threshold": -60,
     "delta": 10,
-    "static_ratio": 5
+    "static_ratio": 5,
+    "pan": 0
+  },
+  "counting": {
+    "rssi_threshold": -100,
+    "rssi_close_threshold": -80,
+    "delta": 10
   },
   "beacon": {
     "target_id": "1233aacc0dc140a78085303a6d64ddb5",
     "shutdown_id": "",
-    "scans": 8,
+    "scans": 10,
     "threshold": 3
   }
 }

@@ -8,6 +8,7 @@ import datetime
 from app.database.models import CountEntry
 from app.database.database import db
 import app.util as util
+from app.cloud.cloud_service import cloud_service
 
 status_bp = Blueprint('status', __name__)
 
@@ -50,6 +51,7 @@ def update_status():
         db.session.add(entry)
         db.session.commit()
         _dataReceiver.set_data(data)
+        cloud_service.send_to_cloud(data)
     return "ok", 200
 
 @status_bp.route('/status_last_updated_table')

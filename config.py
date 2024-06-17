@@ -5,8 +5,8 @@ class Config:
     Class that contains static constants.
     """
     # hostname and port for the flask application
-    HOSTNAME = 'localhost'
-    PORT = 6002
+    HOSTNAME = '0.0.0.0'
+    PORT = 5000
 
     # server ip to deploy for raspberry installation
     SERVER_IP = '127.0.0.1'
