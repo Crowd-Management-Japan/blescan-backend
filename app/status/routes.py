@@ -17,11 +17,6 @@ _dataReceiver = DataReceiver.get_instance()
 with open('app/status/schemas.json', 'r') as schemas_file:
     _schemas = json.load(schemas_file)
 
-@status_bp.route('/')
-def getStatus():
-    data = {}
-    return render_template('status/status.html')
-
 @status_bp.route('update', methods= ['GET'])
 def get_status():
     return "ok", 200
@@ -53,8 +48,3 @@ def update_status():
         _dataReceiver.set_data(data)
         cloud_service.send_to_cloud(data)
     return "ok", 200
-
-@status_bp.route('/status_last_updated_table')
-def get_status_table():
-    data = {'data': _dataReceiver.get_data_online_first()}
-    return render_template('status/status_table.html', data=data)

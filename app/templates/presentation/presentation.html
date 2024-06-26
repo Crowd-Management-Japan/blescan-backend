@@ -4,6 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <title>BleScan</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#online_only').change(function() {
+                var isChecked = $(this).is(':checked');
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ url_for('presentation.update_checkbox') }}",
+                    data: JSON.stringify({ online_only: isChecked }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        console.log(response);
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -14,77 +32,27 @@
     <br><br>
 
     <script src="https://unpkg.com/htmx.org@1.9.8"></script>
-    <!-- use htmx to update table -->
-    <button id="btnUpdate" hx-get="data_table" hx-swap="innerHTML" hx-target="#item_table">
-        Update
-    </button>
 
-    <button id="remove_offline_equipment" onclick="hideOfflineRows();">
-        Remove offline equipment
-    </button>
+    <form action="{{ url_for('presentation.update_checkbox') }}" method="POST">
+        <label for="online_only">Show only online devices</label>
+        <input type="checkbox" id="online_only" name="online_only">
+    </form>
+
     <br>
-
-    <label>Last updated:</label>
-    <label id="update_timestamp">XX</label> <br>
 
     <div id="item_table"></div>
             
     <script>
         const hiddenRows = new Set();
 
-        function updateData() {
-            const time = new Date().toLocaleTimeString();
-            document.getElementById("update_timestamp").innerHTML = time;
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            updateData();
-            setInterval(function() {
-                document.getElementById("btnUpdate").click();
-                setTimeout(restoreHiddenRows, 500);  // Restore hide after table update
-            }, 5000);
+            setInterval(updateTable, 5000);
         });
 
-        document.body.addEventListener('htmx:afterSwap', function(evt) {
-            if (evt.detail.target.id === "item_table") {
-                restoreHiddenRows();
-            }
-        });
-
-        function hideOfflineRows() {
-            const rows = document.querySelectorAll('#item_table table tbody tr');
-            rows.forEach(row => {
-                const cells = row.getElementsByTagName('td');
-                const rowId = cells[0].innerText.trim(); // Get ID column.
-                const lastUpdatedValue = cells[cells.length - 3].innerText.trim(); // Get the value of the last updated column.
-                const onlineValue = cells[cells.length - 1].innerText.trim().toLowerCase(); // Get the value of the online column
-
-                const datePattern = /^[a-zA-Z]{3}\s\d{2}\.\d{2}\.\d{4}\s\d{2}:\d{2}$/; // Regular expressions in date format
-
-                if (onlineValue === 'false' && datePattern.test(lastUpdatedValue)) {
-                    row.style.display = 'none';
-                    hiddenRows.add(rowId);
-                }
-            });
-        }
-
-        function restoreHiddenRows() {
-            const rows = document.querySelectorAll('#item_table table tbody tr');
-            rows.forEach(row => {
-                const cells = row.getElementsByTagName('td');
-                const rowId = cells[0].innerText.trim(); // Get ID column.
-                const onlineValue = cells[cells.length - 1].innerText.trim().toLowerCase(); // Get the value of the online column
-
-                if (hiddenRows.has(rowId) && onlineValue === 'false') {
-                    row.style.display = 'none';
-                } else if (hiddenRows.has(rowId) && onlineValue === 'true') {
-                    row.style.display = '';
-                    hiddenRows.delete(rowId);
-                }
-            });
+        function updateTable() {
+            htmx.ajax('GET', 'data_table', { target: '#item_table', swap: 'innerHTML' });
         }
     </script>
     
 </body>
-
 </html>

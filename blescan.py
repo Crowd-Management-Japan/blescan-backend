@@ -2,7 +2,7 @@ import logging
 import click
 logging.basicConfig(level=logging.DEBUG, 
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
-from flask import Flask, render_template, request, flash, url_for, redirect
+from flask import Flask, render_template, request, flash, url_for, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 from flask.cli import with_appcontext
 from app.setup.routes import setup_bp
@@ -29,6 +29,7 @@ backConf.init_config()
 
 
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
+app.secret_key = 'no_secret_key' # change with yours although this is a low level security setting
 app.logger.setLevel('DEBUG')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'

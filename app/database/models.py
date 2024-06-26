@@ -37,6 +37,9 @@ class CountEntry(db.Model):
     static_total: Mapped[int] = mapped_column(Integer)
     static_close: Mapped[int] = mapped_column(Integer)
 
+    inst_all: Mapped[int] = mapped_column(Integer)
+    inst_close: Mapped[int] = mapped_column(Integer)
+
     @staticmethod
     def of_dict(data: Dict):
         entry = CountEntry()
@@ -56,6 +59,9 @@ class CountEntry(db.Model):
         entry.static_total = data.get('static_total', 0)
         entry.static_close = data.get('static_close', 0)
 
+        entry.inst_all = data.get('inst_all', 0)
+        entry.inst_close = data.get('inst_close', 0)
+
         return entry
 
     def to_dict(self, datetime_format="%Y-%m-%d %H:%M:%S"):
@@ -71,6 +77,8 @@ class CountEntry(db.Model):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'static_total':self.static_total,
-            'static_close':self.static_close
+            'static_close':self.static_close,
+            'inst_all':self.inst_all,
+            'inst_close':self.inst_close
         }
         return data
