@@ -45,13 +45,13 @@
                 <label>Define the Threshold above which device will be counted as close</label><br>
                 <input type="number" id="counting_close" value="{{config.counting.rssi_close_threshold}}"> <br>
 
-                <label>Define the delta-time between scans (best: multiple of 10) (warning: use with care, can produce multiple entries for a single timestamp!)</label> <br>
+                <label>Define the delta-time between scans (best: multiple of 10, 15, 20, etc.) (warning: too short/long intervals may affect results)</label> <br>
                 <input type="number" id="counting_delta" value="{{config.counting.delta}}"> <br>
 
-                <label>Defines the number of appearances within the total scans to define a device as static.</label><br>
+                <label>Defines the ratio of appearances within the total scans to define a device as static.</label><br>
                 <input type="number" id="static_ratio" value="{{config.counting.static_ratio}}"><br>
 
-                <label>Define the url to connect to and send updates</label><br>
+                <label>Define the url to connect to and send count updates</label><br>
                 <input type="text" id="url" name="url" value="{{config.internet.url}}" size="50"><br>
             </p>
         </details>
@@ -77,6 +77,22 @@
                 <input type="text" id="beacon_shutdown" value="{{config.beacon.shutdown_id}}">
             </p>
         </details>
+
+        <br>
+
+        <!-- <details open>
+            <summary><strong>Settings for Mode 3: Transit Time</strong></summary>
+            <p>
+                <label>Define the url to send scanned ids for transit time</label><br>
+                <input type="text" id="url" name="url" value="{{config.internet.url}}" size="50"><br>
+
+                <label for="textarea-transit">Define combination of devices that should be used to compute transit time.
+                    <br>Format: One per line <code>[ID1]<strong>,</strong> [ID2]<strong></strong></code></label> 
+                <br>
+                <textarea id="textarea-transit" name="textarea-transit" cols="50" rows="10" >{{config.transit_time}}</textarea>
+                <br>
+            </p>
+        </details> -->
 
         <br>
 

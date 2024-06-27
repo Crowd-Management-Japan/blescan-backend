@@ -26,7 +26,7 @@ def get_empty_config():
         },
         'counting': {
             'rssi_threshold': -100,
-            'rssi_close_threshold': -50,
+            'rssi_close_threshold': -75,
             'delta': 10,
             'static_ratio': 7
         },
@@ -162,7 +162,7 @@ class ConfigGenerator:
         config = config.replace('$RSSI_THRESHOLD', str(self._config['counting']['rssi_threshold']))
         config = config.replace('$RSSI_CLOSE_THRESHOLD', str(self._config['counting']['rssi_close_threshold']))
         config = config.replace('$DELTA', str(self._config['counting']['delta']))
-        config = config.replace('$STATIC_RATIO', str(self._config['counting']['static_ratio']))#ここ追加したよ
+        config = config.replace('$STATIC_RATIO', str(self._config['counting']['static_ratio']))
 
         self.prepared = config
 

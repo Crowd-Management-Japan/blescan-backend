@@ -1,5 +1,3 @@
-
-
 <div>
     Last updated: {{data.timestamp}} <br>
 <table style="width: 80%;" border="2" cellpadding="4">
@@ -11,6 +9,7 @@
         <td>Static count</td>
         <td>Scan time</td>
         <td>Mean RSSI</td>
+        <td>Settings</td>
         <td>Last update</td>
         <td>Update delta</td>
         <td>Online?</td>
@@ -18,17 +17,20 @@
 
     {% for item in data.data %}
         {% if item.count >= 0 %}
-            <TR>
-                <TD class="c1">{{item.id}}</TD>
-                <td>{{item.count}} ({{item.close}})</td>
-                <td>{{item.inst_all}} ({{item.inst_close}})</td>
-                <td>{{item.static_total}} ({{item.static_close}})</td>
-                <td>{{item.scantime}}</td>
-                <td>{{item.rssi_avg}} ({{item.rssi_thresh}})</td>
-                <TD>{{item.timestamp|format_datetime('medium')}}</TD>
-                <TD>{{item.last_updated|format_datetime('delta')}}</TD>
-                <td>{{item.last_updated|is_online()}}</td>
-            </TR>
+            {% if (data.online_only and item.last_updated|is_online()) or (data.online_only == False) %}
+                <TR>
+                    <TD class="c1">{{item.id}}</TD>
+                    <td>{{item.count}} ({{item.close}})</td>
+                    <td>{{ '%.1f'|format(item.inst_all) }} ({{ '%.1f'|format(item.inst_close) }})</td>
+                    <td>{{item.static_total}} ({{item.static_close}})</td>
+                    <td>{{ '%.2f'|format(item.scantime) }} ({{item.scans}})</td>
+                    <td>{{ '%.2f'|format(item.rssi_avg) }}</td>
+                    <td>{{item.rssi_thresh}}, {{item.static_ratio}}</td>
+                    <TD>{{ item.timestamp.strftime('%a %d.%m.%Y %H:%M:%S') }}</TD>
+                    <TD>{{item.last_updated|format_datetime('delta')}}</TD>
+                    <td>{{item.last_updated|is_online()}}</td>
+                </TR>
+            {% endif %}
         {% else %}
             <TR>
                 <TD class="c1">{{item.id}}</TD>
@@ -37,6 +39,7 @@
                 <td>N/A</td>
                 <td>N/A</td>
                 <td>N/A</td>
+                <TD>N/A</TD>
                 <TD>N/A</TD>
                 <TD>N/A</TD>
                 <td>Never</td>

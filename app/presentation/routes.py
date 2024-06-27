@@ -30,8 +30,5 @@ def update_checkbox():
 def get_data_table():
     local_timezone = pytz.timezone('Asia/Tokyo')
     online_only = session.get('online_only', False)
-    data = {'timestamp': datetime.now(local_timezone).strftime("%Y-%m-%d %H:%M:%S"), 'data': _data.get_data_online_first()}
-    if online_only:
-        return render_template('presentation/data_online.html', data=data)
-    else:
-        return render_template('presentation/data_table.html', data=data)
+    data = {'online_only': online_only, 'timestamp': datetime.now(local_timezone).strftime("%Y-%m-%d %H:%M:%S"), 'data': _data.get_data_online_first()}
+    return render_template('presentation/data_table.html', data=data)

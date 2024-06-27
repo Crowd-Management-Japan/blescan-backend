@@ -62,6 +62,7 @@ def _get_empty_field(id: int):
         'last_updated': datetime.min,
         'is_online': False,
         'scantime': -1,
+        'scans': -1,
         'count': -1,
         'close': -1,
         'inst_all': -1,
@@ -69,5 +70,6 @@ def _get_empty_field(id: int):
         'static_total': -1,
         'static_close': -1,
         'rssi_avg': -1,
-        'rssi_thresh': -1
+        'rssi_thresh': -1,
+        'static_ratio': -1
     }
