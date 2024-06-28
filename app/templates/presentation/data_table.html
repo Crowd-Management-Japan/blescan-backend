@@ -7,8 +7,9 @@
         <td>Total count</td>
         <td>Instant count</td>
         <td>Static count</td>
-        <td>Scan time</td>
+        <td>Mobility</td>
         <td>Mean RSSI</td>
+        <td>Scan time</td>
         <td>Settings</td>
         <td>Last update</td>
         <td>Update delta</td>
@@ -23,8 +24,9 @@
                     <td>{{item.tot_all}} ({{item.tot_close}})</td>
                     <td>{{ '%.1f'|format(item.inst_all) }} ({{ '%.1f'|format(item.inst_close) }})</td>
                     <td>{{item.stat_all}} ({{item.stat_close}})</td>
-                    <td>{{ '%.2f'|format(item.scantime) }} ({{item.scans}})</td>
+                    <td>{{ '%.2f'|format(item.tot_all / item.inst_all) }} ({{ '%.2f'|format(item.tot_close / item.inst_close) }})</td>
                     <td>{{ '%.2f'|format(item.rssi_avg) }}</td>
+                    <td>{{ '%.2f'|format(item.scantime / item.scans) }} ({{item.scans}})</td>
                     <td>{{item.rssi_thresh}}, {{item.static_ratio}}</td>
                     <TD>{{ item.timestamp.strftime('%a %d.%m.%Y %H:%M:%S') }}</TD>
                     <TD>{{item.last_updated|format_datetime('delta')}}</TD>
@@ -39,6 +41,7 @@
                 <td>N/A</td>
                 <td>N/A</td>
                 <td>N/A</td>
+                <TD>N/A</TD>
                 <TD>N/A</TD>
                 <TD>N/A</TD>
                 <TD>N/A</TD>
