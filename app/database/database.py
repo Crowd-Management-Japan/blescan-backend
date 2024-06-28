@@ -83,7 +83,7 @@ def get_graph_data(limit: int = None, id_from: int = None, id_to: int = None, da
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     rolling = df.set_index('timestamp').groupby('id')['tot_all'].apply(lambda x: x.ewm(span=60, adjust=False).mean())
 
-    result['rolling_avg_sum'] = rolling.reset_index().groupby('timestamp').sum()['count']
+    result['rolling_avg_sum'] = rolling.reset_index().groupby('timestamp').sum()['tot_all']
     result.reset_index(inplace=True)
     result['timestamp'] = result['timestamp'].map(lambda date: date.strftime(date_format))
 

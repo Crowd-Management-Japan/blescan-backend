@@ -28,7 +28,7 @@ def get_empty_config():
             'rssi_threshold': -100,
             'rssi_close_threshold': -75,
             'delta': 10,
-            'static_ratio': 7
+            'static_ratio': 0.7
         },
         'beacon': {
             'target_id': '1233aacc0dc140a78085303a6d64ddb5',
