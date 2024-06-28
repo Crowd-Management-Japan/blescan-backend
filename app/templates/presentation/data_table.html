@@ -7,9 +7,10 @@
         <td>Total count</td>
         <td>Instant count</td>
         <td>Static count</td>
-        <td>Mobility</td>
-        <td>Mean RSSI</td>
+        <td>Instant/Total</td>
+        <td>Static/Total</td>
         <td>Scan time</td>
+        <td>Mean RSSI</td>
         <td>Settings</td>
         <td>Last update</td>
         <td>Update delta</td>
@@ -24,9 +25,15 @@
                     <td>{{item.tot_all}} ({{item.tot_close}})</td>
                     <td>{{ '%.1f'|format(item.inst_all) }} ({{ '%.1f'|format(item.inst_close) }})</td>
                     <td>{{item.stat_all}} ({{item.stat_close}})</td>
-                    <td>{{ '%.2f'|format(item.tot_all / item.inst_all) }} ({{ '%.2f'|format(item.tot_close / item.inst_close) }})</td>
-                    <td>{{ '%.2f'|format(item.rssi_avg) }}</td>
+                    {% if item.tot_all > 0 and item.tot_close > 0%}
+                        <td>{{ '%.2f'|format(item.inst_all / item.tot_all) }} ({{ '%.2f'|format(item.inst_close / item.tot_close) }})</td>
+                        <td>{{ '%.2f'|format(item.stat_all / item.tot_all) }} ({{ '%.2f'|format(item.stat_close / item.tot_close) }})</td>
+                    {% else %}
+                        <td>N/A</td>
+                        <td>N/A</td>
+                    {% endif %}
                     <td>{{ '%.2f'|format(item.scantime / item.scans) }} ({{item.scans}})</td>
+                    <td>{{ '%.2f'|format(item.rssi_avg) }}</td>
                     <td>{{item.rssi_thresh}}, {{item.static_ratio}}</td>
                     <TD>{{ item.timestamp.strftime('%a %d.%m.%Y %H:%M:%S') }}</TD>
                     <TD>{{item.last_updated|format_datetime('delta')}}</TD>
@@ -36,6 +43,7 @@
         {% else %}
             <TR>
                 <TD class="c1">{{item.id}}</TD>
+                <td>N/A</td>
                 <td>N/A</td>
                 <td>N/A</td>
                 <td>N/A</td>
