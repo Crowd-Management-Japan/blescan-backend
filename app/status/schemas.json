@@ -8,11 +8,32 @@
             "timestamp": {
                 "type": "string"
             },
-            "count": {
+            "scans": {
                 "type": "integer",
                 "minimum": 0
             },
-            "close": {
+            "scantime": {
+                "type": ["number", "null"]
+            },
+            "tot_all": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "tot_close": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "inst_all": {
+                "type": ["number", "null"]
+            },
+            "inst_close": {
+                "type": ["number", "null"]
+            },
+            "stat_all": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "stat_close": {
                 "type": "integer",
                 "minimum": 0
             },
@@ -28,6 +49,12 @@
             "rssi_max": {
                 "type": ["integer", "null"]
             },
+            "rssi_thresh": {
+                "type": "integer"
+            },
+            "static_ratio": {
+                "type": ["number", "null"]
+            },
             "latitude": {
                 "type": ["number", "null"]
             },
@@ -35,6 +62,6 @@
                 "type": ["number", "null"]
             }
         },
-        "required": ["id", "timestamp", "count"]
+        "required": ["id", "timestamp", "tot_all"]
     }
 }

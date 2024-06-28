@@ -16,13 +16,13 @@
     </TR>
 
     {% for item in data.data %}
-        {% if item.count >= 0 %}
+        {% if item.tot_all >= 0 %}
             {% if (data.online_only and item.last_updated|is_online()) or (data.online_only == False) %}
                 <TR>
                     <TD class="c1">{{item.id}}</TD>
-                    <td>{{item.count}} ({{item.close}})</td>
+                    <td>{{item.tot_all}} ({{item.tot_close}})</td>
                     <td>{{ '%.1f'|format(item.inst_all) }} ({{ '%.1f'|format(item.inst_close) }})</td>
-                    <td>{{item.static_total}} ({{item.static_close}})</td>
+                    <td>{{item.stat_all}} ({{item.stat_close}})</td>
                     <td>{{ '%.2f'|format(item.scantime) }} ({{item.scans}})</td>
                     <td>{{ '%.2f'|format(item.rssi_avg) }}</td>
                     <td>{{item.rssi_thresh}}, {{item.static_ratio}}</td>
