@@ -17,17 +17,26 @@
     <div id="settings">
         <h2>General Settings</h2>
         <label for="ids">Define the IDs of all devices that are used for this setup (form: 1,2-5,44-50)</label><br>
-        <input type="text" id="ids" name="ids" value="{{config.ids}}"><br><br>
-
+        <input type="text" id="ids" name="ids" value="{{config.ids}}"><br>
+        <input type="checkbox" id="use_led" name="use_led"
+        {% if config.led %}
+        checked
+        {% endif %}
+        >
+        <label for="use_led">Check to use LEDs (warning: only turn off LEDs for online use, status check difficult otherwise)</label><br>
+        
+        <label>Define the time in seconds for a single scan (warning: this is a very important setting, set with caution)</label> <br>
+        <input type="number" id="scantime" name="scantime" value="{{config.scantime}}" min="1"> <br>
+        
         <br>
 
         <details>
             <summary><strong>Location Settings</strong></summary>
             <p>
-                <label for="textarea-loc">Define Latitude and Longitude for devices. All devices not present here, will not use location feature.
-                    <br>Format: One per line <code>[ID]<strong>:</strong> [lat]<strong>,</strong> [long]</code></label> 
+                <label for="textarea_loc">Define latitude and longitude for devices. All devices not present here, will not use location feature.
+                    <br>Format: one per line <code>[ID]<strong>:</strong> [lat]<strong>,</strong> [long]</code></label> 
                 <br>
-                <textarea id="textarea-loc" name="textarea-loc" cols="50" rows="10" >{{config.locations}}</textarea>
+                <textarea id="textarea_loc" name="textarea_loc" cols="50" rows="10" >{{config.locations}}</textarea>
                 <br>
             </p>
         </details>
@@ -39,20 +48,20 @@
                 <strong>Settings for Mode 1: Counting all devices</strong>
             </summary>
             <p>
-                <label>Define the Threshold below which devices will not be counted at all</label><br>
-                <input type="number" id="counting_rssi" name="counting_rssi" value="{{config.counting.rssi_threshold}}"><br>
+                <label>Define the threshold below which devices will not be counted at all</label><br>
+                <input type="number" id="counting_rssi" name="counting_rssi" value="{{config.counting.rssi_threshold}}" min="-100" max="0"><br>
 
-                <label>Define the Threshold above which device will be counted as close</label><br>
-                <input type="number" id="counting_close" value="{{config.counting.rssi_close_threshold}}"> <br>
+                <label>Define the threshold above which device will be counted as close</label><br>
+                <input type="number" id="counting_close" value="{{config.counting.rssi_close_threshold}}" min="-100" max="0"> <br>
 
                 <label>Define the delta-time between scans (best: multiple of 10, 15, 20, etc.) (warning: too short/long intervals may affect results)</label> <br>
-                <input type="number" id="counting_delta" value="{{config.counting.delta}}"> <br>
+                <input type="number" id="counting_delta" value="{{config.counting.delta}}" min="10"> <br>
 
-                <label>Defines the ratio of appearances within the total scans to define a device as static.</label><br>
-                <input type="number" id="static_ratio" value="{{config.counting.static_ratio}}" step="0.1"><br>
+                <label>Defines the ratio of appearances within the total scans to define a device as static</label><br>
+                <input type="number" id="static_ratio" value="{{config.counting.static_ratio}}" step="0.1" min="0.0" max="1.0"><br>
 
-                <label>Define the url to connect to and send count updates</label><br>
-                <input type="text" id="url" name="url" value="{{config.internet.url}}" size="50"><br>
+                <label>Define the url to connect to and send count updates (keep an empty field if you want to disable internet for counting)</label><br>
+                <input type="text" id="counting_url" name="counting_url" value="{{config.counting.url}}" size="50"><br>
             </p>
         </details>
 
@@ -63,7 +72,7 @@
                 <strong>Settings for Mode 2: Beacon functionality</strong>
             </summary>
             <p>
-                <label>Define the target_id (uuid) of the used beacons. If empty, this mode will not be used</label><br>
+                <label>Define the target_id (uuid) of the used beacons. If empty, this mode will not be used.</label><br>
                 <input type="text" id="beacon_target_id" value="{{config.beacon.target_id}}" size="50"><br>
 
                 <label>Define the number of scans out of which the threshold must be hit to count as a stay</label><br>
@@ -72,7 +81,7 @@
                 <label>Define the threshold to use for detecting a stay</label><br>
                 <input type="number" id="beacon_threshold" value="{{config.beacon.threshold}}"> <br>
 
-                <label for="beacon_shutdown">Define a shutdown id. Combination of Major and Minor (e.g. 99999999) that, when scanned, make the raspberry shutdown. <br>
+                <label for="beacon_shutdown">Define a shutdown id. Combination of major and minor (e.g. 99999999) that, when scanned, make the raspberry shutdown. <br>
                     Be aware with decimal and hexadecimal values. This field is represented as hexadecimal value.</label> <br>
                 <input type="text" id="beacon_shutdown" value="{{config.beacon.shutdown_id}}">
             </p>
@@ -80,19 +89,22 @@
 
         <br>
 
-        <!-- <details open>
+        <details open>
             <summary><strong>Settings for Mode 3: Transit Time</strong></summary>
             <p>
-                <label>Define the url to send scanned ids for transit time</label><br>
-                <input type="text" id="url" name="url" value="{{config.internet.url}}" size="50"><br>
+                <label>Define the time interval in seconds at which ids will be sent to the backend (best: multiples of 5, below 60)</label><br>
+                <input type="number" id="transit_delta" name="transit_delta" value="{{config.transit.delta}}" min="5" max="60"><br>
 
-                <label for="textarea-transit">Define combination of devices that should be used to compute transit time.
-                    <br>Format: One per line <code>[ID1]<strong>,</strong> [ID2]<strong></strong></code></label> 
+                <label for="textarea_combinations">Define combination of devices that should be used to compute transit time <br>
+                    Format: one per line <code>[ID1]<strong>,</strong> [ID2]<strong></strong></code></label> 
                 <br>
-                <textarea id="textarea-transit" name="textarea-transit" cols="50" rows="10" >{{config.transit_time}}</textarea>
+                <textarea id="textarea_combinations" name="textarea_combinations" cols="20" rows="5" >{{config.transit.combinations}}</textarea>
                 <br>
+
+                <label>Define the url to send scanned ids for transit time (keep an empty field if you want to disable the transit time function)</label><br>
+                <input type="text" id="transit_url" name="transit_url" value="{{config.transit.url}}" size="50"><br>
             </p>
-        </details> -->
+        </details>
 
         <br>
 
@@ -111,7 +123,7 @@
                 <label>Define IDs of zigbee nodes that are connected to the internet</label><br>
                 <input type="text" id="zigbee_internet" name="zigbee_internet" value="{{config.zigbee.internet}}"><br>
         
-                <label>Define ID of the Coordinator of the Network</label><br>
+                <label>Define ID of the coordinator of the network</label><br>
                 <input type="number" id="zigbee_coordinator" name="zigbee_coordinator" value="{{config.zigbee.coordinator}}"><br>
         
                 <label>Define the PAN-ID of the network</label><br>

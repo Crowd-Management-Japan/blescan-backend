@@ -8,27 +8,16 @@
                     "type": "integer"
                 }
             },
+            "led": {
+                "type": "boolean",
+                "default": true
+            },
+            "scantime": {
+                "type": "integer",
+                "default": 1
+            },
             "locations": {
                 "type": "object"
-            },
-            "internet": {
-                "type": "object",
-                "properties": {
-                    "enable": {
-                        "type": "boolean",
-                        "default": false
-                    },
-                    "ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "default": []
-                    },
-                    "url": {
-                        "type": "string"
-                    }
-                }
             },
             "zigbee": {
                 "type": "object",
@@ -45,13 +34,6 @@
                         "default": 0
                     },
                     "internet": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "default": []
-                    },
-                    "ids": {
                         "type": "array",
                         "items": {
                             "type": "integer"
@@ -78,6 +60,13 @@
                     },
                     "static_ratio": {
                         "type": "number"
+                    },
+                    "internet": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "url": {
+                        "type": "string"
                     }
                 }
             },
@@ -97,6 +86,24 @@
                     "threshold": {
                         "type": "integer",
                         "minimum": 0
+                    }
+                }
+            },
+            "transit": {
+                "type": "object",
+                "properties": {
+                    "delta": {
+                        "type": "integer"
+                    },
+                    "combinations": {
+                        "type": "array"
+                    },
+                    "enabled": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "url": {
+                        "type": "string"
                     }
                 }
             }

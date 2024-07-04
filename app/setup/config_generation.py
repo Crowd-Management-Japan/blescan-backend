@@ -12,29 +12,33 @@ def get_empty_config():
     return {
         'ids': [],
         'locations': defaultdict(lambda: "0"),
-        'internet': {
-            'enable': True,
-            'ids': [],
-            'url': ''
-        },
+        'led': True,
+        'scantime': 1,
         'zigbee': {
             'enable': False,
             'coordinator': -1,
             'internet': [],
-            'ids': [],
             'pan': 1
         },
         'counting': {
             'rssi_threshold': -100,
-            'rssi_close_threshold': -75,
+            'rssi_close_threshold': -80,
             'delta': 10,
-            'static_ratio': 0.7
+            'static_ratio': 0.7,
+            'internet': False,
+            'url': ''
         },
         'beacon': {
             'target_id': '1233aacc0dc140a78085303a6d64ddb5',
             'shutdown_id': '',
             'scans': 8,
             'threshold': 3
+        },
+        'transit': {
+            'delta': 5,
+            'combinations': [],
+            'enabled': False,
+            'url': ''
         }
     }
 
@@ -67,55 +71,55 @@ class ConfigGenerator:
             self._device_updates[id] = now
 
         self.prepared = self.basic_config.replace('$LAST_UPDATED', f'{now}')
-
-        self.prepare_internet()
+        
         self.prepare_zigbee()
         self.prepare_counting()
         self.prepare_beacon()
+        self.prepare_transit()
         self.save_config(self._config)
 
         logging.info(f"Generated new config at {now}")
 
     def set_config(self, config: Dict):
         self.set_ids(config.get('ids', []))
+        self.set_led(config.get('led', _DEFAULT_CONFIG['led']))
+        self.set_scantime(config.get('scantime', _DEFAULT_CONFIG['scantime']))
+        self.set_locations(config.get('locations', {}))
         self.set_zigbee_config(config.get('zigbee', {}))
-        self.set_internet_data(config.get('internet', {}))
         self.set_counting_config(config.get('counting', {}))
         self.set_beacon_config(config.get('beacon', {}))
-        self.set_locations(config.get('locations', {}))
+        self.set_transit_config(config.get('transit', {}))
 
+    def set_ids(self, ids: List[int]):
+        self._config['ids'] = ids
+        self._device_status = {id: 'waiting' for id in ids}
+
+    def set_led(self, led: bool):
+        self._config['led'] = led
+
+    def set_scantime(self, scantime: bool):
+        self._config['scantime'] = scantime
+
+    def set_locations(self, locations: Dict):
+        self._config['locations'] = {str(k): v for k, v in locations.items()}
+        
     def set_zigbee_config(self, zigbee: Dict):
         zig = self._config['zigbee']
 
-        zig['ids'] = zigbee.get('ids', _DEFAULT_CONFIG['zigbee']['ids'])
         zig['internet'] = zigbee.get('internet', _DEFAULT_CONFIG['zigbee']['internet'])
         zig['coordinator'] = zigbee.get('coordinator', _DEFAULT_CONFIG['zigbee']['coordinator'])
         zig['enable'] = zigbee.get('enable', _DEFAULT_CONFIG['zigbee']['enable'])
 
         # default pan should not be 0 because 0 is a special zigbee id for automatically searching free network
-        zig['pan'] = zigbee.get('pan', 1)
-
-        if not zig['enable']:
-            zig['ids'] = []
-
-    def set_internet_data(self, data: Dict):
-        net = self._config['internet']
-
-        net['ids'] = data.get('ids', _DEFAULT_CONFIG['internet']['url'])
-        net['url'] = data.get('url', _DEFAULT_CONFIG['internet']['url'])
-        net['enable'] = data.get('enable', _DEFAULT_CONFIG['internet']['enable'])
-
-        if not net['enable']:
-            net['ids'] = []
+        zig['pan'] = zigbee.get('pan', _DEFAULT_CONFIG['zigbee']['pan'])
 
     def set_counting_config(self, data: Dict):
         count = self._config['counting']
         default = _DEFAULT_CONFIG['counting']
-
-        keys = ['rssi_threshold', 'rssi_close_threshold', 'delta', 'static_ratio']
-
+        keys = ['rssi_threshold', 'rssi_close_threshold', 'delta', 'static_ratio', 'url']
         for key in keys:
             count[key] = data.get(key, default[key])
+        count['internet'] = bool(count['url'])
 
     def set_beacon_config(self, data: Dict):
         beacon = self._config['beacon']
@@ -124,17 +128,17 @@ class ConfigGenerator:
         for key in keys:
             beacon[key] = data.get(key, default[key])
 
-    def set_ids(self, ids: List[int]):
-        self._config['ids'] = ids
-        self._device_status = {id: 'waiting' for id in ids}
+    def set_transit_config(self, data: Dict):
+        transit = self._config['transit']
+        default = _DEFAULT_CONFIG['transit']
+        keys = ['delta', 'combinations', 'url']
+        for key in keys:
+            transit[key] = data.get(key, default[key])
+        transit['enabled'] = bool(transit['url'])
 
     def get_zigbee_data(self):
         # thread safe deep copy
         return json.loads(json.dumps(self._config['zigbee']))
-    
-    def get_internet_data(self):
-        # thread safe deep copy
-        return json.loads(json.dumps(self._config['internet']))
     
     def get_config(self):
         # thread safe deep copy
@@ -147,13 +151,10 @@ class ConfigGenerator:
     def prepare_zigbee(self):
         logging.debug("preparing zigbee data")
         config = self.prepared
+        config = config.replace('$USE_ZIGBEE', f"{1 if self._config['zigbee']['enable'] else 0}")
         config = config.replace('$ZIGBEE_INTERNET', ','.join([str(_) for _ in self._config['zigbee']['internet']]))
-        self.prepared = config
-
-    def prepare_internet(self):
-        config = self.prepared
-        config = config.replace('$INTERNET_URL', self._config['internet']['url'])
-
+        config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
+        config = config.replace('$PAN', str(self._config['zigbee']['pan']))
         self.prepared = config
 
     def prepare_counting(self):
@@ -161,8 +162,10 @@ class ConfigGenerator:
         
         config = config.replace('$RSSI_THRESHOLD', str(self._config['counting']['rssi_threshold']))
         config = config.replace('$RSSI_CLOSE_THRESHOLD', str(self._config['counting']['rssi_close_threshold']))
-        config = config.replace('$DELTA', str(self._config['counting']['delta']))
+        config = config.replace('$DELTA_COUNTING', str(self._config['counting']['delta']))
         config = config.replace('$STATIC_RATIO', str(self._config['counting']['static_ratio']))
+        config = config.replace('$URL_COUNTING', str(self._config['counting']['url']))
+        config = config.replace('$INTERNET_COUNTING', f"{1 if self._config['counting']['internet'] else 0}")
 
         self.prepared = config
 
@@ -176,6 +179,13 @@ class ConfigGenerator:
 
         self.prepared = config
 
+    def prepare_transit(self):
+        config = self.prepared
+
+        config = config.replace('$DELTA_TRANSIT', str(self._config['transit']['delta']))
+        config = config.replace('$URL_TRANSIT', str(self._config['transit']['url']))
+
+        self.prepared = config
 
     def get_config_for_id(self, id: int) -> str:
         if self.prepared == '':
@@ -187,12 +197,16 @@ class ConfigGenerator:
             return 'given ID not present in used devices', 400
 
         config = self.prepared.replace('$ID', str(id))
-
-        config = config.replace('$USE_ZIGBEE', f"{1 if self._config['zigbee']['enable'] else 0}")
-        config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
-        config = config.replace('$PAN', str(self._config['zigbee']['pan']))
-
+        config = config.replace('$LED', f"{1 if self._config['led'] else 0}")
+        config = config.replace('$SCANTIME', str(self._config['scantime']))
         config = config.replace('$LOCATION', self._config['locations'].get(str(id), "0"))
+
+        # check if the current id is in the list of transit time devices and there is an internet address
+        transit_ids = set([i for combinations in self._config['transit']['combinations'] for i in combinations])
+        if (id in transit_ids) and self._config['transit']['enabled']:
+            config = config.replace('$TRANSIT_ENABLED', '1')
+        else:
+            config = config.replace('$TRANSIT_ENABLED', '0')
 
         self._device_status[id] = 'requested'
 
@@ -231,12 +245,7 @@ class ConfigGenerator:
         conf = get_empty_config()
         self.save_config(conf)
         return conf
-    
+
     def set_locations(self, locations: Dict):
         self._config['locations'] = {str(k): v for k, v in locations.items()}
 
-    def set_location_str(self, id, location: str):
-        self._config['locations'][str(id)] = location
-    
-    def set_location(self, id, latitude: float, longitude: float):
-        self.set_location_str(id, f"{latitude}, {longitude}")

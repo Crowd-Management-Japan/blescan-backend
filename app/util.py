@@ -68,6 +68,9 @@ def location_dict_to_string(loc: Dict) -> str:
     """
     return "\n".join([f"{id}: {l}" for id, l in loc.items()])
 
+def combination_array_to_string(comb: List) -> str:
+    return '\n'.join([','.join(map(str, id)) for id in comb])
+
 def float_or_None(value: str) -> Union[float,None]:
     """
     Cast a string value to a float if possible. If not, return None

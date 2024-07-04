@@ -74,12 +74,10 @@ def setup():
     last_config = _generator.get_config()
     # format data for template
     last_config['ids'] = compact_int_list_string(last_config['ids'])
-    last_config['internet']['ids'] = compact_int_list_string(last_config['internet']['ids'])
     last_config['zigbee']['internet'] = compact_int_list_string(last_config['zigbee']['internet'])
-    last_config['zigbee']['ids'] = compact_int_list_string(last_config['zigbee']['ids'])
 
     last_config['locations'] = util.location_dict_to_string(last_config['locations'])
-    
+    last_config['transit']['combinations'] = util.combination_array_to_string(last_config['transit']['combinations'])
 
     return render_template('setup/settings.html', config=last_config)
 

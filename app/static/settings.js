@@ -28,7 +28,7 @@ function splitStringtoArray(inputString) {
 
 function getLocations() {
     try {
-        let raw = document.getElementById("textarea-loc").value.split("\n");
+        let raw = document.getElementById("textarea_loc").value.split("\n");
         let locations = {};
 
         for (var i = 0; i < raw.length; i++) {
@@ -44,6 +44,32 @@ function getLocations() {
     } catch {
         alert("Invalid location format. Ignoring. \n (Check for empty lines)");
         return {};
+    }
+}
+
+function getCombinations() {
+    try {
+        let raw = document.getElementById("textarea_combinations").value.trim().split("\n");
+        let combinations = [];
+
+        for (var i = 0; i < raw.length; i++) {
+            let line = raw[i].trim();
+            if (line === "") {
+                continue;
+            }
+            let split = line.split(",");
+            if (split.length === 2) {
+                let pair = [parseInt(split[0].trim()), parseInt(split[1].trim())];
+                combinations.push(pair);
+            } else {
+                throw new Error("Invalid combination format.");
+            }
+        }
+
+        return combinations;
+    } catch (error) {
+        alert("Invalid combination format. Ignoring.\nCheck for empty lines or ensure each line has two comma-separated values.");
+        return [];
     }
 }
 
@@ -63,27 +89,32 @@ function gatherData() {
 
     let data = {
         ids: sget("ids"),
+        led: document.getElementById("use_led").checked,
+        scantime: iget("scantime"),
         locations: getLocations(),
-        internet: {
-            url: get("url")
-        },
         zigbee: {
             enable: document.getElementById("use_zigbee").checked,
-            coordinator: parseInt(get("zigbee_coordinator")),
+            coordinator: iget("zigbee_coordinator"),
             internet: sget("zigbee_internet"),
-            pan: parseInt(get("zigbee_pan"))
+            pan: iget("zigbee_pan")
         },
         counting: {
             rssi_threshold: iget("counting_rssi"),
             rssi_close_threshold: iget("counting_close"),
             delta: iget("counting_delta"),
-            static_ratio: parseFloat(get("static_ratio"))
+            static_ratio: parseFloat(get("static_ratio")),
+            url: get("counting_url")
         },
         beacon: {
             target_id: get("beacon_target_id"),
             scans: iget("beacon_scans"),
             threshold: iget("beacon_threshold"),
             shutdown_id: get("beacon_shutdown")
+        },
+        transit: {
+            delta: iget("transit_delta"),
+            combinations: getCombinations(),
+            url: get("transit_url")
         }
     }
     return data;
