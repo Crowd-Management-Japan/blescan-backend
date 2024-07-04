@@ -153,7 +153,7 @@ class ConfigGenerator:
         config = self.prepared
         config = config.replace('$USE_ZIGBEE', f"{1 if self._config['zigbee']['enable'] else 0}")
         config = config.replace('$ZIGBEE_INTERNET', ','.join([str(_) for _ in self._config['zigbee']['internet']]))
-        config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
+        # coordinator settins are done in get_config_for_id because id is relevant
         config = config.replace('$PAN', str(self._config['zigbee']['pan']))
         self.prepared = config
 
@@ -200,6 +200,9 @@ class ConfigGenerator:
         config = config.replace('$LED', f"{1 if self._config['led'] else 0}")
         config = config.replace('$SCANTIME', str(self._config['scantime']))
         config = config.replace('$LOCATION', self._config['locations'].get(str(id), "0"))
+
+        # check if the current id needs to be the coordinator
+        config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
 
         # check if the current id is in the list of transit time devices and there is an internet address
         transit_ids = set([i for combinations in self._config['transit']['combinations'] for i in combinations])
