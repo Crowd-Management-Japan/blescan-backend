@@ -8,7 +8,7 @@ import datetime
 from app.database.models import CountEntry
 from app.database.database import db
 import app.util as util
-from app.cloud.cloud_service import cloud_service
+# from app.cloud.cloud_service import cloud_service
 
 status_bp = Blueprint('status', __name__)
 

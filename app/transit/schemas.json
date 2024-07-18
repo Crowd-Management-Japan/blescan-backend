@@ -1,0 +1,67 @@
+{
+    "countentry": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "timestamp": {
+                "type": "string"
+            },
+            "scans": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "scantime": {
+                "type": ["number", "null"]
+            },
+            "tot_all": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "tot_close": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "inst_all": {
+                "type": ["number", "null"]
+            },
+            "inst_close": {
+                "type": ["number", "null"]
+            },
+            "stat_all": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "stat_close": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "rssi_avg": {
+                "type": ["number", "null"]
+            },
+            "rssi_std": {
+                "type": ["number", "null"]
+            },
+            "rssi_min": {
+                "type": ["integer", "null"]
+            },
+            "rssi_max": {
+                "type": ["integer", "null"]
+            },
+            "rssi_thresh": {
+                "type": "integer"
+            },
+            "static_ratio": {
+                "type": ["number", "null"]
+            },
+            "latitude": {
+                "type": ["number", "null"]
+            },
+            "longitude": {
+                "type": ["number", "null"]
+            }
+        },
+        "required": ["id", "timestamp", "tot_all"]
+    }
+}
