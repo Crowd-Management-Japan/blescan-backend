@@ -81,7 +81,7 @@ def logout():
 
 app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
-app.register_blueprint(transit_bp, url_prefix='/status')
+app.register_blueprint(transit_bp, url_prefix='/status/update')
 app.register_blueprint(presentation_bp, url_prefix='/data')
 app.register_blueprint(db_bp, url_prefix='/database')
 app.register_blueprint(config_bp, url_prefix='/config')
