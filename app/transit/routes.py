@@ -14,13 +14,22 @@ transit_bp = Blueprint('transit', __name__)
 
 _dataReceiver = DataReceiver.get_instance()
 
+transit_data = None
+
 with open('app/status/schemas.json', 'r') as schemas_file:
     _schemas = json.load(schemas_file)
 
 @transit_bp.route('transit', methods= ['GET'])
 def get_transit():
-    return "ok", 200
+    global transit_data
+    data = {
+        "example_key": "example_value"
+    }
+    return render_template('presentation/transit_data.html', data=transit_data)
 
 @transit_bp.route('/transit', methods = ['POST'])
 def update_transit():
-    return "ok", 200
+    global transit_data
+    transit_data = request.get_json()
+    # print(data)
+    return render_template('presentation/transit_data.html', data=transit_data)

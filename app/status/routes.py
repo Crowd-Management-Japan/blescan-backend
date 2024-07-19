@@ -46,5 +46,5 @@ def update_status():
         db.session.add(entry)
         db.session.commit()
         _dataReceiver.set_data(data)
-        cloud_service.send_to_cloud(data)
+        # cloud_service.send_to_cloud(data)
     return "ok", 200
