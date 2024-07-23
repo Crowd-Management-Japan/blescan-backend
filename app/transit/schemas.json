@@ -1,67 +1,21 @@
 {
-    "countentry": {
+    "TemporaryTransitEntry": {
         "type": "object",
         "properties": {
-            "id": {
+            "ID": {
                 "type": "integer"
             },
-            "timestamp": {
-                "type": "string"
+            "TIME": {
+                "type": "string",
+                "format": "date-time"
             },
-            "scans": {
-                "type": "integer",
-                "minimum": 0
-            },
-            "scantime": {
-                "type": ["number", "null"]
-            },
-            "tot_all": {
-                "type": "integer",
-                "minimum": 0
-            },
-            "tot_close": {
-                "type": "integer",
-                "minimum": 0
-            },
-            "inst_all": {
-                "type": ["number", "null"]
-            },
-            "inst_close": {
-                "type": ["number", "null"]
-            },
-            "stat_all": {
-                "type": "integer",
-                "minimum": 0
-            },
-            "stat_close": {
-                "type": "integer",
-                "minimum": 0
-            },
-            "rssi_avg": {
-                "type": ["number", "null"]
-            },
-            "rssi_std": {
-                "type": ["number", "null"]
-            },
-            "rssi_min": {
-                "type": ["integer", "null"]
-            },
-            "rssi_max": {
-                "type": ["integer", "null"]
-            },
-            "rssi_thresh": {
-                "type": "integer"
-            },
-            "static_ratio": {
-                "type": ["number", "null"]
-            },
-            "latitude": {
-                "type": ["number", "null"]
-            },
-            "longitude": {
-                "type": ["number", "null"]
+            "MAC": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
             }
         },
-        "required": ["id", "timestamp", "tot_all"]
+        "required": ["ID", "TIME", "MAC"]
     }
 }

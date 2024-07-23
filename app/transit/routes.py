@@ -17,7 +17,7 @@ _dataReceiver = DataReceiver.get_instance()
 
 transit_data = None
 
-with open('app/status/schemas.json', 'r') as schemas_file:
+with open('app/transit/schemas.json', 'r') as schemas_file:
     _schemas = json.load(schemas_file)
 
 @transit_bp.route('transit', methods= ['GET'])
@@ -27,25 +27,37 @@ def get_transit():
 @transit_bp.route('/transit', methods = ['POST'])
 def update_transit():
     transit_data = request.get_json()
-    logging.debug("received post request from %d (ip: %s)", transit_data['id'], request.remote_addr)
+    logging.debug("received post request from %d (ip: %s)", transit_data['ID'], request.remote_addr)
 
     try:
-        validate(transit_data, _schemas.get('TemporaryTransit'))
-        transit_data['timestamp'] = datetime.datetime.strptime(transit_data.get('TIME', ''), '%Y-%m-%dT%H:%M:%S')
+        validate(transit_data, _schemas.get('TemporaryTransitEntry'))
+        timestamp = datetime.datetime.strptime(transit_data.get('TIME', ''), '%Y-%m-%dT%H:%M:%S')
+
+        # Add each MAC address to the database
+        for mac in transit_data['MAC']:
+            existingEntry = db.session.query(TemporaryTransitEntry).filter_by(
+                device_id=transit_data['ID'],
+                mac_number=str(mac),
+                timestamp=timestamp
+            ).first()
+            if not existingEntry:
+                new_entry = TemporaryTransitEntry(
+                    device_id=transit_data['ID'],
+                    mac_number=str(mac),
+                    timestamp=timestamp
+                )
+                db.session.add(new_entry)
+        
+        db.session.commit()
+        return jsonify({"message": "Data successfully saved"}), 200
 
     except ValidationError as e:
-        logging.error("Validation error validating update")
-        logging.error(e)
-        return "Validation error", 400
+        logging.error("Validation error: %s", e)
+        return jsonify({"error": "Validation error"}), 400
     except ValueError:
-        logging.error("Validation error when parsing date")
-        return "Validation error - check date format %Y-%m-%dT%H:%M:%S", 400
-
-    temporary_transit_entry = TemporaryTransitEntry.of_dict(transit_data)
-    existingEntry = db.session.query(TemporaryTransitEntry).filter_by(id=temporary_transit_entry.id, timestamp=temporary_transit_entry.timestamp).first()
-    if not existingEntry:
-        db.session.add(temporary_transit_entry)
-        db.session.commit()
-        # _dataReceiver.set_data(transit_data)
-        # cloud_service.send_to_cloud(transit_data)
-    return "ok", 200
+        logging.error("Date format error")
+        return jsonify({"error": "Validation error - check date format %Y-%m-%dT%H:%M:%S"}), 400
+    except Exception as e:
+        logging.error("An error occurred: %s", str(e))
+        db.session.rollback()
+        return jsonify({"error": "An error occurred while processing your request"}), 500

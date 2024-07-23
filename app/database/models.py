@@ -96,15 +96,15 @@ class CountEntry(db.Model):
 
 class TemporaryTransitEntry(db.Model):
     __tablename__ = 'temporary_transit_data'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    mac_number: Mapped[String] = mapped_column(String, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    mac_number: Mapped[str] = mapped_column(String, nullable=False)
     device_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    timestamp: Mapped[datetime] =  mapped_column(DateTime, primary_key=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, primary_key=True, nullable=False)
 
     def of_dict(data: Dict):
         entry = TemporaryTransitEntry()
         entry.mac_number = data.get('mac_number', None)
-        entry.id = data.get('id', None)
+        entry.device_id = data.get('ID', None)
         entry.timestamp = data.get('timestamp', None)
 
         return entry
