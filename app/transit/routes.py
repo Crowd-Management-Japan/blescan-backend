@@ -7,6 +7,7 @@ import sqlalchemy
 import datetime
 from app.database.models import CountEntry
 from app.database.database import db
+from flask import make_response
 import app.util as util
 # from app.cloud.cloud_service import cloud_service
 
@@ -25,11 +26,13 @@ def get_transit():
     data = {
         "example_key": "example_value"
     }
-    return render_template('presentation/transit_data.html', data=transit_data)
+    response = make_response(render_template('presentation/transit_data.html', data=transit_data), 200)
+    return response
 
 @transit_bp.route('/transit', methods = ['POST'])
 def update_transit():
     global transit_data
     transit_data = request.get_json()
-    # print(data)
-    return render_template('presentation/transit_data.html', data=transit_data)
+    response = make_response(render_template('presentation/transit_data.html', data=transit_data), 200)
+    return response
+
