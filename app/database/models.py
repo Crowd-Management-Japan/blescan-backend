@@ -93,3 +93,26 @@ class CountEntry(db.Model):
 
         }
         return data
+
+class TemporaryTransitEntry(db.Model):
+    __tablename__ = 'temporary_transit_data'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    mac_number: Mapped[String] = mapped_column(String, primary_key=True)
+    device_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    timestamp: Mapped[datetime] =  mapped_column(DateTime, primary_key=True)
+
+    def of_dict(data: Dict):
+        entry = TemporaryTransitEntry()
+        entry.mac_number = data.get('mac_number', None)
+        entry.id = data.get('id', None)
+        entry.timestamp = data.get('timestamp', None)
+
+        return entry
+
+class TransitEntry(db.Model):
+    __tablename__ = 'transit_data'
+    id = db.Column(Integer, primary_key=True)
+    start = db.Column(Integer)
+    end = db.Column(Integer)
+    timestamp = db.Column(DateTime, nullable=False)
+    transit_time = db.Column(Integer)

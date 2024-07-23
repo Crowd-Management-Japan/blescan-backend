@@ -4,6 +4,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
 from flask import Flask, render_template, request, flash, url_for, redirect, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask.cli import with_appcontext
 from app.setup.routes import setup_bp
 from app.status.routes import status_bp
@@ -40,6 +41,8 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_pre_ping': True
 }
 app.config['SECRET_KEY'] = 'your_secret_key'  # Change this to a secure secret key
+
+migrate = Migrate(app, db)
 
 init_db(app)
 setup_template_filters(app)
