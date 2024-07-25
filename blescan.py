@@ -1,5 +1,7 @@
 import logging
 import click
+import threading
+import time
 logging.basicConfig(level=logging.DEBUG, 
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
 from flask import Flask, render_template, request, flash, url_for, redirect, session
@@ -20,6 +22,7 @@ from flask_login import LoginManager, login_user, logout_user
 from app.database.models import User
 from flask_login import current_user, login_required
 from app.database.database import init_db, db
+from search_time import search_time
 
 from app.template_filters import setup_template_filters
 
@@ -53,6 +56,16 @@ with app.app_context():
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'  # Set the login view
+
+def run_every_n_minutes(minutes):
+    while True:
+        search_time()
+        time.sleep(minutes * 60)
+
+def start_thread():
+    thread = threading.Thread(target=run_every_n_minutes, args=(1,)) # Transit Time
+    thread.daemon = True
+    thread.start()
 
 @app.route('/')
 @app.route('/home')
@@ -104,4 +117,5 @@ def create():
 app.cli.add_command(create)
 
 if __name__ == "__main__":
-    app.run(debug=True, host=Config.HOSTNAME, port=Config.PORT)
+    start_thread()
+    app.run(debug=True, use_reloader=False, host=Config.HOSTNAME, port=Config.PORT)
