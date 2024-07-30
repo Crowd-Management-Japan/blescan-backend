@@ -4,7 +4,7 @@ import threading
 import time
 logging.basicConfig(level=logging.DEBUG, 
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
-from flask import Flask, render_template, request, flash, url_for, redirect, session
+from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask.cli import with_appcontext
@@ -53,19 +53,40 @@ setup_template_filters(app)
 with app.app_context():
     db.create_all()
 
-
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'  # Set the login view
 
-def run_every_n_minutes(minutes):
+transit_data_store = {
+    'delta': 1,
+    'combinations': []
+}
+
+@app.route('/setup', methods=['POST'])
+def receive_data():
+    global transit_data_store
+    data  = request.get_json() 
+    if data and 'transit' in data:
+        transit_data = data['transit']
+        transit_data_store['delta'] = transit_data.get('delta')
+        transit_data_store['combinations'] = transit_data.get('combinations', [])
+        print(f"Received transit data: {transit_data}")
+    return jsonify({'status': 'Data processed successfully'}), 200
+
+def run_every_n_minutes():
+    global transit_data_store
     while True:
-        # JSONからデバイスペアを渡す例
-        device_pairs = [(1, 2), (3, 1)]
-        search_time(device_pairs)
-        time.sleep(minutes * 60)
+        delta = transit_data_store['delta']
+        combinations = transit_data_store['combinations']
+        if delta and combinations:
+            search_time(combinations)
+            print(f"Running with delta: {delta} minutes and combinations: {combinations}")
+            time.sleep(delta * 60)
+        else:
+            print("Waiting for valid data...")
+            time.sleep(60)
 
 def start_thread():
-    thread = threading.Thread(target=run_every_n_minutes, args=(5,)) # Transit Time
+    thread = threading.Thread(target=run_every_n_minutes) # Transit Time
     thread.daemon = True
     thread.start()
 

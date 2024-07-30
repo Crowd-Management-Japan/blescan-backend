@@ -10,7 +10,7 @@ metadata = MetaData()
 temporary_transit_data = Table('temporary_transit_data', metadata, autoload_with=engine)
 transit_data = Table('transit_data', metadata, autoload_with=engine)
 
-def search_time(route_pairs):
+def search_time(combinations):
     # 処理の開始を表示
     print('--------------------------------------------------------------------------- ')
     print('Start searching transit time ')
@@ -22,11 +22,13 @@ def search_time(route_pairs):
     print(f"探索終了時間: {transit_end}")
     print(f"探索開始時間: {transit_start}")
 
+    print("ルート:",combinations)
+
     # セッションの作成
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    for start_device_id, end_device_id in route_pairs:
+    for start_device_id, end_device_id in combinations:
         print("Start Point:", start_device_id)
         print("End Point:", end_device_id)
 
@@ -40,8 +42,7 @@ def search_time(route_pairs):
 
         for mac in mac_list:
             last_end_timestamp = None
-            continue_processing = True
-            while continue_processing:
+            while True:
                 # スタートデバイスの最前のレコードを取得
                 start_record = session.execute(
                     select(temporary_transit_data)
@@ -56,6 +57,11 @@ def search_time(route_pairs):
                     .limit(1)
                 ).fetchone()
                 print(start_record)
+
+                # リストの次のMACにスキップする
+                if not start_record:
+                    print(f"No records found for MAC {mac} at start device {start_device_id}.")
+                    break
 
                 # エンドデバイスの最前のレコードを取得(前のループの一つ後を選択)
                 end_condition = and_(
@@ -74,36 +80,40 @@ def search_time(route_pairs):
                 ).fetchone()
                 print(end_record)
 
-                # 両レコードが存在する場合のみ処理
-                if start_record and end_record:
-                    # 時間差を計算
-                    diff_time = (end_record.timestamp - start_record.timestamp).total_seconds()
-                    print(diff_time)
-                    if diff_time > 0:
-                        # 正の時間差の場合、データベースに保存
-                        new_record=transit_data.insert().values(
-                            start=start_device_id,
-                            end=end_device_id,
-                            timestamp=transit_end,
-                            transit_time=diff_time
-                        )
-                        result = session.execute(new_record)  # 実行してデータを挿入
-                        session.commit()  # 変更をコミット
-                        print("データがデータベースに保存されました。", result.rowcount, "行が追加されました。")
+                # リストの次のMACにスキップする
+                if not end_record:
+                    print(f"No more records found for MAC {mac} at end device {end_device_id}.")
+                    break
 
-                        # スタートレコードより前のデータを削除
-                        delete_query = delete(temporary_transit_data).where(
-                            and_(
-                                temporary_transit_data.c.mac_number == mac,
-                                temporary_transit_data.c.device_id == start_device_id,
-                                temporary_transit_data.c.timestamp < start_record.timestamp
-                            )
+                # 時間差を計算
+                diff_time = (end_record.timestamp - start_record.timestamp).total_seconds()
+                print(diff_time)
+                if diff_time > 0:
+                    # 正の時間差の場合、データベースに保存
+                    new_record=transit_data.insert().values(
+                        start=start_device_id,
+                        end=end_device_id,
+                        timestamp=transit_end,
+                        transit_time=diff_time
+                    )
+                    result = session.execute(new_record)  # 実行してデータを挿入
+                    session.commit()
+                    print("データがデータベースに保存されました。", result.rowcount, "行が追加されました。")
+
+                    # スタートレコードより前のデータを削除
+                    delete_query = delete(temporary_transit_data).where(
+                        and_(
+                            temporary_transit_data.c.mac_number == mac,
+                            temporary_transit_data.c.device_id == start_device_id,
+                            temporary_transit_data.c.timestamp < start_record.timestamp
                         )
-                        session.execute(delete_query)
-                        continue_processing = False
-                    else:
-                        # 負の時間差の場合、次のエンドレコードのtimestampを設定
-                        last_end_timestamp = end_record.timestamp
+                    )
+                    session.execute(delete_query)
+                    session.commit()
+                    break
+                else:
+                    # 負の時間差の場合、次のエンドレコードのtimestampを設定
+                    last_end_timestamp = end_record.timestamp
 
     # すべての処理が完了したらセッションをコミットして閉じる
     session.commit()
