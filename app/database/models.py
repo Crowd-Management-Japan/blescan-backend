@@ -111,8 +111,8 @@ class TemporaryTransitEntry(db.Model):
 
 class TransitEntry(db.Model):
     __tablename__ = 'transit_data'
-    id = db.Column(Integer, primary_key=True)
-    start = db.Column(Integer)
-    end = db.Column(Integer)
-    timestamp = db.Column(DateTime, nullable=False)
-    transit_time = db.Column(Integer)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    start: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    end: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
+    transit_time: Mapped[int] = mapped_column(Integer, nullable=True, default=None)

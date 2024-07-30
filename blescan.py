@@ -59,11 +59,13 @@ login_manager.login_view = 'login'  # Set the login view
 
 def run_every_n_minutes(minutes):
     while True:
-        search_time()
+        # JSONからデバイスペアを渡す例
+        device_pairs = [(1, 2), (3, 1)]
+        search_time(device_pairs)
         time.sleep(minutes * 60)
 
 def start_thread():
-    thread = threading.Thread(target=run_every_n_minutes, args=(1,)) # Transit Time
+    thread = threading.Thread(target=run_every_n_minutes, args=(5,)) # Transit Time
     thread.daemon = True
     thread.start()
 
