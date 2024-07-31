@@ -2,7 +2,7 @@ import logging
 import click
 import threading
 import time
-logging.basicConfig(level=logging.DEBUG, 
+logging.basicConfig(level=logging.DEBUG,
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
 from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -64,7 +64,7 @@ transit_data_store = {
 @app.route('/setup', methods=['POST'])
 def receive_data():
     global transit_data_store
-    data  = request.get_json() 
+    data  = request.get_json()
     if data and 'transit' in data:
         transit_data = data['transit']
         transit_data_store['delta'] = transit_data.get('delta')
@@ -77,13 +77,15 @@ def run_every_n_minutes():
     while True:
         delta = transit_data_store['delta']
         combinations = transit_data_store['combinations']
-        if delta and combinations:
-            search_time(combinations)
-            print(f"Running with delta: {delta} minutes and combinations: {combinations}")
-            time.sleep(delta * 60)
-        else:
-            print("Waiting for valid data...")
-            time.sleep(60)
+        search_time([(1,2)])
+        break
+        # if delta and combinations:
+        #     search_time(combinations)
+        #     print(f"Running with delta: {delta} minutes and combinations: {combinations}")
+        #     time.sleep(delta * 60)
+        # else:
+        #     print("Waiting for valid data...")
+        #     time.sleep(60)
 
 def start_thread():
     thread = threading.Thread(target=run_every_n_minutes) # Transit Time
