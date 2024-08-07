@@ -22,7 +22,8 @@ from flask_login import LoginManager, login_user, logout_user
 from app.database.models import User
 from flask_login import current_user, login_required
 from app.database.database import init_db, db
-from search_time import search_time
+from travel_time import calculate_travel_time, calculate_transit
+import multiprocessing as mp
 
 from app.template_filters import setup_template_filters
 
@@ -71,26 +72,6 @@ def receive_data():
         transit_data_store['combinations'] = transit_data.get('combinations', [])
         print(f"Received transit data: {transit_data}")
     return jsonify({'status': 'Data processed successfully'}), 200
-
-def run_every_n_minutes():
-    global transit_data_store
-    while True:
-        delta = transit_data_store['delta']
-        combinations = transit_data_store['combinations']
-        search_time([(1,2)])
-        break
-        # if delta and combinations:
-        #     search_time(combinations)
-        #     print(f"Running with delta: {delta} minutes and combinations: {combinations}")
-        #     time.sleep(delta * 60)
-        # else:
-        #     print("Waiting for valid data...")
-        #     time.sleep(60)
-
-def start_thread():
-    thread = threading.Thread(target=run_every_n_minutes) # Transit Time
-    thread.daemon = True
-    thread.start()
 
 @app.route('/')
 @app.route('/home')
@@ -141,6 +122,27 @@ def create():
 # add command function to cli commands
 app.cli.add_command(create)
 
+def calculate_transit_periodically():
+    global transit_data_store
+    while True:
+        delta = transit_data_store['delta']
+        combinations = transit_data_store['combinations']
+        delta = 0.5
+        combinations = [[1,2]]
+        print('-----', combinations)
+        if delta and combinations:
+            # calculate_travel_time(combinations)
+            calculate_transit(combinations)
+            print(f"Running with delta: {delta} minutes and combinations: {combinations}")
+            time.sleep(delta * 60)
+        else:
+            print("Waiting for valid data...")
+            time.sleep(10)
+
 if __name__ == "__main__":
-    start_thread()
+    # start backend process(calclate transit)
+    process = mp.Process(target=calculate_transit_periodically)
+    process.start()
+
+    # main process (flask)
     app.run(debug=True, use_reloader=False, host=Config.HOSTNAME, port=Config.PORT)

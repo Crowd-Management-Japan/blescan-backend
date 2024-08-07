@@ -1,63 +1,45 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify
 import json
-from jsonschema import validate, ValidationError
-import logging
-from ..data import DataReceiver
-import sqlalchemy
-import datetime
+from datetime import datetime
 from app.database.models import TemporaryTransitEntry
 from app.database.database import db
-from flask import make_response
-import app.util as util
-# from app.cloud.cloud_service import cloud_service
+from typing import Dict
 
 transit_bp = Blueprint('transit', __name__)
 
-_dataReceiver = DataReceiver.get_instance()
+def load_schema(schema_name: str) -> Dict:
+    with open('app/transit/schemas.json', 'r') as schema_file:
+        schemas = json.load(schema_file)
+    return schemas.get(schema_name, {})
 
-transit_data = None
-
-with open('app/transit/schemas.json', 'r') as schemas_file:
-    _schemas = json.load(schemas_file)
-
-@transit_bp.route('transit', methods= ['GET'])
+@transit_bp.route('transit', methods=['GET'])
 def get_transit():
     return "ok", 200
 
-@transit_bp.route('/transit', methods = ['POST'])
+@transit_bp.route('/transit', methods=['POST'])
 def update_transit():
-    transit_data = request.get_json()
-    logging.debug("received post request from %d (ip: %s)", transit_data['ID'], request.remote_addr)
-
     try:
-        validate(transit_data, _schemas.get('TemporaryTransitEntry'))
-        timestamp = datetime.datetime.strptime(transit_data.get('TIME', ''), '%Y-%m-%dT%H:%M:%S')
+        data = request.json
 
-        # Add each MAC address to the database
-        for mac in transit_data['MAC']:
-            existingEntry = db.session.query(TemporaryTransitEntry).filter_by(
-                device_id=transit_data['ID'],
-                mac_number=str(mac),
-                timestamp=timestamp
-            ).first()
-            if not existingEntry:
-                new_entry = TemporaryTransitEntry(
-                    device_id=transit_data['ID'],
-                    mac_number=str(mac),
-                    timestamp=timestamp
-                )
-                db.session.add(new_entry)
-        
+        if not all(key in data for key in ['ID', 'MAC', 'TIME']):
+            return jsonify({"error": "Invalid data format"}), 400
+
+        device_id =data['ID']
+        mac_addr = data['MAC']
+        timestamp = datetime.fromisoformat(data['TIME'])
+
+        for mac in mac_addr:
+            new_entry = TemporaryTransitEntry(
+                mac_address = mac,
+                device_id = device_id,
+                timestamp = timestamp
+            )
+            db.session.add(new_entry)
+
         db.session.commit()
+
         return jsonify({"message": "Data successfully saved"}), 200
 
-    except ValidationError as e:
-        logging.error("Validation error: %s", e)
-        return jsonify({"error": "Validation error"}), 400
-    except ValueError:
-        logging.error("Date format error")
-        return jsonify({"error": "Validation error - check date format %Y-%m-%dT%H:%M:%S"}), 400
     except Exception as e:
-        logging.error("An error occurred: %s", str(e))
-        db.session.rollback()
-        return jsonify({"error": "An error occurred while processing your request"}), 500
+        db.sessino.rollback()
+        return jsonify({"error": str(e)}), 500
