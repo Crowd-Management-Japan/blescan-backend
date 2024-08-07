@@ -7,6 +7,7 @@ from sqlalchemy import create_engine, and_, or_
 
 from app.database.database import db
 from app.database.models import TransitEntry, TemporaryTransitEntry
+from transit_config import TransitConfig
 
 def calculate_travel_time(combinations: List[Tuple[int, int]], max_exploration_time: int = 60) -> List[TransitEntry]:
     end_time = datetime.now()
@@ -70,16 +71,6 @@ def find_transit_data(mac_address: str, start_time: datetime, end_time: datetime
     return transit_data
     """
 
-# 設定値
-# この時間未満の移動時間はノイズとして保存しない(エリアが隣接するとき、その境界を行き来する場合。または、別のエリアのMACアドレスが偶然一致した場合。)
-MIN_MOVEMENT_TIME = timedelta(seconds=0)
-# この時間以上同じMACの検出がなければ、移動したとみなす(MACが変わった場合や、エリアから出たが他のエリアに行かなかった場合)
-NO_DETECTION_THRESHOLD = timedelta(minutes=5)
-# この時間以上同じ場所に滞在していたら、移動後の時間とみなす(同じ場所に長時間滞在した場合)
-SAME_PLACE_THRESHOLD = timedelta(minutes=3)
-# 検索する時間の範囲
-TIME_WINDOW = timedelta(minutes=15)
-
 Base = declarative_base()
 
 def create_db_session():
@@ -95,7 +86,7 @@ def calculate_transit(routes: List[List[int]]) -> None:
 
         # 検索範囲の時刻を設定
         current_time = datetime.now(timezone(timedelta(hours=9)))
-        start_time = current_time - TIME_WINDOW
+        start_time = current_time - TransitConfig.TIME_WINDOW
 
         # データベースからデータを取得
         query = session.query(TemporaryTransitEntry).filter(
@@ -158,7 +149,7 @@ def process_mac_records(records, full_routes, movements):
 
     def record_movement(start_id, end_id, start_time, end_time):
         movement_time = end_time - start_time
-        if movement_time >= MIN_MOVEMENT_TIME and (start_id, end_id) in full_routes:
+        if movement_time >= TransitConfig.MIN_MOVEMENT_TIME and (start_id, end_id) in full_routes:
             movements.append({
                 'from': start_id,
                 'to': end_id,
@@ -189,7 +180,7 @@ def process_mac_records(records, full_routes, movements):
             current_start_time = record.timestamp
 
         # IDの変化がなく、同じIDに一定時間とどまっているとき
-        elif record.timestamp - current_start_time >= SAME_PLACE_THRESHOLD:
+        elif record.timestamp - current_start_time >= TransitConfig.SAME_PLACE_THRESHOLD:
             if current_id != start_id:
                 record_movement(start_id, current_id, start_time, record.timestamp)
                 start_id = current_id
@@ -199,7 +190,7 @@ def process_mac_records(records, full_routes, movements):
         last_record_time = record.timestamp
 
     # 最終レコードが一定時間更新されていなければ、移動が完了したとみなす
-    if current_time - last_record_time > NO_DETECTION_THRESHOLD:
+    if current_time - last_record_time > TransitConfig.NO_DETECTION_THRESHOLD:
         record_movement(start_id, current_id, start_time, last_record_time)
 
 

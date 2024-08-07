@@ -9,17 +9,24 @@ from ..util import compact_int_list_string
 import app.util as util
 from config import Config
 
+from transit.transit_config import TransitConfig
+
 setup_bp = Blueprint('setup', __name__)
 
 _generator = config_generation.ConfigGenerator()
+
+transit_data_store = {
+    'delta': 1,
+    'combinations': []
+}
 
 with open('app/setup/schemas.json', 'r') as schemas_file:
     _schemas = json.load(schemas_file)
 
 ##########################################
-#   
+#
 #   Data endpoints
-#   v   v   v   v  
+#   v   v   v   v
 ##########################################
 
 @setup_bp.route('/', methods=['POST'])
@@ -37,6 +44,8 @@ def set_config_data():
         print(e)
         return "Invalid format", 400
     print(data)
+
+    TransitConfig.combinations = data['transit'].get('combinations', [])
 
     _generator.reset()
     _generator.set_config(data)
@@ -63,7 +72,7 @@ def get_config(id: int):
     return _generator.get_config_for_id(id)
 
 ##########################################
-#   
+#
 #   Template render endpoints
 #   v   v   v   v   v   v   v
 ##########################################
@@ -104,7 +113,7 @@ def get_item_table():
 def get_installation_script(id: int):
     if type(id) != int:
         return "id must be integer", 400
-    
+
     filename = "res/install_script.txt"
     with open(filename) as file:
         text = file.read()

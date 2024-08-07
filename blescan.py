@@ -1,6 +1,5 @@
 import logging
 import click
-import threading
 import time
 logging.basicConfig(level=logging.DEBUG,
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
@@ -22,7 +21,8 @@ from flask_login import LoginManager, login_user, logout_user
 from app.database.models import User
 from flask_login import current_user, login_required
 from app.database.database import init_db, db
-from travel_time import calculate_travel_time, calculate_transit
+from app.transit.transit_time import calculate_travel_time, calculate_transit
+from app.transit.transit_config import TransitConfig
 import multiprocessing as mp
 
 from app.template_filters import setup_template_filters
@@ -32,7 +32,6 @@ from config import Config
 import app.config as backConf
 
 backConf.init_config()
-
 
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.secret_key = 'no_secret_key' # change with yours although this is a low level security setting
@@ -56,22 +55,6 @@ with app.app_context():
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'  # Set the login view
-
-transit_data_store = {
-    'delta': 1,
-    'combinations': []
-}
-
-@app.route('/setup', methods=['POST'])
-def receive_data():
-    global transit_data_store
-    data  = request.get_json()
-    if data and 'transit' in data:
-        transit_data = data['transit']
-        transit_data_store['delta'] = transit_data.get('delta')
-        transit_data_store['combinations'] = transit_data.get('combinations', [])
-        print(f"Received transit data: {transit_data}")
-    return jsonify({'status': 'Data processed successfully'}), 200
 
 @app.route('/')
 @app.route('/home')
@@ -123,21 +106,12 @@ def create():
 app.cli.add_command(create)
 
 def calculate_transit_periodically():
-    global transit_data_store
     while True:
-        delta = transit_data_store['delta']
-        combinations = transit_data_store['combinations']
-        delta = 0.5
-        combinations = [[1,2]]
-        print('-----', combinations)
-        if delta and combinations:
+        combinations = TransitConfig.combinations
+        if combinations:
             # calculate_travel_time(combinations)
             calculate_transit(combinations)
-            print(f"Running with delta: {delta} minutes and combinations: {combinations}")
-            time.sleep(delta * 60)
-        else:
-            print("Waiting for valid data...")
-            time.sleep(10)
+        time.sleep(TransitConfig.INTERVAL_SEC)
 
 if __name__ == "__main__":
     # start backend process(calclate transit)
