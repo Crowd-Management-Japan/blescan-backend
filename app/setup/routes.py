@@ -9,7 +9,7 @@ from ..util import compact_int_list_string
 import app.util as util
 from config import Config
 
-from transit.transit_config import TransitConfig
+from ..transit.transit_config import TransitConfig
 
 setup_bp = Blueprint('setup', __name__)
 

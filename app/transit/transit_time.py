@@ -7,7 +7,7 @@ from sqlalchemy import create_engine, and_, or_
 
 from app.database.database import db
 from app.database.models import TransitEntry, TemporaryTransitEntry
-from transit_config import TransitConfig
+from .transit_config import TransitConfig
 
 def calculate_travel_time(combinations: List[Tuple[int, int]], max_exploration_time: int = 60) -> List[TransitEntry]:
     end_time = datetime.now()
@@ -80,7 +80,8 @@ def create_db_session():
 
 def calculate_transit(routes: List[List[int]]) -> None:
     session = create_db_session()
-    try:
+    # try:
+    if True:
         # ルートを両方向で設定
         full_routes = set((a, b) for route in routes for a, b in [route, route[::-1]])
 
@@ -97,8 +98,10 @@ def calculate_transit(routes: List[List[int]]) -> None:
         records = []
         movements = []
 
+        print(f'query----- {query}')
+
         # クエリの結果を1つずつ処理
-        for record in query:
+        for record in query.all():
             # 別のmacになったら
             if current_mac != record.mac_address:
                 # (1つ前のmacの)レコードがある場合
@@ -134,11 +137,11 @@ def calculate_transit(routes: List[List[int]]) -> None:
         session.add_all(transit_entries)
         session.commit()
 
-    except Exception as e:
-        print(f"Error in calculate_transit: {e}")
-        session.rollback()
-    finally:
-        session.close()
+    # except Exception as e:
+    #     print(f"Error in calculate_transit: {e}")
+    #     session.rollback()
+    # finally:
+    #     session.close()
 
 # MACアドレス1つ分の処理
 def process_mac_records(records, full_routes, movements):
@@ -159,8 +162,8 @@ def process_mac_records(records, full_routes, movements):
             })
 
     # first record
-    start_id   = record[0].device_id
-    start_time = record[0].timestamp
+    start_id   = records[0].device_id
+    start_time = records[0].timestamp
     current_id = start_id
     current_start_time = start_time
     last_record_time = start_time
