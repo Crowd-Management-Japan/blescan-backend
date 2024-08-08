@@ -1,35 +1,32 @@
 import logging
-import click
-import time
-logging.basicConfig(level=logging.DEBUG,
-                    format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
-from flask import Flask, render_template, request, flash, url_for, redirect, session, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask.cli import with_appcontext
-from app.setup.routes import setup_bp
-from app.status.routes import status_bp
-from app.transit.routes import transit_bp
-from app.database.routes import db_bp
-from app.config.routes import config_bp
-# from app.cloud.routes import cloud_bp
-from app.presentation.routes import presentation_bp
-import babel.dates as bdates
-from datetime import datetime
-from werkzeug.security import check_password_hash, generate_password_hash
-from flask_login import LoginManager, login_user, logout_user
-from app.database.models import User
-from flask_login import current_user, login_required
-from app.database.database import init_db, db
-from app.transit.transit_time import calculate_travel_time, calculate_transit
-from app.transit.transit_config import TransitConfig
 import multiprocessing as mp
+import time
 
-from app.template_filters import setup_template_filters
-
-from config import Config
+import click
+from flask import Flask, render_template, request, flash, url_for, redirect
+from flask.cli import with_appcontext
+from flask_login import LoginManager, login_user, logout_user
+from flask_login import login_required
+from flask_migrate import Migrate
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import app.config as backConf
+from config import Config
+# from app.cloud.routes import cloud_bp
+from app.config.routes import config_bp
+from app.database.database import init_db, db
+from app.database.models import User
+from app.database.routes import db_bp
+from app.presentation.routes import presentation_bp
+from app.setup.routes import setup_bp
+from app.status.routes import status_bp
+from app.template_filters import setup_template_filters
+from app.transit.routes import transit_bp
+from app.transit.transit_config import TransitConfig
+from app.transit.transit_time import calculate_travel_time, calculate_transit
+
+logging.basicConfig(level=logging.DEBUG,
+                    format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
 
 backConf.init_config()
 
@@ -108,6 +105,7 @@ app.cli.add_command(create)
 def calculate_transit_periodically():
     while True:
         combinations = TransitConfig.combinations
+        combinations = [[1,2]]
         if combinations:
             # calculate_travel_time(combinations)
             calculate_transit(combinations)

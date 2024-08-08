@@ -1,9 +1,10 @@
-from flask import Blueprint, request, jsonify
 import json
 from datetime import datetime
-from app.database.models import TemporaryTransitEntry
-from app.database.database import db
 from typing import Dict
+
+from app.database.database import db
+from app.database.models import TemporaryTransitEntry
+from flask import Blueprint, request, jsonify
 
 transit_bp = Blueprint('transit', __name__)
 

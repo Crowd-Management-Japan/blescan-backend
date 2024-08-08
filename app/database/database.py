@@ -1,32 +1,27 @@
+import datetime
+import logging
+from typing import List, Dict, Any
+
+import pandas as pd
+import pytz
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
 import app.database.models as models
-import numpy as np
-import pandas as pd
-import datetime
-import logging
-from typing import List, Dict, Any
-from flask import jsonify
-import pytz
 
 db = SQLAlchemy()
 
 def init_db(app):
     db.init_app(app)
 
-
-
 def get_time_dataframe(request, DATE_FILTER_FORMAT):
     CountEntry = models.CountEntry
-    
-    query = db.session.query(CountEntry.timestamp, func.avg(CountEntry.count), func.count(CountEntry.id)).group_by(CountEntry.timestamp).order_by(CountEntry.timestamp.desc())
 
+    query = db.session.query(CountEntry.timestamp, func.avg(CountEntry.count), func.count(CountEntry.id)).group_by(CountEntry.timestamp).order_by(CountEntry.timestamp.desc())
 
     date_format = request.args.get('format')
     if not date_format:
         date_format = DATE_FILTER_FORMAT
-
 
     before = request.args.get('before')
     if before:
@@ -45,7 +40,7 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
         try:
             query = query.limit(int(limit))
         except:
-            pass    
+            pass
 
     devices = query.all()
 
@@ -89,5 +84,3 @@ def get_graph_data(limit: int = None, id_from: int = None, id_to: int = None, da
 
     json = result.to_json(orient='records')
     return json
-
-    

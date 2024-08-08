@@ -1,11 +1,9 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, session
-import json
-from jsonschema import validate, ValidationError
-import logging
 from datetime import datetime
+
 import pytz
+from flask import Blueprint, request, jsonify, render_template, session
+
 from app.data import DataReceiver
-from ..util import compact_int_list_string
 
 presentation_bp = Blueprint('presentation', __name__)
 _data = DataReceiver.get_instance()
@@ -13,7 +11,6 @@ _data = DataReceiver.get_instance()
 @presentation_bp.route('/latest')
 def get_presentation():
     return render_template('presentation/presentation.html')
-
 
 @presentation_bp.route('/graph')
 def get_graph_page():

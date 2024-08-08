@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from typing import List, Tuple
 
+from sqlalchemy import create_engine, and_, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy import create_engine, and_, or_
 
 from app.database.database import db
 from app.database.models import TransitEntry, TemporaryTransitEntry
@@ -97,8 +97,6 @@ def calculate_transit(routes: List[List[int]]) -> None:
         current_mac = None
         records = []
         movements = []
-
-        print(f'query----- {query}')
 
         # クエリの結果を1つずつ処理
         for record in query.all():
@@ -195,7 +193,6 @@ def process_mac_records(records, full_routes, movements):
     # 最終レコードが一定時間更新されていなければ、移動が完了したとみなす
     if current_time - last_record_time > TransitConfig.NO_DETECTION_THRESHOLD:
         record_movement(start_id, current_id, start_time, last_record_time)
-
 
 def delete_old_data(session: Session, mac_address: str, records: List[TemporaryTransitEntry]):
     latest_device = records[-1].device_id

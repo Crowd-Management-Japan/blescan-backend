@@ -1,14 +1,14 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
-from . import config_generation
 import json
-from jsonschema import validate, ValidationError
 import logging
-from flask_login import login_required
 
-from ..util import compact_int_list_string
+from flask import Blueprint, request, jsonify, render_template, redirect
+from flask_login import login_required
+from jsonschema import validate, ValidationError
+
 import app.util as util
 from config import Config
-
+from . import config_generation
+from ..util import compact_int_list_string
 from ..transit.transit_config import TransitConfig
 
 setup_bp = Blueprint('setup', __name__)
@@ -103,7 +103,6 @@ def status_page():
 
 @setup_bp.route('/status_item_table', methods=['GET'])
 def get_item_table():
-
     items = [{'id': did, 'status': dstatus} for did, dstatus in _generator.get_device_status_all().items()]
     print(f"status: {items}")
     data= {'data':items}
