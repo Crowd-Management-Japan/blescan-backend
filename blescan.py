@@ -12,18 +12,20 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import app.config as backConf
 from config import Config
-# from app.cloud.routes import cloud_bp
-from app.config.routes import config_bp
 from app.database.models import User
 from app.database.database import init_db, db
+from app.template_filters import setup_template_filters
+from app.transit.transit_config import TransitConfig
+from app.transit.transit_time import calculate_travel_time, calculate_transit
+
+# from app.cloud.routes import cloud_bp
+from app.config.routes import config_bp
 from app.database.routes import db_bp
 from app.presentation.routes import presentation_bp
 from app.setup.routes import setup_bp
 from app.status.routes import status_bp
-from app.template_filters import setup_template_filters
 from app.transit.routes import transit_bp
-from app.transit.transit_config import TransitConfig
-from app.transit.transit_time import calculate_travel_time, calculate_transit
+
 
 logging.basicConfig(level=logging.DEBUG,
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
@@ -83,7 +85,7 @@ def logout():
 
 app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
-app.register_blueprint(transit_bp, url_prefix='/status/update')
+app.register_blueprint(transit_bp, url_prefix='/transit')
 app.register_blueprint(presentation_bp, url_prefix='/data')
 app.register_blueprint(db_bp, url_prefix='/database')
 app.register_blueprint(config_bp, url_prefix='/config')

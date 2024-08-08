@@ -13,11 +13,11 @@ def load_schema(schema_name: str) -> Dict:
         schemas = json.load(schema_file)
     return schemas.get(schema_name, {})
 
-@transit_bp.route('transit', methods=['GET'])
+@transit_bp.route('update', methods=['GET'])
 def get_transit():
     return "ok", 200
 
-@transit_bp.route('/transit', methods=['POST'])
+@transit_bp.route('/update', methods=['POST'])
 def update_transit():
     try:
         data = request.json
