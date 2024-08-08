@@ -14,8 +14,8 @@ import app.config as backConf
 from config import Config
 # from app.cloud.routes import cloud_bp
 from app.config.routes import config_bp
-from app.database.database import init_db, db
 from app.database.models import User
+from app.database.database import init_db, db
 from app.database.routes import db_bp
 from app.presentation.routes import presentation_bp
 from app.setup.routes import setup_bp
