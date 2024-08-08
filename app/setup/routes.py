@@ -9,7 +9,7 @@ import app.util as util
 from config import Config
 from . import config_generation
 from ..util import compact_int_list_string
-from ..transit.transit_config import TransitConfig
+from ..transit.transit_time import shared_routes
 
 setup_bp = Blueprint('setup', __name__)
 
@@ -45,7 +45,7 @@ def set_config_data():
         return "Invalid format", 400
     print(data)
 
-    TransitConfig.combinations = data['transit'].get('combinations', [])
+    shared_routes[:] = data['transit'].get('combinations', [])
 
     _generator.reset()
     _generator.set_config(data)

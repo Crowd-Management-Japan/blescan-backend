@@ -15,8 +15,7 @@ from config import Config
 from app.database.models import User
 from app.database.database import init_db, db
 from app.template_filters import setup_template_filters
-from app.transit.transit_config import TransitConfig
-from app.transit.transit_time import calculate_travel_time, calculate_transit
+from app.transit.transit_time import TransitCalculator, shared_routes
 
 # from app.cloud.routes import cloud_bp
 from app.config.routes import config_bp
@@ -25,7 +24,6 @@ from app.presentation.routes import presentation_bp
 from app.setup.routes import setup_bp
 from app.status.routes import status_bp
 from app.transit.routes import transit_bp
-
 
 logging.basicConfig(level=logging.DEBUG,
                     format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
@@ -104,18 +102,16 @@ def create():
 # add command function to cli commands
 app.cli.add_command(create)
 
-def calculate_transit_periodically():
+def calculate_transit_periodically(shared_routes):
+    # Debug用ルート設定
+    transit_calculator = TransitCalculator(shared_routes)
     while True:
-        combinations = TransitConfig.combinations
-        combinations = [[1,2]]
-        if combinations:
-            # calculate_travel_time(combinations)
-            calculate_transit(combinations)
-        time.sleep(TransitConfig.INTERVAL_SEC)
+        transit_calculator.calculate_transit()
+        time.sleep(TransitCalculator.INTERVAL_SEC)
 
 if __name__ == "__main__":
     # start backend process(calclate transit)
-    process = mp.Process(target=calculate_transit_periodically)
+    process = mp.Process(target=calculate_transit_periodically, args=(shared_routes,))
     process.start()
 
     # main process (flask)
