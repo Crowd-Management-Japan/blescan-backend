@@ -1,14 +1,15 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
-import json
-from jsonschema import validate, ValidationError
-import logging
-from ..data import DataReceiver
-import sqlalchemy
 import datetime
+import json
+import logging
+
+from flask import Blueprint, request
+from jsonschema import validate, ValidationError
+
+# from app.cloud.cloud_service import cloud_service
 from app.database.models import CountEntry
 from app.database.database import db
+from ..data import DataReceiver
 import app.util as util
-from app.cloud.cloud_service import cloud_service
 
 status_bp = Blueprint('status', __name__)
 
@@ -46,5 +47,5 @@ def update_status():
         db.session.add(entry)
         db.session.commit()
         _dataReceiver.set_data(data)
-        cloud_service.send_to_cloud(data)
+        # cloud_service.send_to_cloud(data)
     return "ok", 200

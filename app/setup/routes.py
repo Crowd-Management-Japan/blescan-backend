@@ -1,25 +1,32 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
-from . import config_generation
 import json
-from jsonschema import validate, ValidationError
 import logging
-from flask_login import login_required
 
-from ..util import compact_int_list_string
+from flask import Blueprint, request, jsonify, render_template, redirect
+from flask_login import login_required
+from jsonschema import validate, ValidationError
+
 import app.util as util
 from config import Config
+from . import config_generation
+from ..util import compact_int_list_string
+from ..transit.transit_time import shared_routes
 
 setup_bp = Blueprint('setup', __name__)
 
 _generator = config_generation.ConfigGenerator()
 
+transit_data_store = {
+    'delta': 1,
+    'combinations': []
+}
+
 with open('app/setup/schemas.json', 'r') as schemas_file:
     _schemas = json.load(schemas_file)
 
 ##########################################
-#   
+#
 #   Data endpoints
-#   v   v   v   v  
+#   v   v   v   v
 ##########################################
 
 @setup_bp.route('/', methods=['POST'])
@@ -37,6 +44,8 @@ def set_config_data():
         print(e)
         return "Invalid format", 400
     print(data)
+
+    shared_routes[:] = data['transit'].get('combinations', [])
 
     _generator.reset()
     _generator.set_config(data)
@@ -63,7 +72,7 @@ def get_config(id: int):
     return _generator.get_config_for_id(id)
 
 ##########################################
-#   
+#
 #   Template render endpoints
 #   v   v   v   v   v   v   v
 ##########################################
@@ -94,7 +103,6 @@ def status_page():
 
 @setup_bp.route('/status_item_table', methods=['GET'])
 def get_item_table():
-
     items = [{'id': did, 'status': dstatus} for did, dstatus in _generator.get_device_status_all().items()]
     print(f"status: {items}")
     data= {'data':items}
@@ -104,7 +112,7 @@ def get_item_table():
 def get_installation_script(id: int):
     if type(id) != int:
         return "id must be integer", 400
-    
+
     filename = "res/install_script.txt"
     with open(filename) as file:
         text = file.read()
