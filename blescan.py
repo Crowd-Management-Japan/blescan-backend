@@ -1,32 +1,34 @@
 import logging
+import multiprocessing as mp
+import time
+
 import click
-logging.basicConfig(level=logging.DEBUG, 
-                    format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
-from flask import Flask, render_template, request, flash, url_for, redirect, session
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, flash, url_for, redirect
 from flask.cli import with_appcontext
-from app.setup.routes import setup_bp
-from app.status.routes import status_bp
-from app.database.routes import db_bp
-from app.config.routes import config_bp
-from app.cloud.routes import cloud_bp
-from app.presentation.routes import presentation_bp
-import babel.dates as bdates
-from datetime import datetime
-from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import LoginManager, login_user, logout_user
-from app.database.models import User
-from flask_login import current_user, login_required
-from app.database.database import init_db, db
-
-from app.template_filters import setup_template_filters
-
-from config import Config
+from flask_login import login_required
+from flask_migrate import Migrate
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import app.config as backConf
+from config import Config
+from app.database.models import User
+from app.database.database import init_db, db
+from app.template_filters import setup_template_filters
+from app.transit.transit_time import TransitCalculator, shared_routes
+
+# from app.cloud.routes import cloud_bp
+from app.config.routes import config_bp
+from app.database.routes import db_bp
+from app.presentation.routes import presentation_bp
+from app.setup.routes import setup_bp
+from app.status.routes import status_bp
+from app.transit.routes import transit_bp
+
+logging.basicConfig(level=logging.DEBUG,
+                    format=('%(levelname)s %(filename)s: %(lineno)d:\t%(message)s'))
 
 backConf.init_config()
-
 
 app = Flask('blescan', template_folder='app/templates', static_folder='app/static')
 app.secret_key = 'no_secret_key' # change with yours although this is a low level security setting
@@ -40,12 +42,13 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 }
 app.config['SECRET_KEY'] = 'your_secret_key'  # Change this to a secure secret key
 
+migrate = Migrate(app, db)
+
 init_db(app)
 setup_template_filters(app)
 
 with app.app_context():
     db.create_all()
-
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'  # Set the login view
@@ -80,10 +83,11 @@ def logout():
 
 app.register_blueprint(setup_bp, url_prefix='/setup')
 app.register_blueprint(status_bp, url_prefix='/status')
+app.register_blueprint(transit_bp, url_prefix='/transit')
 app.register_blueprint(presentation_bp, url_prefix='/data')
 app.register_blueprint(db_bp, url_prefix='/database')
 app.register_blueprint(config_bp, url_prefix='/config')
-app.register_blueprint(cloud_bp, url_prefix='/cloud')
+# app.register_blueprint(cloud_bp, url_prefix='/cloud')
 
 # create command function
 @click.command(name='createadmin')
@@ -98,5 +102,18 @@ def create():
 # add command function to cli commands
 app.cli.add_command(create)
 
+def calculate_transit_periodically(shared_routes):
+    # Debug用ルート設定
+    transit_calculator = TransitCalculator(shared_routes)
+    while True:
+        transit_calculator.calculate_transit()
+        time.sleep(TransitCalculator.INTERVAL_SEC)
+
 if __name__ == "__main__":
-    app.run(debug=True, host=Config.HOSTNAME, port=Config.PORT)
+    # start backend process(calclate transit)
+    # process = mp.Process(target=calculate_transit_periodically, args=(shared_routes,))
+    process = mp.Process(target=calculate_transit_periodically, args=('',))
+    process.start()
+
+    # main process (flask)
+    app.run(debug=True, use_reloader=False, host=Config.HOSTNAME, port=Config.PORT)

@@ -1,12 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List
-import logging
-import math
 
 _instance = None
 
 class DataReceiver:
-
     _data = {}
 
     @staticmethod
@@ -21,7 +18,7 @@ class DataReceiver:
 
     def set_data(self, data: Dict):
         id = int(data['id'])
-        
+
         data.update({'last_updated': datetime.now(), 'is_online': True})
 
         if data['rssi_avg'] is not None:
@@ -31,7 +28,6 @@ class DataReceiver:
 
         self._data[id] = data
 
-
     def get_last_updated(self, id: int) -> datetime:
         return self._data.get(id, {'last_updated': datetime.min})['last_updated']
 
@@ -40,10 +36,10 @@ class DataReceiver:
 
     def get_data_by_id(self, id: int) -> Dict:
         return self._data.get(id, {'id': id, 'last_updated': self.get_last_updated(id)})
-    
+
     def get_data_as_list(self):
         return [_ for _ in self._data.values()]
-    
+
     def get_data_online_first(self) -> List:
         online = [d for d in self._data.values() if d['is_online']]
         offline = [d for d in self._data.values() if not d['is_online']]

@@ -1,17 +1,14 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response
-import json
-from jsonschema import validate, ValidationError
 import logging
-from ..data import DataReceiver
-import sqlalchemy
-from sqlalchemy import func
-import app.util as util
-import pandas as pd
-from flask_login import login_required
 import datetime
-from app.database.models import CountEntry
-from app.database.database import db
+
+import pandas as pd
+from flask import Blueprint, request, jsonify, render_template, make_response
+from sqlalchemy import func
+
 import app.database.database as dbFunc
+import app.util as util
+from app.database.database import db
+from app.database.models import CountEntry
 
 db_bp = Blueprint('database', __name__)
 
@@ -40,8 +37,6 @@ def reset_database():
         CountEntry.metadata.create_all(db.engine)
 
         return "deleted data", 200
-    
-
 
     return "forbidden", 403
 
@@ -51,7 +46,6 @@ def get_data():
     date_format = request.args.get('format')
     if not date_format:
         date_format = DATE_FILTER_FORMAT
-
 
     before = request.args.get('before')
     if before:
@@ -98,7 +92,6 @@ def get_data():
     df = dbFunc.get_time_dataframe(request, DATE_FILTER_FORMAT)
     return jsonify(df)
 
-
 @db_bp.route('/data/dates')
 def get_end_dates():
     query = db.session.query(func.min(CountEntry.timestamp), func.max(CountEntry.timestamp)).all()
@@ -107,8 +100,6 @@ def get_end_dates():
     last = query[0][1] or datetime.datetime.now()
 
     return jsonify({'first': first.strftime(DATE_FILTER_FORMAT), 'last': last.strftime(DATE_FILTER_FORMAT)})
-
-
 
 @db_bp.route('/export_data', methods=['GET'])
 def get_filtered_data():
@@ -156,12 +147,9 @@ def get_filtered_data():
             pass
 
     query = query.order_by(None).order_by(CountEntry.timestamp.asc())
-
     result = query.all()
 
-
     data = [res.to_dict() for res in result]
-    
 
     if request.args.get('type') == 'csv':
         df = pd.DataFrame(data)

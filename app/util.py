@@ -1,6 +1,5 @@
 
 from typing import List, Dict, Union
-import logging
 
 def compact_int_list_string(lst: List[int]) -> str:
     if not lst:
@@ -30,16 +29,16 @@ def compact_string_to_int_list(s: str) -> List[int]:
     where integers can either be separated by commas or a range is given.
     """
     result = []
-    
+
     elements = s.split(',')
-    
+
     for element in elements:
         if '-' in element:
             start, end = map(int, element.split('-'))
             result.extend(range(start, end + 1))
         else:
             result.append(int(element))
-    
+
     return result
 
 def dict_strict_deep_update(d1: Dict, d2: Dict):
@@ -79,4 +78,3 @@ def float_or_None(value: str) -> Union[float,None]:
         return float(value)
     except (ValueError, TypeError):
         return None
-    

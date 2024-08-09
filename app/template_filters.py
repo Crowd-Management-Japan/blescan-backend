@@ -1,5 +1,4 @@
 
-import logging
 from datetime import datetime, timedelta
 import babel.dates as bdates
 
@@ -14,9 +13,8 @@ def setup_template_filters(app):
             format="EE dd.MM.y HH:mm"
         elif format == 'delta':
             return bdates.format_timedelta(datetime.now() - value, locale='en')
-        
-        return bdates.format_datetime(value, format, locale='en')
 
+        return bdates.format_datetime(value, format, locale='en')
 
     @app.template_filter()
     def is_online(value):

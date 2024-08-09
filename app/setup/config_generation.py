@@ -1,12 +1,10 @@
-import datetime
-import time
-
-from typing import Dict, List
-from flask import current_app
-from collections import defaultdict
-import app.util as util
 import json
 import logging
+import time
+from collections import defaultdict
+from typing import Dict, List
+
+import app.util as util
 
 def get_empty_config():
     return {
@@ -45,7 +43,6 @@ def get_empty_config():
 _DEFAULT_CONFIG = get_empty_config()
 
 class ConfigGenerator:
-
     _device_updates = {}
     _device_status = {}
 
@@ -71,7 +68,7 @@ class ConfigGenerator:
             self._device_updates[id] = now
 
         self.prepared = self.basic_config.replace('$LAST_UPDATED', f'{now}')
-        
+
         self.prepare_zigbee()
         self.prepare_counting()
         self.prepare_beacon()
@@ -102,7 +99,7 @@ class ConfigGenerator:
 
     def set_locations(self, locations: Dict):
         self._config['locations'] = {str(k): v for k, v in locations.items()}
-        
+
     def set_zigbee_config(self, zigbee: Dict):
         zig = self._config['zigbee']
 
@@ -139,11 +136,11 @@ class ConfigGenerator:
     def get_zigbee_data(self):
         # thread safe deep copy
         return json.loads(json.dumps(self._config['zigbee']))
-    
+
     def get_config(self):
         # thread safe deep copy
         return json.loads(json.dumps(self._config))
-    
+
     def get_locations(self):
         # thread safe deep copy
         return json.loads(json.dumps(self._config['locations']))
@@ -159,7 +156,7 @@ class ConfigGenerator:
 
     def prepare_counting(self):
         config = self.prepared
-        
+
         config = config.replace('$RSSI_THRESHOLD', str(self._config['counting']['rssi_threshold']))
         config = config.replace('$RSSI_CLOSE_THRESHOLD', str(self._config['counting']['rssi_close_threshold']))
         config = config.replace('$DELTA_COUNTING', str(self._config['counting']['delta']))
@@ -171,7 +168,7 @@ class ConfigGenerator:
 
     def prepare_beacon(self):
         config = self.prepared
-        
+
         config = config.replace('$TARGET_ID', self._config['beacon']['target_id'])
         config = config.replace('$BEACON_SHUTDOWN', self._config['beacon']['shutdown_id'])
         config = config.replace('$SCANS', str(self._config['beacon']['scans']))
@@ -222,28 +219,28 @@ class ConfigGenerator:
         if id not in self._device_status.keys():
             return None
         return self._device_status[id]
-    
+
     def get_device_status_all(self):
         return self._device_status
-    
+
     def last_updated(self, id: int) -> int:
         if id in self._device_updates.keys():
             return self._device_updates[id]
         else:
             return 0
-        
+
     def save_config(self, config):
         #logging.debug("saving config {}", config)
         with open(self.last_config_path, 'w') as file:
             json.dump(config, file, indent=2)
-        
+
     def load_config(self):
         try:
             with open(self.last_config_path, 'a+') as file:
                 file.seek(0)
                 last = json.load(file)
                 return last
-        except json.JSONDecodeError: 
+        except json.JSONDecodeError:
             pass
         conf = get_empty_config()
         self.save_config(conf)
@@ -251,4 +248,3 @@ class ConfigGenerator:
 
     def set_locations(self, locations: Dict):
         self._config['locations'] = {str(k): v for k, v in locations.items()}
-
