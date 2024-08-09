@@ -3,8 +3,9 @@ from datetime import datetime
 from typing import Dict
 
 from app.database.database import db
-from app.database.models import TemporaryTransitEntry
-from flask import Blueprint, request, jsonify
+from app.database.models import TemporaryTransitEntry, TransitEntry
+from flask import Blueprint, request, jsonify, render_template
+from sqlalchemy import desc
 
 transit_bp = Blueprint('transit', __name__)
 
@@ -13,9 +14,25 @@ def load_schema(schema_name: str) -> Dict:
         schemas = json.load(schema_file)
     return schemas.get(schema_name, {})
 
-@transit_bp.route('update', methods=['GET'])
+@transit_bp.route('/latest', methods=['GET'])
 def get_transit():
-    return "ok", 200
+    try:
+        latest_data = TransitEntry.query.order_by(
+            desc(TransitEntry.id)
+        ).limit(50).all()
+
+        result = []
+        for data in latest_data:
+            result.append({
+                'from': data.start,
+                'to': data.end,
+                'arrival_time': data.timestamp,
+                'aggregation_time': data.aggregation_time,
+                'transit': data.transit_time
+            })
+        return render_template('presentation/transit_data.html', transit_data=result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @transit_bp.route('/update', methods=['POST'])
 def update_transit():
@@ -42,5 +59,5 @@ def update_transit():
         return jsonify({"message": "Data successfully saved"}), 200
 
     except Exception as e:
-        db.sessino.rollback()
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
