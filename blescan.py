@@ -111,7 +111,8 @@ def calculate_transit_periodically(shared_routes):
 
 if __name__ == "__main__":
     # start backend process(calclate transit)
-    process = mp.Process(target=calculate_transit_periodically, args=(shared_routes,))
+    # process = mp.Process(target=calculate_transit_periodically, args=(shared_routes,))
+    process = mp.Process(target=calculate_transit_periodically, args=('',))
     process.start()
 
     # main process (flask)

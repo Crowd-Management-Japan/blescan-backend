@@ -116,3 +116,4 @@ class TransitEntry(db.Model):
     end: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
     transit_time: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    aggregation_time: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
