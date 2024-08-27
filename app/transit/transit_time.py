@@ -18,21 +18,37 @@ shared_routes = manager.list([])
 
 class TransitCalculator:
     Base = declarative_base()
-    # 移動時間計算を行う間隔(秒)
+
+    # Interval for calculateing transit time (in seconds)
     INTERVAL_SEC = 20
-    # この時間未満の移動時間はノイズとして保存しない(エリアが隣接するとき、その境界を行き来する場合。または、別のエリアのMACアドレスが偶然一致した場合。)
-    # 0に設定すれば、実質無効化
+
+    # Transit times shorter than this will not be saved as they are considered noise data
+    # (e.g., when areas are adjacent and there's back-and-forth movement at the boundary,
+    # or when a MAC address from a different area accidentally mathces)
+    # Set to 0 to effectively disable this filter
     MIN_MOVEMENT_TIME = timedelta(seconds=0)
-    # この時間以上同じMACの検出がなければ、移動したとみなす(MACが変わった場合や、エリアから出たが他のエリアに行かなかった場合)
-    # 大きな値にすれば、実質無効化
+
+    # If no detection of the same MAC address occurs for this duration or longer,
+    # it's considered that movement has occured
+    # (e.g., when the MAC address is changed or when left one area and not go to another)
+    # Set to a large value to effectively disable this feature
     NO_DETECTION_THRESHOLD = timedelta(minutes=1)
-    # この時間以上同じ場所に滞在していたら、移動後の時間とみなす(同じ場所に長時間滞在した場合)
-    # 大きな値にすれば、実質無効化
+
+    # If staying in the same place for this duration or longer,
+    # it's condisered as time after movement
+    # (e.g., long stays in the same location)
+    # Set to a large value to effecctively disable this feature
     SAME_PLACE_THRESHOLD = timedelta(seconds=20)
-    # 検索する時間の範囲
+
+    # Time range for searching
     TIME_WINDOW = timedelta(minutes=15)
-    # モード 1 or 2
-    MODE = 2
+
+    # Mode: 1 or 2
+    # Mode 1: Calculates transit time using "the oldest data from the previous location"
+    #         and "the newest data from new location"
+    # Mode 2: Calculates transit time using "the newest data from the previous location"
+    #         and "the oldest data from new location"
+    MODE = 1
 
     def __init__(self, _):
         # create db session
@@ -62,14 +78,16 @@ class TransitCalculator:
             session.close()
 
     def calculate_transit(self) -> None:
-        # 検索範囲の時刻を設定
-        # current_time = datetime.now(TIMEZONE)
+        # Calculate search time range
         current_time = datetime.now()
         start_time = current_time - self.TIME_WINDOW
+
+        # Load route combination settings
         self.current_routes = self.routes[:]
 
+        # Open Database session
         with self.session_scope() as session:
-            # データベースからデータを取得し、Macアドレス順の時系列順にソート
+            # Retrieve data from database and sort chronologically by Mac address
             query = session.query(TemporaryTransitEntry).filter(
                 TemporaryTransitEntry.timestamp >= start_time
             ).order_by(TemporaryTransitEntry.mac_address, TemporaryTransitEntry.timestamp)
@@ -77,28 +95,28 @@ class TransitCalculator:
             current_mac = None
             records = []
 
-            # クエリの結果を1つずつ処理
+            # Process records one by one and summarize data by mac address
             for record in query.all():
-                # 別のmacになったら
                 if current_mac != record.mac_address:
-                    # (1つ前のmacの)レコードがある場合
                     if records:
+                        # Determine if it is moving per MAC address
+                        # If it is moving, calculate transit time
                         delete_time = self.process_mac_records(current_time, records)
                         self.delete_old_data(current_mac, delete_time)
-                    # 新しいmacのための準備
                     current_mac = record.mac_address
                     records = []
-                # 同じmacのデータをためる
                 records.append(record)
 
-            # 最後のmacを処理
+            # Process last MAC address
             if records:
                 delete_time = self.process_mac_records(current_time, records)
                 self.delete_old_data(current_mac, delete_time)
 
-            # 移動時間の出力とデータベースへの保存
+            # "transit_entries" (array of TransitEntry type data) is the data for each single transit.
+            # If multiple people are traveling the same route at the same time,
+            # they are recorded as separate data.
             transit_entries = []
-            print(self.movements)
+            # print(self.movements)
             for move in self.movements:
                 transit_entry = TransitEntry(
                     start=move['from'],
@@ -109,37 +127,36 @@ class TransitCalculator:
                 )
                 transit_entries.append(transit_entry)
 
+            # Example of how to get statistics
+            # Take data from transit_data for each route (specify start and end)
+            # and calculate the average and minimum.
+            # Save the calculated data to TransitEntry (fields need to be changed) or new table.
             session.add_all(transit_entries)
 
-        # except Exception as e:
-        #     print(f"Error in calculate_transit: {e}")
-        #     session.rollback()
-        # finally:
-        #     session.close()
         self.movements.clear()
 
-    # MACアドレス1つ分の処理
+    # Calculate transit time (Mode 1)
     def process_mac_records_mode1(self, current_time: datetime, records: List[TemporaryTransitEntry]) -> Optional[datetime]:
         if not records:
             return None
 
+        # Oldest data detected in the
         prev_start = records[0]
+        # Oldest data detected in the latest area before the most recent one
         current_start = prev_start
+        # Data before one of the latest
         prev_data = prev_start
 
         for record in records[1:]:
-            # 現在のdevice_idが直前のdevice_idと異なる
             if record.device_id != prev_data.device_id:
-                # 直前のIDがスタート位置と異なる (スタート位置から直前のIDへの移動が完了した)
+                # Movement completed from prev_start to prev_data
                 if prev_data.device_id != prev_start.device_id:
                     self.record_movement(prev_start, prev_data)
 
-                    # スタート位置を更新する
                     prev_start = current_start
-                # 現在のdevice_idのstartデータを更新する
                 current_start = record
 
-            # IDの変化がなく、同じIDに一定時間とどまっているとき
+            # Check if stayed in the same area for a threshold time
             elif record.timestamp - current_start.timestamp >= self.SAME_PLACE_THRESHOLD:
                 if record.device_id != prev_start.device_id:
                     self.record_movement(prev_start, record)
@@ -147,13 +164,14 @@ class TransitCalculator:
 
             prev_data = record
 
-        # 最終レコードが一定時間更新されていなければ、移動が完了したとみなす
+        # Consider movement complete if no updates for a threshold time
         if (current_time - records[-1].timestamp > self.NO_DETECTION_THRESHOLD) and (records[-1].device_id != prev_start.device_id):
             self.record_movement(prev_start, records[-1])
             prev_start = current_start
 
         return prev_start.timestamp
 
+    # Calculate transit time (Mode 2)
     def process_mac_records_mode2(self, _: datetime, records: List[TemporaryTransitEntry]) -> Optional[datetime]:
         if not records:
             return None
@@ -161,7 +179,6 @@ class TransitCalculator:
         prev_data = records[0]
 
         for record in records[1:]:
-            # 現在のIDが直前のIDと異なる
             if record.device_id != prev_data.device_id:
                 self.record_movement(prev_data, record)
 

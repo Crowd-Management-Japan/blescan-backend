@@ -110,6 +110,14 @@ class TemporaryTransitEntry(db.Model):
         return f"<TemporaryTransitEntry(id={self.id}, mac_address='{self.mac_address}', device_id={self.device_id}, timestamp='{self.timestamp}')>"
 
 class TransitEntry(db.Model):
+    """
+    id              : Unique identifier, automatically assigned
+    start           : RaspberryPi id of location before transit
+    end             : RaspberryPi id of location after transit
+    timestamp       : Timestamp when the transit began (time of "start" column)
+    transit_time    : Duration of the transit in seconds ("end" - "start")
+    aggregation_time: Time when this data was aggregated
+    """
     __tablename__ = 'transit_data'
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     start: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
