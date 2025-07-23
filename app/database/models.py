@@ -1,10 +1,10 @@
-from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from typing import Dict
+
 from sqlalchemy import Integer, String, DateTime, Float
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
+from sqlalchemy.schema import Index
 from flask_login import UserMixin
-
-from typing import Dict
 
 from .database import db
 
@@ -49,7 +49,7 @@ class CountEntry(db.Model):
         entry.id = data.get('id', None)
         entry.timestamp = data.get('timestamp', None)
         entry.scans = data.get('scans', 0)
-        entry.scantime = data.get('scantime', 0)       
+        entry.scantime = data.get('scantime', 0)
 
         entry.tot_all = data.get('tot_all', 0)
         entry.tot_close = data.get('tot_close', 0)
@@ -75,7 +75,7 @@ class CountEntry(db.Model):
             'id': self.id,
             'timestamp': self.timestamp.strftime(datetime_format),
             'scans': self.scans,
-            'scantime': self.scantime,           
+            'scantime': self.scantime,
             'tot_all': self.tot_all,
             'tot_close': self.tot_close,
             'inst_all':self.inst_all,
@@ -87,9 +87,41 @@ class CountEntry(db.Model):
             'rssi_min': self.rssi_min,
             'rssi_max': self.rssi_max,
             'rssi_thresh': self.rssi_thresh,
-            'static_ratio': self.static_ratio,           
+            'static_ratio': self.static_ratio,
             'latitude': self.latitude,
             'longitude': self.longitude
 
         }
         return data
+
+class TemporaryTransitEntry(db.Model):
+    __tablename__ = 'temporary_transit_data'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    mac_address: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    device_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=False, index=True)
+
+    __table_args__ = (
+        Index('idx_mac_timestamp', 'mac_address', 'timestamp'),
+    )
+
+    def __repr__(self):
+        return f"<TemporaryTransitEntry(id={self.id}, mac_address='{self.mac_address}', device_id={self.device_id}, timestamp='{self.timestamp}')>"
+
+class TransitEntry(db.Model):
+    """
+    id              : Unique identifier, automatically assigned
+    start           : RaspberryPi id of location before transit
+    end             : RaspberryPi id of location after transit
+    timestamp       : Timestamp when the transit began (time of "start" column)
+    transit_time    : Duration of the transit in seconds ("end" - "start")
+    aggregation_time: Time when this data was aggregated
+    """
+    __tablename__ = 'transit_data'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    start: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    end: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
+    transit_time: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    aggregation_time: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)

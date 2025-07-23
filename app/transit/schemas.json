@@ -1,0 +1,21 @@
+{
+    "TemporaryTransitEntry": {
+        "type": "object",
+        "properties": {
+            "ID": {
+                "type": "integer"
+            },
+            "TIME": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "MAC": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            }
+        },
+        "required": ["ID", "TIME", "MAC"]
+    }
+}
