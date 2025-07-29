@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Transit Configuration</title>
+</head>
+
+<body>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    <h1>Configuration Setup</h1>
+    <button onclick="window.location.href='/';">Back to frontpage</button><br>
+        
+
+    <div id="settings">
+        <h2>Computational Settings</h2>
+        <strong><label>Time interval during which the travel time is computeted (in seconds)</label></strong><br>
+        <label>(short intervals may result in high CPU and memory use)</label><br>
+        <input type="number" id="refresh_time" name="refresh_time" value="{{config.refresh_time}}" step="5" min="5" max="3600"><br><br>
+
+        <strong><label>Minimum travel time to be accepted as valid, i.e. shorter travel times will be discarded (in seconds)</label></strong><br>
+        <input type="number" id="min_transit_time" value="{{config.min_transit_time}}" step="5" min="0" max="600"><br><br>
+
+        <strong><label>Maximum possible travel time, i.e. longer than this is irrealistic (in minutes)</label></strong><br>
+        <label>(large values allow to capture even slow motion, but may result in higher CPU and memory use)</label><br>
+        <input type="number" id="max_transit_time" value="{{config.max_transit_time}}" min="1" max="60"><br><br>
+
+        <strong><label>Moving average when computing travel time over specified routes (in minutes)</label></strong><br>
+        <input type="number" id="moving_avg" value="{{config.moving_avg}}" min="1" max="60"><br><br>
+
+        <strong><label>Method used to compute the travel time between locations</label></strong>
+        <input type="number" id="calculation_mode" value="{{config.calculation_mode}}" step="1" min="1" max="3"><br>
+        <label>Mode 1: Calculates traval time using "the oldest data from the previous location and "the newest data from new location"</label><br>
+        <label>Mode 2: Calculates travel time using "the newest data from the previous location" and "the oldest data from new location"</label><br>
+        <label>Mode 3: Calculates travel time considering the average between late in late out and early in early out</label><br><br>
+
+        <strong><label>Define the time when temporary informations are deleted to save memory and speed up calculations</label></strong><br>
+        <input type="text" id="reset_time" name="reset_time" value="{{config.reset_time}}" size="0"><br><br>
+
+        <h2>Route Settings</h2>
+        <strong><label for="combinations">Define combination of devices that should be used to compute transit time </label></strong><br>
+        <label>Format: one per line <code>[ID1], [ID2], [distance in m]</code></label><br>
+        <textarea id="combinations" name="combinations" cols="20" rows="5">{{config.combinations}}</textarea><br>
+        <button onclick="copyUniqueIDs()">Get unique IDs from combinations</button>
+        <button onclick="window.location.href='/scanner/settings';">Go to scanner configuration</button><br>
+        <label>(this list can be used in the scanner configuration in case you want to use all devices in the list)</label><br><br>
+        
+
+        <input type="submit" value="submit" onclick="submitTransitConfig()">
+                    
+    </div>
+                            
+    <script src="{{ url_for('static', filename='settings.js' ) }}"></script>
+</body>
+
+</html>

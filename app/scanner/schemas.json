@@ -95,8 +95,11 @@
                     "delta": {
                         "type": "integer"
                     },
-                    "combinations": {
-                        "type": "array"
+                    "devices": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     },
                     "enabled": {
                         "type": "boolean",

@@ -1,8 +1,5 @@
-import datetime
 import time
-
 from typing import Dict, List
-from flask import current_app
 from collections import defaultdict
 import app.util as util
 import json
@@ -36,7 +33,7 @@ def get_empty_config():
         },
         'transit': {
             'delta': 5,
-            'combinations': [],
+            'devices': [],
             'enabled': False,
             'url': ''
         }
@@ -50,8 +47,8 @@ class ConfigGenerator:
     _device_status = {}
 
     def __init__(self):
-        self.last_config_path = 'res/last_config.json'
-        self.basic_config_path = 'res/default_config.ini'
+        self.last_config_path = 'res/last_scanner_config.json'
+        self.basic_config_path = 'res/default_scanner_config.ini'
         self.reset()
         self.generate()
 
@@ -131,7 +128,7 @@ class ConfigGenerator:
     def set_transit_config(self, data: Dict):
         transit = self._config['transit']
         default = _DEFAULT_CONFIG['transit']
-        keys = ['delta', 'combinations', 'url']
+        keys = ['delta', 'devices', 'url']
         for key in keys:
             transit[key] = data.get(key, default[key])
         transit['enabled'] = bool(transit['url'])
@@ -205,7 +202,7 @@ class ConfigGenerator:
         config = config.replace('$ZIGBEE_COORDINATOR', f"{1 if id == self._config['zigbee']['coordinator'] else 0}")
 
         # check if the current id is in the list of transit time devices and there is an internet address
-        transit_ids = set([i for combinations in self._config['transit']['combinations'] for i in combinations])
+        transit_ids = set(self._config['transit']['devices'])
         if (id in transit_ids) and self._config['transit']['enabled']:
             config = config.replace('$TRANSIT_ENABLED', '1')
         else:

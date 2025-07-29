@@ -1,0 +1,55 @@
+{
+    "TemporaryTransitEntry": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "timestamp": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "close_ble_list": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            }
+        },
+        "required": ["id", "timestamp", "close_ble_list"]
+    },
+
+
+    "full_settings": {
+        "type": "object",
+        "properties": {
+            "refresh_time": {
+                "type": "integer",
+                "default": 20
+            },
+            "min_transit_time": {
+                "type": "integer",
+                "default": 60
+            },
+            "max_transit_time": {
+                "type": "integer",
+                "default": 15
+            },
+            "moving_avg": {
+                "type": "integer",
+                "default": 5
+            },
+            "calculation_mode": {
+                "type": "integer",
+                "default": 3
+            },
+            "reset_time": {
+                "type": "string",
+                "default": "02:00"
+            },
+            "combinations": {
+                "type": "array"
+            }
+        }
+    }
+}

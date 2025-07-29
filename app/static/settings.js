@@ -49,7 +49,12 @@ function getLocations() {
 
 function getCombinations() {
     try {
-        let raw = document.getElementById("textarea_combinations").value.trim().split("\n");
+        let raw = document.getElementById("combinations").value
+            .trim()
+            .split("\n")
+            .map(line => line.trim())
+            .filter(line => line !== "");
+
         let combinations = [];
 
         for (var i = 0; i < raw.length; i++) {
@@ -58,8 +63,8 @@ function getCombinations() {
                 continue;
             }
             let split = line.split(",");
-            if (split.length === 2) {
-                let pair = [parseInt(split[0].trim()), parseInt(split[1].trim())];
+            if (split.length === 3) {
+                let pair = [parseInt(split[0].trim()), parseInt(split[1].trim()), parseInt(split[2].trim())];
                 combinations.push(pair);
             } else {
                 throw new Error("Invalid combination format.");
@@ -67,13 +72,14 @@ function getCombinations() {
         }
 
         return combinations;
+
     } catch (error) {
-        alert("Invalid combination format. Ignoring.\nCheck for empty lines or ensure each line has two comma-separated values.");
-        return [];
+        alert("Invalid route settings format. \nCheck for empty lines or ensure each line has three comma-separated values.");
+        throw error;
     }
 }
 
-function gatherData() {
+function gatherScannerData() {
 
     function get(name) {
         return document.getElementById(name).value;
@@ -113,20 +119,20 @@ function gatherData() {
         },
         transit: {
             delta: iget("transit_delta"),
-            combinations: getCombinations(),
+            devices: sget("transit_devices"),
             url: get("transit_url")
         }
     }
     return data;
 }
 
-function submitForm() {
-    console.log("submitting data");
+function submitScannerConfig() {
+    console.log("submitting data scanner");
 
-    formData = gatherData();
+    formData = gatherScannerData();
 
     console.log(formData);
-    fetch('/setup', {
+    fetch('/scanner', {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -142,4 +148,90 @@ function submitForm() {
         }).catch(error => {
             console.error('Error:', error);
         })
+}
+
+function gatherTransitData() {
+
+    function get(name) {
+        return document.getElementById(name).value;
+    }
+
+    function iget(name) {
+        return parseInt(get(name))
+    }
+
+    let data = {
+        refresh_time: iget("refresh_time"),
+        min_transit_time: iget("min_transit_time"),
+        max_transit_time: iget("max_transit_time"),
+        moving_avg: iget("moving_avg"),
+        calculation_mode: iget("calculation_mode"),
+        reset_time: get("reset_time"),
+        combinations: getCombinations()
+    }
+    return data;
+}
+
+function submitTransitConfig() {
+    console.log("submitting data transit");
+
+    formData = gatherTransitData();
+
+    console.log(formData);
+    fetch('/transit', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(async response => {
+        const data = await response.json();
+        message = data.message || data.error || "No response message";
+
+        if (response.ok) {
+            alert("Success: " + message);
+            window.location.replace(window.location.pathname);
+        } else {
+            alert("Error: " + message);
+        }
+    })
+}
+
+function copyUniqueIDs() {
+    try {
+        const raw = document.getElementById("combinations").value.trim().split("\n");
+        const uniqueIDs = new Set();
+
+        raw.forEach(line => {
+            const parts = line.trim().split(",");
+            if (parts.length >= 2) {
+                const id1 = parseInt(parts[0].trim(), 10);
+                const id2 = parseInt(parts[1].trim(), 10);
+                if (!isNaN(id1)) uniqueIDs.add(id1);
+                if (!isNaN(id2)) uniqueIDs.add(id2);
+            }
+        });
+
+        if (uniqueIDs.size === 0) {
+            alert("No valid IDs found.");
+            return;
+        }
+
+        const sortedList = Array.from(uniqueIDs).sort((a, b) => a - b).join(",");
+
+        // Fallback method using a temporary textarea
+        const tempArea = document.createElement("textarea");
+        tempArea.value = sortedList;
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempArea);
+
+        alert("Copied unique IDs to clipboard:\n" + sortedList);
+    } catch (err) {
+        console.error("Error in copyUniqueIDsFromPairs:", err);
+        alert("An error occurred while copying unique IDs.");
+    }
 }

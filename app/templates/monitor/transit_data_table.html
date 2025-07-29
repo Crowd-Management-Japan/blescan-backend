@@ -1,0 +1,18 @@
+<div>
+    Last updated: {{data.update_time}} <br>
+    <table style="width: 50%;" border="2" cellpadding="2">
+        <TR>
+            <td>ID</td>
+            <td>Timestamp</td>
+            <td>Code</td>
+        </TR>
+
+        {% for item in data.data %}
+            <TR>
+                <td>{{ item.id }}</td>
+                <td>{{ item.timestamp }}</td>
+                <td>{{ item.close_list }}</td>
+            </TR>
+        {% endfor %}
+    </table>
+</div>

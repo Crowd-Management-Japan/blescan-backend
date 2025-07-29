@@ -3,15 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>BleScan</title>
+    <title>Scanner Configuration</title>
 </head>
 
 <body>
     <a href="{{ url_for('logout') }}">Logout</a>
     <h1>Configuration Setup</h1>
-    <button onclick="window.location.href='/';">
-        Back to frontpage</button>
-        <br><br>
+    <button onclick="window.location.href='/';">Back to frontpage</button><br><br>
         
 
     <div id="settings">
@@ -95,11 +93,8 @@
                 <label>Define the time interval in seconds at which ids will be sent to the backend (best: multiples of 5, below 60)</label><br>
                 <input type="number" id="transit_delta" name="transit_delta" value="{{config.transit.delta}}" min="5" max="60"><br>
 
-                <label for="textarea_combinations">Define combination of devices that should be used to compute transit time <br>
-                    Format: one per line <code>[ID1]<strong>,</strong> [ID2]<strong></strong></code></label> 
-                <br>
-                <textarea id="textarea_combinations" name="textarea_combinations" cols="20" rows="5" >{{config.transit.combinations}}</textarea>
-                <br>
+                <label>List the devices that will be used to compute the travel time (form 1,4,15,21-24)</label><br>
+                <input type="text" id="transit_devices" name="transit_devices" value="{{config.transit.devices}}"><br>
 
                 <label>Define the url to send scanned ids for transit time (keep an empty field if you want to disable the transit time function)</label><br>
                 <input type="text" id="transit_url" name="transit_url" value="{{config.transit.url}}" size="50"><br>
@@ -133,7 +128,7 @@
         </details>
 
 
-        <input type="submit" value="submit" onclick="submitForm()">
+        <input type="submit" value="submit" onclick="submitScannerConfig()">
                     
         </div>
             

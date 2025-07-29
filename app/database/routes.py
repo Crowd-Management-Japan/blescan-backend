@@ -1,19 +1,14 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response
-import json
-from jsonschema import validate, ValidationError
+from flask import Blueprint, request, jsonify, render_template, make_response
 import logging
-from ..data import DataReceiver
-import sqlalchemy
 from sqlalchemy import func
 import app.util as util
 import pandas as pd
-from flask_login import login_required
 import datetime
 from app.database.models import CountEntry
 from app.database.database import db
 import app.database.database as dbFunc
 
-db_bp = Blueprint('database', __name__)
+database_bp = Blueprint('database', __name__)
 
 # I know this is not safe at all, but since this backend will never be a 'public' one
 # and will not contain series data, we use this solution.
@@ -22,7 +17,7 @@ PASSWORD = "admin"
 
 DATE_FILTER_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-@db_bp.route('/delete', methods=['POST'])
+@database_bp.route('/delete', methods=['POST'])
 def reset_database():
     """
     Use with care.
@@ -40,12 +35,10 @@ def reset_database():
         CountEntry.metadata.create_all(db.engine)
 
         return "deleted data", 200
-    
-
 
     return "forbidden", 403
 
-@db_bp.route('/data')
+@database_bp.route('/data')
 def get_data():
 
     date_format = request.args.get('format')
@@ -95,11 +88,7 @@ def get_data():
     return dbFunc.get_graph_data(limit_val, id_from_val, id_to_val, date_format)
 
 
-    df = dbFunc.get_time_dataframe(request, DATE_FILTER_FORMAT)
-    return jsonify(df)
-
-
-@db_bp.route('/data/dates')
+@database_bp.route('/data/dates')
 def get_end_dates():
     query = db.session.query(func.min(CountEntry.timestamp), func.max(CountEntry.timestamp)).all()
 
@@ -109,8 +98,7 @@ def get_end_dates():
     return jsonify({'first': first.strftime(DATE_FILTER_FORMAT), 'last': last.strftime(DATE_FILTER_FORMAT)})
 
 
-
-@db_bp.route('/export_data', methods=['GET'])
+@database_bp.route('/export_data', methods=['GET'])
 def get_filtered_data():
     """
     Get data of the database with possible filters.
@@ -174,6 +162,6 @@ def get_filtered_data():
 
     return jsonify(data)
 
-@db_bp.route('export', methods=['GET'])
+@database_bp.route('export', methods=['GET'])
 def get_export_page():
     return render_template('database/export.html')

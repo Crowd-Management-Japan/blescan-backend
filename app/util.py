@@ -1,6 +1,5 @@
 
 from typing import List, Dict, Union
-import logging
 
 def compact_int_list_string(lst: List[int]) -> str:
     if not lst:

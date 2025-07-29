@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BleScan Transit Data</title>
+</head>
+
+<body>
+    <h1>Blescan Transit Data</h1> 
+    <button onclick="window.location.href='/';">
+        Back to frontpage
+    </button>
+    <br><br>
+
+    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
+
+    <label>
+        <input type="checkbox" id="pauseUpdates"> Pause updates
+    </label>
+
+    <br><br>
+
+    <div id="item_table"></div>
+            
+    <script>
+        const hiddenRows = new Set();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setInterval(updateTable, 5000);
+        });
+
+        function updateTable() {
+            const isPaused = document.getElementById('pauseUpdates').checked;
+            if (isPaused) return;
+            htmx.ajax('GET', 'transit_result_table', { target: '#item_table', swap: 'innerHTML' });
+        }
+    </script>
+    
+</body>
+</html>

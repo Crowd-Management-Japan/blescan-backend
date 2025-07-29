@@ -1,0 +1,22 @@
+<div>
+    Last updated: {{data.update_time}} <br>
+    <table style="width: 80%;" border="2" cellpadding="4">
+        <TR>
+            <td>From</td>
+            <td>To</td>
+            <td>Arrival time</td>
+            <td>Calculation time</td>
+            <td>Travel time (sec)</td>
+        </TR>
+
+        {% for item in data.data %}
+            <TR>
+                <td>{{ item.from }}</td>
+                <td>{{ item.to }}</td>
+                <td>{{ item.arrival_time }}</td>
+                <td>{{ item.aggregation_time }}</td>
+                <td>{{ item.transit }}</td>
+            </TR>
+        {% endfor %}
+    </table>
+</div>

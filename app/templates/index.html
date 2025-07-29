@@ -3,31 +3,92 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>BleScan</title>
+    <title>BleScan Control</title>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+            text-align: center;
+        }
+
+        div {
+            margin: 20px 0;
+        }
+
+        button {
+            font-size: 16px; 
+            padding: 6px 24px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+    </style>
+
 </head>
 
 <body>
-    <h1>BleScan Control Interface</h1>
+    <h1>BleScan Control</h1>
     <div>
         <h2>Setup system</h2>
-        <button onclick="window.location.href='config';">
-        Configuration</button>
+        <button onclick="window.location.href='scanner/settings';">
+        Configure scanners</button>
+        <br>
+        <button onclick="window.location.href='transit/settings';">
+        Configure server</button>
+        <br>
     </div>
 
     <div>
-        <h2>Watch system</h2>
-        <button onclick="window.location.href='data/latest';">
-        Table view</button>
+        <h2>Monitor system</h2>
+        <button onclick="window.location.href='monitor/count_latest';">
+        Check count raw data</button>
         <br>
-        <button onclick="window.location.href='data/graph';">
-        Graph view</button>
+        <button onclick="window.location.href='monitor/transit_latest';">
+        Check transit raw data</button>
+        <br>
+        <button onclick="window.location.href='monitor/count_graph';">
+        Graph for counts</button>
+        <br>
+        <button onclick="window.location.href='monitor/transit_results';">
+        Travel times data</button>
+        <br>
     </div>
 
     <div>
         <h2>Export data</h2>
         <button onclick="window.location.href='database/export';">
-        Go to Export</button>
+        Export page (counts)</button>
     </div>
+
+    <div style="margin-top: 10px; padding: 20px; font-size: 14px; color: gray;">
+        Server CPU load: <span id="cpu">loading...</span>%
+        <br>
+        Server memory usage: <span id="memory">loading...</span>%
+    </div>
+
+    <script>
+        function updateMetrics() {
+            fetch('/metrics')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cpu').textContent = data.cpu_usage.toFixed(1);
+                    document.getElementById('memory').textContent = data.memory_usage.toFixed(1);
+                })
+                .catch(error => {
+                    console.error('Error fetching metrics:', error);
+                });
+        }
+
+        // Call immediately, then every 2 seconds
+        updateMetrics();
+        setInterval(updateMetrics, 2000);
+    </script>
+
 </body>
 
 </html>

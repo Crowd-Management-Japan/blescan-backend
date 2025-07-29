@@ -10,6 +10,9 @@ then
     exit
 fi
 
+# set timezone to reflect local time
+sudo timedatectl set-timezone Asia/Tokyo
+
 # disable old blescan
 sudo systemctl disable blescan.service
 sudo systemctl stop blescan.service

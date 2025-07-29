@@ -2,12 +2,10 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
 import app.database.models as models
-import numpy as np
 import pandas as pd
 import datetime
 import logging
 from typing import List, Dict, Any
-from flask import jsonify
 import pytz
 
 db = SQLAlchemy()

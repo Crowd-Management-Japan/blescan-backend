@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>BleScan</title>
+    <title>BleScan Count Data</title>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
@@ -12,7 +12,7 @@
                 var isChecked = $(this).is(':checked');
                 $.ajax({
                     type: 'POST',
-                    url: "{{ url_for('presentation.update_checkbox') }}",
+                    url: "{{ url_for('monitor.update_checkbox') }}",
                     data: JSON.stringify({ online_only: isChecked }),
                     contentType: 'application/json',
                     success: function(response) {
@@ -25,7 +25,7 @@
 </head>
 
 <body>
-    <h1>Blescan Data</h1> 
+    <h1>Blescan Count Data</h1> 
     <button onclick="window.location.href='/';">
         Back to frontpage
     </button>
@@ -33,7 +33,7 @@
 
     <script src="https://unpkg.com/htmx.org@1.9.8"></script>
 
-    <form action="{{ url_for('presentation.update_checkbox') }}" method="POST">
+    <form action="{{ url_for('monitor.update_checkbox') }}" method="POST">
         <label for="online_only">Show only online devices</label>
         <input type="checkbox" id="online_only" name="online_only">
     </form>
@@ -50,7 +50,7 @@
         });
 
         function updateTable() {
-            htmx.ajax('GET', 'data_table', { target: '#item_table', swap: 'innerHTML' });
+            htmx.ajax('GET', 'count_table', { target: '#item_table', swap: 'innerHTML' });
         }
     </script>
     
