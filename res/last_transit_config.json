@@ -1,0 +1,25 @@
+{
+  "refresh_time": 10,
+  "min_transit_time": 60,
+  "max_transit_time": 15,
+  "moving_avg": 5,
+  "calculation_mode": 2,
+  "reset_time": "02:00",
+  "combinations": [
+    [
+      47,
+      48,
+      100
+    ],
+    [
+      48,
+      49,
+      200
+    ],
+    [
+      49,
+      50,
+      100
+    ]
+  ]
+}

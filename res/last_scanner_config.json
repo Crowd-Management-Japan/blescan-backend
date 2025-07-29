@@ -1,0 +1,55 @@
+{
+  "ids": [
+    23,
+    47,
+    48,
+    49,
+    50
+  ],
+  "locations": {
+    "40": "-1,-1",
+    "41": "-1,-1"
+  },
+  "led": true,
+  "scantime": 1,
+  "zigbee": {
+    "enable": false,
+    "coordinator": 0,
+    "internet": [
+      0
+    ],
+    "pan": 0
+  },
+  "counting": {
+    "rssi_threshold": -100,
+    "rssi_close_threshold": -70,
+    "delta": 10,
+    "static_ratio": 0.8,
+    "internet": true,
+    "url": "http://127.0.0.1:5000/count/update"
+  },
+  "beacon": {
+    "target_id": "123",
+    "shutdown_id": "9000",
+    "scans": 10,
+    "threshold": 3
+  },
+  "transit": {
+    "delta": 5,
+    "devices": [
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50
+    ],
+    "enabled": true,
+    "url": "http://127.0.0.1:5000/transit/update"
+  }
+}
