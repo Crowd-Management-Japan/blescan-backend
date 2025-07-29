@@ -4,18 +4,22 @@
         <TR>
             <td>From</td>
             <td>To</td>
-            <td>Arrival time</td>
-            <td>Calculation time</td>
+            <td>Code</td>
+            <td>Start time</td>
+            <td>End time</td>
             <td>Travel time (sec)</td>
+            <td>Timestamp</td>
         </TR>
 
         {% for item in data.data %}
             <TR>
                 <td>{{ item.from }}</td>
                 <td>{{ item.to }}</td>
-                <td>{{ item.arrival_time }}</td>
-                <td>{{ item.aggregation_time }}</td>
-                <td>{{ item.transit }}</td>
+                <td>{{ item.code }}</td>
+                <td>{{ item.start }}</td>
+                <td>{{ item.end }}</td>
+                <td>{{ item.travel_time }}</td>
+                <td>{{ item.timestamp }}</td>
             </TR>
         {% endfor %}
     </table>

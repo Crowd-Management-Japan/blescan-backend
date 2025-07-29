@@ -66,11 +66,11 @@ def get_transit_data():
     data = {'update_time': datetime.now(local_timezone).strftime("%Y-%m-%d %H:%M:%S"), 'data': data_rows}
     return render_template('monitor/transit_data_table.html', data=data)
 
-@monitor_bp.route('/transit_results')
+@monitor_bp.route('/transit_events')
 def get_transit_results():
-    return render_template('monitor/transit_result_page.html')
+    return render_template('monitor/transit_event_page.html')
 
-@monitor_bp.route('/transit_result_table', methods=['GET'])
+@monitor_bp.route('/transit_event_table', methods=['GET'])
 def get_transit_times():
     latest_data = TransitEntry.query.order_by(
         TransitEntry.timestamp.desc()
@@ -79,16 +79,18 @@ def get_transit_times():
     result = []
     for data in latest_data:
         result.append({
-            'from': data.start,
-            'to': data.end,
-            'arrival_time': data.timestamp,
-            'aggregation_time': data.aggregation_time,
-            'transit': data.transit_time
+            'from': data.scanner_from,
+            'to': data.scanner_to,
+            'code': data.code,
+            'start': data.time_start,
+            'end': data.time_end,
+            'travel_time': data.travel_time,
+            'timestamp': data.timestamp
         })
 
-    result = sorted(result, key=lambda x: x['arrival_time'], reverse=True)
+    result = sorted(result, key=lambda x: x['timestamp'], reverse=True)
 
     local_timezone = pytz.timezone('Asia/Tokyo')
     data = {'update_time': datetime.now(local_timezone).strftime("%Y-%m-%d %H:%M:%S"), 'data': result}
         
-    return render_template('monitor/transit_result_table.html', data=data)
+    return render_template('monitor/transit_event_table.html', data=data)

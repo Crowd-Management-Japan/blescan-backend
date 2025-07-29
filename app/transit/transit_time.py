@@ -48,13 +48,13 @@ class TransitCalculator:
     # it's considered that movement has occured
     # (e.g., when the code is changed or when left one area and not go to another)
     # Set to a large value to effectively disable this feature
-    NO_DETECTION_THRESHOLD = timedelta(minutes=1)
+    NO_DETECTION_THRESHOLD = timedelta(minutes=0)
 
     # If staying in the same place for this duration or longer,
     # it's condisered as time after movement
     # (e.g., long stays in the same location)
     # Set to a large value to effecctively disable this feature
-    SAME_PLACE_THRESHOLD = timedelta(seconds=20)
+    SAME_PLACE_THRESHOLD = timedelta(seconds=1000)
 
 
     def __init__(self, _):
@@ -85,7 +85,7 @@ class TransitCalculator:
 
     def apply_config(self, config: dict):
         self.interval_sec = config.get("refresh_time", 20)
-        self.min_travel_time = timedelta(minutes=config.get("min_transit_time", 15))
+        self.min_travel_time = timedelta(seconds=config.get("min_transit_time", 30))
         self.max_travel_time = timedelta(minutes=config.get("max_transit_time", 15))
         self.moving_avg = config.get("moving_avg", 5)
         self.reset_time = config.get("reset_time", "02:00")
@@ -145,6 +145,7 @@ class TransitCalculator:
             # logging.debug(self.movements)
             for move in self.movements:
                 transit_entry = TransitEntry(
+                    code=move['code'],
                     scanner_from=move['from'],
                     scanner_to=move['to'],
                     time_start=move['start'],
@@ -158,6 +159,9 @@ class TransitCalculator:
             # Take data from transit_data for each route (specify start and end)
             # and calculate the average and minimum.
             # Save the calculated data to TransitEntry (fields need to be changed) or new table.
+
+            
+
             session.add_all(transit_entries)
 
         self.movements.clear()
@@ -188,7 +192,7 @@ class TransitCalculator:
                     prev_start = current_start
 
             prev_data = record
-
+        
         # Consider movement complete if no updates for a threshold time
         if (current_time - records[-1].timestamp > self.NO_DETECTION_THRESHOLD) and (records[-1].device_id != prev_start.device_id):
             self.record_movement(prev_start, records[-1])

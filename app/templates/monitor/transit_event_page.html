@@ -33,7 +33,7 @@
         function updateTable() {
             const isPaused = document.getElementById('pauseUpdates').checked;
             if (isPaused) return;
-            htmx.ajax('GET', 'transit_result_table', { target: '#item_table', swap: 'innerHTML' });
+            htmx.ajax('GET', 'transit_event_table', { target: '#item_table', swap: 'innerHTML' });
         }
     </script>
     
