@@ -154,8 +154,17 @@ def setup_logger():
 
 def calculate_transit_periodically(self):
     transit_calculator = TransitCalculator(self)
+    interval = 10
     while True:
-        interval = transit_calculator.calculate_transit()
+        try:
+            interval = transit_calculator.calculate_transit()
+        except Exception as e:
+            logging.error(f"Error calculating transit: {e}")
+        try:
+            transit_calculator.compute_avg_travel_times ()
+        except Exception as e:
+            logging.error(f"Error computing average travel times: {e}")
+        
         time.sleep(interval)
 
 if __name__ == "__main__":

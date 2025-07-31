@@ -1,10 +1,13 @@
 from flask import Blueprint, request, jsonify, render_template, session
-from app.database.models import TransitEntry, TemporaryTransitEntry
+from app.database.models import TransitDetection, TransitEntry, TravelTime
 from datetime import datetime
 from contextlib import contextmanager
 from app.database.database import db
 from app.data import DataReceiver
 import pytz
+import json
+
+TRANSIT_CONFIG_PATH = 'res/last_transit_config.json'
 
 @contextmanager
 def session_scope():
@@ -50,11 +53,11 @@ def get_transit_latest():
 @monitor_bp.route('/transit_data_table', methods=['GET'])
 def get_transit_data():
     with session_scope() as session:
-        data_newest = session.query(TemporaryTransitEntry).order_by(
-            TemporaryTransitEntry.timestamp.desc()
+        data_newest = session.query(TransitDetection).order_by(
+            TransitDetection.timestamp.desc()
         ).limit(30).all()
-        data_oldest = session.query(TemporaryTransitEntry).order_by(
-            TemporaryTransitEntry.timestamp.asc()
+        data_oldest = session.query(TransitDetection).order_by(
+            TransitDetection.timestamp.asc()
         ).limit(30).all()
         data_oldest.reverse()
 
@@ -94,3 +97,39 @@ def get_transit_times():
     data = {'update_time': datetime.now(local_timezone).strftime("%Y-%m-%d %H:%M:%S"), 'data': result}
         
     return render_template('monitor/transit_event_table.html', data=data)
+
+@monitor_bp.route('/travel_time')
+def get_travel_results():
+    return render_template('monitor/travel_time_page.html')
+
+@monitor_bp.route('/travel_time_table', methods=['GET'])
+def get_travel_data():
+    with open(TRANSIT_CONFIG_PATH, 'r') as file:
+        config = json.load(file)
+    combinations = config.get('combinations', [])
+
+    result = []
+
+    with session_scope() as session:
+        for combination in combinations:
+            entry = session.query(TravelTime).filter_by(
+                scanner_from=combination[0],
+                scanner_to=combination[1]
+            ).order_by(
+                TravelTime.timestamp.desc()
+            ).first()
+
+
+            if entry:
+                result.append({
+                    'from': entry.scanner_from,
+                    'to': entry.scanner_to,
+                    'travel_time': entry.travel_time,
+                    'average_speed': entry.travel_time / combination[2],
+                    'timestamp': entry.timestamp
+                })
+
+    local_timezone = pytz.timezone('Asia/Tokyo')
+    data = {'update_time': datetime.now(local_timezone).strftime("%Y-%m-%d %H:%M:%S"), 'data': result}
+        
+    return render_template('monitor/travel_time_table.html', data=data)

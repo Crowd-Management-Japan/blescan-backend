@@ -166,7 +166,7 @@ function gatherTransitData() {
         max_transit_time: iget("max_transit_time"),
         moving_avg: iget("moving_avg"),
         calculation_mode: iget("calculation_mode"),
-        reset_time: get("reset_time"),
+        storage_time: iget("storage_time"),
         combinations: getCombinations()
     }
     return data;

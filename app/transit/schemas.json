@@ -1,5 +1,5 @@
 {
-    "TemporaryTransitEntry": {
+    "TransitDetection": {
         "type": "object",
         "properties": {
             "id": {

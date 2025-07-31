@@ -1,0 +1,22 @@
+<div>
+    Last updated: {{data.update_time}} <br>
+    <table style="width: 80%;" border="2" cellpadding="4">
+        <TR>
+            <td>From</td>
+            <td>To</td>
+            <td>Travel time (s)</td>
+            <td>Average speed (m/s)</td>
+            <td>Last computed</td>
+        </TR>
+
+        {% for item in data.data %}
+            <TR>
+                <td>{{ item.from }}</td>
+                <td>{{ item.to }}</td>
+                <td>{{ item.travel_time }}</td>
+                <td>{{ item.average_speed }}</td>
+                <td>{{ item.timestamp }}</td>
+            </TR>
+        {% endfor %}
+    </table>
+</div>

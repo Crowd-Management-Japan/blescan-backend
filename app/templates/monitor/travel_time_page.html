@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>BleScan Transit Events</title>
+    <title>BleScan Travel Time</title>
 </head>
 
 <body>
-    <h1>Blescan Transit Events</h1> 
+    <h1>Blescan Travel Time</h1> 
     <button onclick="window.location.href='/';">
         Back to frontpage
     </button>
@@ -33,7 +33,7 @@
         function updateTable() {
             const isPaused = document.getElementById('pauseUpdates').checked;
             if (isPaused) return;
-            htmx.ajax('GET', 'transit_event_table', { target: '#item_table', swap: 'innerHTML' });
+            htmx.ajax('GET', 'travel_time_table', { target: '#item_table', swap: 'innerHTML' });
         }
     </script>
     

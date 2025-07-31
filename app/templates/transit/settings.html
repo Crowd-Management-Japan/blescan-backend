@@ -16,7 +16,7 @@
         <h2>Computational Settings</h2>
         <strong><label>Time interval during which the travel time is computeted (in seconds)</label></strong><br>
         <label>(short intervals may result in high CPU and memory use)</label><br>
-        <input type="number" id="refresh_time" name="refresh_time" value="{{config.refresh_time}}" step="5" min="5" max="3600"><br><br>
+        <input type="number" id="refresh_time" name="refresh_time" value="{{config.refresh_time}}" step="5" min="5" max="60"><br><br>
 
         <strong><label>Minimum travel time to be accepted as valid, i.e. shorter travel times will be discarded (in seconds)</label></strong><br>
         <input type="number" id="min_transit_time" value="{{config.min_transit_time}}" step="5" min="0" max="600"><br><br>
@@ -34,8 +34,8 @@
         <label>Mode 2: Calculates travel time using "the newest data from the previous location" and "the oldest data from new location"</label><br>
         <label>Mode 3: Calculates travel time considering the average between late in late out and early in early out</label><br><br>
 
-        <strong><label>Define the time when temporary informations are deleted to save memory and speed up calculations</label></strong><br>
-        <input type="text" id="reset_time" name="reset_time" value="{{config.reset_time}}" size="0"><br><br>
+        <strong><label>Define the storage limit for route travel times (in minutes)</label></strong><br>
+        <input type="number" id="storage_time" name="storage_time" value="{{config.storage_time}}" step="5" min="5" max="60"><br><br>
 
         <h2>Route Settings</h2>
         <strong><label for="combinations">Define combination of devices that should be used to compute transit time </label></strong><br>

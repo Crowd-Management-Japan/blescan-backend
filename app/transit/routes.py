@@ -6,9 +6,8 @@ import logging
 import app.util as util
 
 from app.database.database import db
-from app.database.models import TemporaryTransitEntry
+from app.database.models import TransitDetection
 from flask import Blueprint, request, jsonify, render_template
-from sqlalchemy import desc
 from flask_login import login_required
 
 transit_bp = Blueprint('transit', __name__)
@@ -20,12 +19,13 @@ def get_empty_config():
         'max_transit_time': 15,
         'moving_avg': 15,
         'calculation_mode': 3,
-        'reset_time': '02:00',
+        'storage_time': 60,
         'conbinations': []
     }
 
 DEFAULT_CONFIG = get_empty_config()
 CONFIG_PATH = 'res/last_transit_config.json'
+MAX_LENGTH = 18 # maximum length for close_code (int is needed)
 
 with open('app/transit/schemas.json', 'r') as schemas_file:
     _schemas = json.load(schemas_file)
@@ -67,7 +67,13 @@ def update_transit():
         close_ble_list = data['close_ble_list']
         
         for code in close_ble_list:
-            new_entry = TemporaryTransitEntry(
+
+            code = str(code)
+            if len(code) > MAX_LENGTH:
+                code = code[-MAX_LENGTH:]
+            code = int(code)
+
+            new_entry = TransitDetection(
                 close_code = code,
                 device_id = device_id,
                 timestamp = timestamp  

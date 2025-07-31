@@ -94,8 +94,8 @@ class CountEntry(db.Model):
         }
         return data
     
-class TemporaryTransitEntry(db.Model):
-    __tablename__ = 'temporary_transit_data'
+class TransitDetection(db.Model):
+    #__tablename__ = 'transit_detection'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     close_code: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
@@ -107,9 +107,11 @@ class TemporaryTransitEntry(db.Model):
     )
 
     def __repr__(self):
-        return f"<TemporaryTransitEntry(id={self.id}, close_code='{self.close_code}', device_id={self.device_id}, timestamp='{self.timestamp}')>"
+        return f"<TransitDetection(id={self.id}, close_code='{self.close_code}', device_id={self.device_id}, timestamp='{self.timestamp}')>"
 
 class TransitEntry(db.Model):
+    #__tablename__ = 'transit_entry'
+
     """
     id              : Unique identifier, automatically assigned
     code            : Code of the device in transit
@@ -120,12 +122,27 @@ class TransitEntry(db.Model):
     travel_time     : Time spent in transit (in seconds)
     timestamp:      : Time when this data was computed
     """
-    __tablename__ = 'transit_data'
+    
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     code: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     scanner_from: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     scanner_to: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     time_start: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
     time_end: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
+    travel_time: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
+
+class TravelTime(db.Model):
+    """
+    id              : Unique identifier, automatically assigned
+    scanner_from    : RaspberryPi id of origin
+    scanner_to      : RaspberryPi id of destination
+    travel_time     : Time spent in transit (in seconds)
+    timestamp:      : Time when this data was computed
+    """
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    scanner_from: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    scanner_to: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     travel_time: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
