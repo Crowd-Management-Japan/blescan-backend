@@ -146,3 +146,23 @@ class TravelTime(db.Model):
     scanner_to: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     travel_time: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     timestamp: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
+
+    @staticmethod
+    def of_dict(data: Dict):
+        entry = TravelTime()
+        entry.scanner_from = data.get('scanner_from', 0)
+        entry.scanner_to = data.get('scanner_to', 0)  
+        entry.timestamp = data.get('timestamp', None)
+        entry.travel_time = data.get('travel_time', 0)        
+        
+        return entry
+
+    def to_dict(self, datetime_format="%Y-%m-%d %H:%M:%S"):
+        data = {
+            'scanner_from': self.scanner_from,
+            'scanner_to': self.scanner_to,
+            'timestamp': self.timestamp.strftime(datetime_format),
+            'travel_time': self.travel_time
+            
+        }
+        return data

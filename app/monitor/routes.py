@@ -125,7 +125,7 @@ def get_travel_data():
                     'from': entry.scanner_from,
                     'to': entry.scanner_to,
                     'travel_time': entry.travel_time,
-                    'average_speed': entry.travel_time / combination[2],
+                    'average_speed': combination[2] / entry.travel_time,
                     'timestamp': entry.timestamp
                 })
 

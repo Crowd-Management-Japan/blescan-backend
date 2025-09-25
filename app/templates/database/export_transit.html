@@ -3,25 +3,27 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>BleScan Export</title>
+    <title>BleScan Export Transit</title>
 </head>
 
 <body>
-    <h1>Export Data</h1> 
+    <h1>Export Travel Time Data</h1> 
     <button onclick="window.location.href='/';">
         Back to frontpage</button>
         <br><br>
 
     
         <h2>
-            Export the data from the database to csv or json.
+            Export the travel time data from the database to csv or json.
         </h2>
 
         <div>
             <h3>Select Data</h3>
 
-            <label for="ids">IDs (string-list form: 41,42,45-50). Leave empty for all</label>
-            <input type="text" id="ids"> <br>
+            <label for="id_from">ID from (origin)</label>
+            <input type="text" id="id_from">
+            <label for="id_to">ID to (destination)</label>
+            <input type="text" id="id_to"><br>
 
             <label for="after">From (excluding)</label>
             <input type="datetime-local" id="after">
@@ -50,12 +52,13 @@
 <script>
         function exportData(url) {
         
-            ids = document.getElementById('ids').value;
+            id_from = document.getElementById('id_from').value;
+            id_to = document.getElementById('id_to').value;
 
             // this seems to be the correct format of datetime-local fields
             format = "%Y-%m-%dT%H:%M";
 
-            url = "/database/export_data?id=" + ids + "&format=" + format;
+            url = "/database/export_data_transit?id_from=" + id_from + "&id_to=" + id_to +  "&format=" + format;
 
 
             before = document.getElementById('before').value;

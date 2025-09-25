@@ -4,7 +4,7 @@ from sqlalchemy import func
 import app.util as util
 import pandas as pd
 import datetime
-from app.database.models import CountEntry
+from app.database.models import CountEntry, TravelTime
 from app.database.database import db
 import app.database.database as dbFunc
 
@@ -97,9 +97,12 @@ def get_end_dates():
 
     return jsonify({'first': first.strftime(DATE_FILTER_FORMAT), 'last': last.strftime(DATE_FILTER_FORMAT)})
 
+@database_bp.route('export_count', methods=['GET'])
+def get_export_count_page():
+    return render_template('database/export_count.html')
 
-@database_bp.route('/export_data', methods=['GET'])
-def get_filtered_data():
+@database_bp.route('/export_data_count', methods=['GET'])
+def get_filtered_data_count():
     """
     Get data of the database with possible filters.
     Query parameters are:
@@ -162,6 +165,71 @@ def get_filtered_data():
 
     return jsonify(data)
 
-@database_bp.route('export', methods=['GET'])
-def get_export_page():
-    return render_template('database/export.html')
+@database_bp.route('export_transit', methods=['GET'])
+def get_export_transit_page():
+    return render_template('database/export_transit.html')
+
+@database_bp.route('/export_data_transit', methods=['GET'])
+def get_filtered_data_transit():
+    """
+    Get data of the database with possible filters.
+    Query parameters are:
+    id_from: an integer
+    id_to: an integer
+    before: a string timestamp of an excluding upper boundary of the timestamp
+    after: a string timestamp of an excluding lower boundary of the timestamp
+    format: a string defining the format of the upper two values. If none is given "%Y-%m-%d %H:%M:%S" is used
+    type: either json or csv
+    limit: a number limiting the amount of values
+    """
+    query = TravelTime.query.order_by(TravelTime.timestamp.desc())
+
+    id_from = request.args.get('id_from', type=int)
+    id_to = request.args.get('id_to', type=int)
+
+    if id_from is not None:
+        query = query.filter(TravelTime.scanner_from == id_from)
+    if id_to is not None:
+        query = query.filter(TravelTime.scanner_to == id_to)
+
+    date_format = request.args.get('format')
+    if not date_format:
+        date_format = DATE_FILTER_FORMAT
+
+    logging.debug("Date format: %s", date_format)
+
+    before = request.args.get('before')
+    if before:
+        before = datetime.datetime.strptime(before, date_format)
+        logging.debug("filtering before: %s", before)
+        query = query.filter(TravelTime.timestamp < before)
+
+    after = request.args.get('after')
+    if after:
+        after = datetime.datetime.strptime(after, date_format)
+        logging.debug("filtering after: %s", after)
+        query = query.filter(TravelTime.timestamp > after)
+
+    limit = request.args.get("limit")
+    if limit:
+        try:
+            query = query.limit(int(limit))
+        except:
+            pass
+
+    query = query.order_by(None).order_by(TravelTime.timestamp.asc())
+
+    result = query.all()
+
+    data = [res.to_dict() for res in result]
+    
+    if request.args.get('type') == 'csv':
+        df = pd.DataFrame(data)
+        logging.debug(df.head())
+        csv = df.to_csv(index=False)
+        output = make_response(csv)
+        output.headers["Content-Disposition"] = "attachment; filename=export.csv"
+        output.headers["Content-type"] = "text/csv"
+        return output
+
+    return jsonify(data)

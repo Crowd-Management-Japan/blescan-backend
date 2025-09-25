@@ -14,7 +14,7 @@
                 <td>{{ item.from }}</td>
                 <td>{{ item.to }}</td>
                 <td>{{ item.travel_time }}</td>
-                <td>{{ item.average_speed }}</td>
+                <td>{{ "%.3f"|format(item.average_speed) }}</td>
                 <td>{{ item.timestamp }}</td>
             </TR>
         {% endfor %}
