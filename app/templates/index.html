@@ -19,6 +19,7 @@
 
         div {
             margin: 20px 0;
+            margin-bottom: 0;
         }
 
         button {
@@ -32,7 +33,7 @@
 </head>
 
 <body>
-    <h1>BleScan Control</h1>
+    <h1>BleScan Control Panel</h1>
     <div>
         <h2>Setup system</h2>
         <button onclick="window.location.href='scanner/settings';">
@@ -53,11 +54,14 @@
         <button onclick="window.location.href='monitor/transit_events';">
         Check transit events</button>
         <br>
-        <button onclick="window.location.href='monitor/count_graph';">
+        <button onclick="window.location.href='monitor/travel_time';">
+        Check travel times</button>
+        <br>
+        <button onclick="window.location.href='monitor/graph_count';">
         Graph for counts</button>
         <br>
-        <button onclick="window.location.href='monitor/travel_time';">
-        Travel times</button>
+        <button onclick="window.location.href='monitor/graph_travel_time';">
+        Graph for travel time</button>
     </div>
 
     <div>

@@ -38,8 +38,8 @@ def reset_database():
 
     return "forbidden", 403
 
-@database_bp.route('/data')
-def get_data():
+@database_bp.route('/data_count')
+def get_data_count():
 
     date_format = request.args.get('format')
     if not date_format:
@@ -85,8 +85,56 @@ def get_data():
             logging.warning("invalid ID to value. Ignoring")
             id_to_val = 100
 
-    return dbFunc.get_graph_data(limit_val, id_from_val, id_to_val, date_format)
+    return dbFunc.get_graph_data_count(limit_val, id_from_val, id_to_val, date_format)
 
+@database_bp.route('/data_travel_time')
+def get_data_travel_time():
+
+    date_format = request.args.get('format')
+    if not date_format:
+        date_format = DATE_FILTER_FORMAT
+
+
+    before = request.args.get('before')
+    if before:
+        before = datetime.datetime.strptime(before, date_format)
+        logging.debug("filtering before: %s", before)
+        query = query.filter(CountEntry.timestamp < before)
+
+    after = request.args.get('after')
+    if after:
+        after = datetime.datetime.strptime(after, date_format)
+        logging.debug("filtering after: %s", after)
+        query = query.filter(CountEntry.timestamp > after)
+
+    limit = request.args.get('limit', None)
+    limit_val = 1
+    if limit:
+        try:
+            limit_val = max(1, int(limit))
+        except ValueError:
+            logging.warning("invalid limit value. Ignoring")
+            limit_val = 1
+
+    id_from = request.args.get('id-from', None)
+    id_from_val = 1
+    if id_from:
+        try:
+            id_from_val = max(1, int(id_from))
+        except ValueError:
+            logging.warning("invalid ID from value. Ignoring")
+            id_from_val = 1
+
+    id_to = request.args.get('id-to', None)
+    id_to_val = 1
+    if id_to:
+        try:
+            id_to_val = max(1, int(id_to))
+        except ValueError:
+            logging.warning("invalid ID to value. Ignoring")
+            id_to_val = 100
+
+    return dbFunc.get_graph_data_travel_time(limit_val, id_from_val, id_to_val, date_format)
 
 @database_bp.route('/data/dates')
 def get_end_dates():

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BleScan Count Graph</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .input-container {
+            flex-grow: 0;
+            margin-left: 40px;
+            margin-right: 60px;
+        }
+
+        .input-box {
+            width: 75px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <h1>Blescan Data</h1>
+    <button onclick="window.location.href='/';">
+        Back to frontpage
+    </button>
+    <label>     Last updated:</label>
+    <label id="update_timestamp">XX</label> -->
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"
+        integrity="sha512-UOJe4paV6hYWBnS0c9GnIRH8PLm2nFK22uhfAvsTIqd3uwnWsVri1OPn5fJYdLtGY3wB11LGHJ4yPU1WFJeBYQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.css"
+        integrity="sha512-MKxcSu/LDtbIYHBNAWUQwfB3iVoG9xeMCm32QV5hZ/9lFaQZJVaXfz9aFa0IZExWzCpm7OWvp9zq9gVip/nLMg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <div>
+        <div class="container">
+            <div class="input-container">
+                <label for="device-from" >Restrict devices from </label>
+                <input type="number" id="device-from" name="id-from" step="1" min="1" max="100" value="1" class="input-box"/>
+                <label for="device-to" > to </label>
+                <input type="number" id="device-to" name="id-to" step="1" min="1" max="100" value="100" class="input-box"/>
+            </div>
+            <div class="input-container">
+                <label for="input-limit" >Time limit (in points)</label>
+                <input type="number" id="input-limit" name="limit" step="5.0" min="10" max="5760" value="1440" class="input-box"/>
+            </div>
+            <div class="input-container">
+                <label style="width: 100px;"></label>
+            </div>
+            <div class="input-container">
+                <button id="btnUpdate" onclick="updateData()">
+                    Update settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div style="padding: 1cm; padding-bottom: 0%; ">
+        <canvas id="myChart" style="width: 95vw !important; height: 92vh !important; "></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
+
+    <script>
+
+        var chart = new Chart("myChart", {
+            type: "line",
+            data: {
+                datasets: [{
+                    label: "BLE detected (smoothed)",
+                    data: [],
+                    spanGaps: 10000
+                },
+                {
+                    label: "Scanners online",
+                    data: [],
+                    spanGaps: 10000
+                }
+
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRation: false,
+                legend: { display: true },
+                scales: {
+                    x: {
+                        type: 'time'
+                    }
+                }
+            }
+        });
+
+        var firstDate = null;
+        var firstDateSec = null;
+        var lastDate = null;
+        var lastDateSec = null;
+
+        FORMAT = "%Y-%m-%d %H:%M:%S";
+        FORMAT_JS = "YYYY-MM-DD HH:mm:ss";
+        DATA_LIMIT = (48 * 3600) / 30;
+        ID_FROM = 1;
+        ID_TO = 100;
+
+        function setValues(data) {
+
+            var rolling_avg = [];
+            var device_count = [];
+
+            data.forEach(e => {
+                rolling_avg.push({x: e.timestamp, y: e.rolling_avg_count});
+                device_count.push({x: e.timestamp, y: e.device_count});
+            });
+
+            chart.data.datasets[0].data = rolling_avg;
+            chart.data.datasets[1].data = device_count;
+            chart.update();
+
+        }
+
+        async function fetchData() {
+            var url = "/database/data_count?limit=" + (DATA_LIMIT);
+            url += "&id-from=" + (ID_FROM);
+            url += "&id-to=" + (ID_TO);
+            url += "&format=" + (FORMAT);
+            console.log("fetching data (" + url + ")" );
+            await fetch(url, {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    setValues(data);
+                }).catch(error => {
+                    console.error('Error:', error);
+                })
+        }
+
+        function updateData() {
+            time = new Date().toLocaleTimeString();
+            let data_limit = parseFloat(document.getElementById("input-limit").value);
+            if (data_limit > 0 ) {
+                DATA_LIMIT = data_limit;
+            }
+            let id_from = parseInt(document.getElementById("device-from").value);
+            if (id_from > 0 ) {
+                ID_FROM = id_from;
+            }
+            let id_to = parseInt(document.getElementById("device-to").value);
+            if (id_to > 0 ) {
+                ID_TO = id_to;
+            }
+            DATA_LIMIT = Math.round(DATA_LIMIT)
+            fetchData();
+        }
+    
+        setInterval(updateData, 10000);
+
+    </script>
+</body>
+
+</html>

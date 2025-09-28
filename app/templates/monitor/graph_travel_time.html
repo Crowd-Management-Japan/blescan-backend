@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>BleScan Graph</title>
+    <title>BleScan Travel Time Graph</title>
     <style>
         .container {
             display: flex;
@@ -44,14 +44,14 @@
     <div>
         <div class="container">
             <div class="input-container">
-                <label for="device-from" >Restrict devices from </label>
-                <input type="number" id="device-from" name="id-from" step="1" min="1" max="100" value="1" class="input-box"/>
-                <label for="device-to" > to </label>
-                <input type="number" id="device-to" name="id-to" step="1" min="1" max="100" value="100" class="input-box"/>
+                <label for="route-from" >Route from </label>
+                <input type="number" id="route-from" name="id-from" step="1" min="1" max="100" value="1" class="input-box"/>
+                <label for="route-to" > to </label>
+                <input type="number" id="route-to" name="id-to" step="1" min="1" max="100" value="100" class="input-box"/>
             </div>
             <div class="input-container">
-                <label for="input-limit" >Time limit (in hours)</label>
-                <input type="number" id="input-limit" name="limit" step="0.5" min="0.5" max="48" value="2" class="input-box"/>
+                <label for="input-limit" >Time limit (in points)</label>
+                <input type="number" id="input-limit" name="limit" step="5.0" min="10" max="5760" value="1440" class="input-box"/>
             </div>
             <div class="input-container">
                 <label style="width: 100px;"></label>
@@ -78,17 +78,10 @@
             type: "line",
             data: {
                 datasets: [{
-                    label: "BLE detected (smoothed)",
+                    label: "Travel time (smoothened) [s]",
                     data: [],
                     spanGaps: 10000
-                },
-                {
-                    label: "Scanners online",
-                    data: [],
-                    spanGaps: 10000
-                }
-
-                ]
+                }]
             },
             options: {
                 responsive: true,
@@ -109,28 +102,25 @@
 
         FORMAT = "%Y-%m-%d %H:%M:%S";
         FORMAT_JS = "YYYY-MM-DD HH:mm:ss";
-        DATA_LIMIT = 8460 * 1.5;
+        DATA_LIMIT = (48 * 3600) / 30;
         ID_FROM = 1;
         ID_TO = 100;
 
         function setValues(data) {
 
             var rolling_avg = [];
-            var device_count = [];
 
             data.forEach(e => {
-                rolling_avg.push({x: e.timestamp, y: e.rolling_avg_sum});
-                device_count.push({x: e.timestamp, y: e.device_count});
+                rolling_avg.push({x: e.timestamp, y: e.rolling_avg_travel_time});
             });
 
             chart.data.datasets[0].data = rolling_avg;
-            chart.data.datasets[1].data = device_count;
             chart.update();
 
         }
 
         async function fetchData() {
-            var url = "/database/data?limit=" + (DATA_LIMIT);
+            var url = "/database/data_travel_time?limit=" + (DATA_LIMIT);
             url += "&id-from=" + (ID_FROM);
             url += "&id-to=" + (ID_TO);
             url += "&format=" + (FORMAT);
@@ -152,17 +142,16 @@
             if (data_limit > 0 ) {
                 DATA_LIMIT = data_limit;
             }
-            let id_from = parseInt(document.getElementById("device-from").value);
+            let id_from = parseInt(document.getElementById("route-from").value);
             if (id_from > 0 ) {
                 ID_FROM = id_from;
             }
-            let id_to = parseInt(document.getElementById("device-to").value);
+            let id_to = parseInt(document.getElementById("route-to").value);
             if (id_to > 0 ) {
                 ID_TO = id_to;
             }
-            DATA_LIMIT = Math.round(DATA_LIMIT * 360)
+            DATA_LIMIT = Math.round(DATA_LIMIT)
             fetchData();
-            document.getElementById("update_timestamp").innerHTML = time;
         }
     
         setInterval(updateData, 10000);

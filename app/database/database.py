@@ -53,7 +53,7 @@ def get_time_dataframe(request, DATE_FILTER_FORMAT):
         'dev_count': device[2]
     } for device in devices]
 
-def get_graph_data(limit: int = None, id_from: int = None, id_to: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
+def get_graph_data_count(limit: int = None, id_from: int = None, id_to: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
     CountEntry = models.CountEntry
     jst = pytz.timezone('Asia/Tokyo')
 
@@ -81,9 +81,44 @@ def get_graph_data(limit: int = None, id_from: int = None, id_to: int = None, da
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     rolling = df.set_index('timestamp').groupby('id')['tot_all'].apply(lambda x: x.ewm(span=60, adjust=False).mean())
 
-    result['rolling_avg_sum'] = rolling.reset_index().groupby('timestamp').sum()['tot_all']
+    result['rolling_avg_count'] = rolling.reset_index().groupby('timestamp').sum()['tot_all']
     result.reset_index(inplace=True)
     result['timestamp'] = result['timestamp'].map(lambda date: date.strftime(date_format))
+
+    json = result.to_json(orient='records')
+    return json
+
+def get_graph_data_travel_time(limit: int = None, id_from: int = None, id_to: int = None, date_format: str = "%Y-%m-%d %H:%M:%S") -> List[Dict[str, Any]]:
+    TravelTime = models.TravelTime
+    jst = pytz.timezone('Asia/Tokyo')
+
+    query = db.session.query(TravelTime).order_by(TravelTime.timestamp.desc());
+    past_dt = datetime.datetime.now(jst) - datetime.timedelta(seconds=30)
+
+    if limit:
+        limit = max(1, limit)
+        subquery = db.session.query(TravelTime.timestamp).distinct(TravelTime.timestamp).order_by(TravelTime.timestamp.desc()).limit(1).offset(limit - 1)
+        first = subquery.first()
+        if len(first) > 0:
+            first_ts = first[0]
+            query = query.filter(TravelTime.timestamp >= first_ts)
+            query = query.filter(TravelTime.timestamp < past_dt)
+
+    query = query.filter(TravelTime.scanner_from == int(id_from))
+    query = query.filter(TravelTime.scanner_to == int(id_to))
+
+    df = pd.read_sql(query.statement, db.engine)
+    if df.empty:
+        return "[]"
+    
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    result = pd.DataFrame()
+
+    df.sort_values('timestamp', inplace=True)
+    rolling = df['travel_time'].ewm(span=60, adjust=False).mean()
+
+    result['timestamp'] = df['timestamp'].dt.strftime(date_format)
+    result['rolling_avg_travel_time'] = rolling
 
     json = result.to_json(orient='records')
     return json

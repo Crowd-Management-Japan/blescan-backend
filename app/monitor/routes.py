@@ -42,10 +42,6 @@ def get_count_data():
     data = {'online_only': online_only, 'update_time': datetime.now(local_timezone).strftime("%Y-%m-%d %H:%M:%S"), 'data': _data.get_data_online_first()}
     return render_template('monitor/count_table.html', data=data)
 
-@monitor_bp.route('/count_graph')
-def get_count_graph():
-    return render_template('monitor/count_graph.html')
-
 @monitor_bp.route('/transit_latest')
 def get_transit_latest():
     return render_template('monitor/transit_data_page.html')
@@ -133,3 +129,11 @@ def get_travel_data():
     data = {'update_time': datetime.now(local_timezone).strftime("%Y-%m-%d %H:%M:%S"), 'data': result}
         
     return render_template('monitor/travel_time_table.html', data=data)
+
+@monitor_bp.route('/graph_count')
+def get_graph_count():
+    return render_template('monitor/graph_count.html')
+
+@monitor_bp.route('/graph_travel_time')
+def get_graph_travel_time():
+    return render_template('monitor/graph_travel_time.html')
