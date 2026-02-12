@@ -12,6 +12,7 @@ from flask.cli import with_appcontext
 from flask_login import LoginManager, login_user, logout_user
 from flask_login import login_required
 from flask_migrate import Migrate
+from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from config import Config
@@ -39,6 +40,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 app.config['SECRET_KEY'] = 'your_secret_key'  # change this to a secure secret key
 
 migrate = Migrate(app, db)
+CORS(app, resources={r"/database/*": {"origins": "*"}})
 
 init_db(app)
 setup_template_filters(app)
